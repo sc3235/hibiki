@@ -43,12 +43,13 @@
     header {
       position: fixed;
       top: 0;
-      left: 0;
-      right: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 600px;
       z-index: 100;
       background: var(--bg);
-      /* padding-top covers Dynamic Island / notch; sides match body */
-      padding: env(safe-area-inset-top) 1.5rem 1.5rem;
+      padding: calc(env(safe-area-inset-top) + 1.25rem) 1.5rem 0.75rem;
       border-bottom: 1px solid var(--border);
     }
     h1 {
@@ -744,7 +745,7 @@
     /* ── Fixed header: sync body padding-top to actual header height ── */
     const headerEl = document.querySelector('header');
     function syncBodyPad() {
-      document.body.style.paddingTop = headerEl.offsetHeight + 'px';
+      document.body.style.paddingTop = (headerEl.offsetHeight + 50) + 'px';
     }
     syncBodyPad();
     window.addEventListener('resize', syncBodyPad);
