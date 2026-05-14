@@ -56,22 +56,23 @@ Already done, looks good.
 
 ### P1 — key features
 
-- Subtitle list view: a scrollable list of all subtitles with their timestamps, tap to jump
-- Previous/next subtitle
-- Loop current subtitle (replay until dismissed)
-- Auto-pause at end of current subtitle (toggle on/off)
+- Subtitle display: subtitles are displaced in a large text box, with current subtitle in the middle and bolded, previous above, upcoming below. Timestamps are included.
+- Tap to jump to given subtitle
+- Previous/next subtitle buttons
+- Loop current subtitle toggle (replay until dismissed)
+- Auto-pause at end of current subtitle toggle
 
 ### P2 — IndexedDB storage and library UI
 
 - Episode library: save audio (as Blob, or as URL string if sourced from URL) + SRT + metadata to IndexedDB via idb-keyval
 - Library UI: list of saved episodes, tap to load, swipe/button to delete, add episodes
-- Export library backup (zip of all audio + SRT files, downloadable)
+- Export library backup (zip of all audio + SRT files + metadata, downloadable)
 - Import library backup
 
 ### P3 — playback features
 
-- Resume from last position: save `audio.currentTime` per episode, restore on load
-- Persist offset and playback speed per episode
+- Resume from last position: save `audio.currentTime` per episode, restore on load, able to reset
+- Persist offset and playback speed per episode, able to reset
 
 ### P4 — nice to have
 

@@ -261,7 +261,7 @@
     <input type="file" id="sub-file" accept=".srt,.vtt,text/plain">
   </div>
 
-  <audio id="audio" controls></audio>
+  <audio id="audio" controls playsinline></audio>
 
   <div class="offset-row">
     <span class="offset-label">Offset</span>
@@ -283,6 +283,7 @@
     document.getElementById('audio-file').onchange = e => {
       const file = e.target.files[0];
       audio.src = URL.createObjectURL(file);
+      audio.load();
       const btn = document.getElementById('audio-btn');
       btn.classList.add('loaded');
       btn.querySelector('.status').textContent = file.name;
