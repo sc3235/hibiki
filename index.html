@@ -236,14 +236,47 @@
     }
 
     .sub-item {
-      padding: 0.55rem 2rem;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
+      display: flex;
+      align-items: stretch;
       opacity: 0.28;
       transition: opacity 0.2s;
     }
-    .sub-item:active { opacity: 0.55; }
     .sub-item.active { opacity: 1; }
+
+    .sub-jump {
+      flex-shrink: 0;
+      width: 14px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      position: relative;
+      margin: 0.3rem 0;
+    }
+    .sub-jump::after {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2px;
+      background: var(--border-2);
+      border-radius: 1px;
+      transition: background 0.15s, width 0.15s;
+    }
+    .sub-jump:active::after,
+    .sub-jump:hover::after {
+      width: 4px;
+      background: var(--accent);
+    }
+    .sub-item.active .sub-jump::after {
+      background: var(--accent);
+      opacity: 0.7;
+    }
+
+    .sub-content {
+      flex: 1;
+      min-width: 0;
+      padding: 0.55rem 1.75rem 0.55rem 0.5rem;
+    }
 
     .sub-time {
       font-family: 'JetBrains Mono', monospace;
@@ -442,7 +475,7 @@
       <span class="setting-label">Font</span>
       <div class="setting-controls">
         <button class="adj-btn" onclick="adjustFont(-0.1)">A−</button>
-        <span class="setting-val" id="font-val">1.5</span>
+        <span class="setting-val" id="font-val">1.2</span>
         <button class="adj-btn" onclick="adjustFont(+0.1)">A+</button>
       </div>
     </div>
@@ -459,7 +492,7 @@
     let currentIdx  = -1;
     let loopMode    = false;
     let autoPause   = false;
-    let fontSize    = 1.5;
+    let fontSize    = 1.2;
 
     const audio   = document.getElementById('audio');
     const scroll  = document.getElementById('subtitle-scroll');
@@ -572,6 +605,13 @@
         item.className = 'sub-item';
         item.dataset.idx = i;
 
+        const jump = document.createElement('div');
+        jump.className = 'sub-jump';
+        jump.addEventListener('click', () => jumpToSub(i));
+
+        const content = document.createElement('div');
+        content.className = 'sub-content';
+
         const time = document.createElement('div');
         time.className = 'sub-time';
         time.textContent = fmtTime(sub.start);
@@ -580,9 +620,10 @@
         text.className = 'sub-text';
         text.textContent = sub.text;
 
-        item.appendChild(time);
-        item.appendChild(text);
-        item.addEventListener('click', () => jumpToSub(i));
+        content.appendChild(time);
+        content.appendChild(text);
+        item.appendChild(jump);
+        item.appendChild(content);
         scroll.appendChild(item);
       });
     }
