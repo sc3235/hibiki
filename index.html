@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111009">
   <title>Audio Sub Player</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,14 +28,13 @@
 
     html { background: var(--bg); }
 
-    /* Fixed overlay that always covers the Dynamic Island / notch area */
-    html::before {
-      content: '';
+    /* Covers the Dynamic Island / notch area at all times */
+    #top-cover {
       position: fixed;
       top: 0; left: 0; right: 0;
       height: env(safe-area-inset-top);
       background: var(--bg);
-      z-index: 1000;
+      z-index: 9999;
       pointer-events: none;
     }
 
@@ -43,7 +43,8 @@
       background: var(--bg);
       color: var(--text);
       min-height: 100dvh;
-      padding: 2.5rem 1.5rem 4rem;
+      /* Start content at least as far down as the safe area so header starts at its sticky threshold */
+      padding: max(2.5rem, env(safe-area-inset-top)) 1.5rem 4rem;
       max-width: 600px;
       margin: 0 auto;
     }
@@ -424,6 +425,7 @@
   </style>
 </head>
 <body>
+  <div id="top-cover" aria-hidden="true"></div>
   <header>
     <h1>Audio <em>Sub</em> Player</h1>
     <p class="tagline">聴く · 読む · 覚える</p>
