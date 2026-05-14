@@ -110,7 +110,7 @@ async function transcribeWithWhisper(audioFile, apiKey) {
 
 **Advantage over local whisper-cli**: works on iPad with no Mac involved. Transcribe → study in one flow on device.
 
-### P6 - Apple Podcast episode link to mpe url
+### P6 - Apple Podcast episode link to mp3 url
 
 Paste an Apple Podcasts URL; app resolves the MP3 URL automatically via the iTunes lookup API + Cloudflare Worker proxy (see infrastructure section below).
 
