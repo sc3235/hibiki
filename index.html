@@ -1,33 +1,302 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>Audio Sub Player</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+JP:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:         #111009;
+      --surface:    #1c1916;
+      --surface-2:  #242118;
+      --border:     #2e2b22;
+      --border-2:   #3a362b;
+      --text:       #ede8dd;
+      --text-2:     #7d7567;
+      --text-3:     #453f35;
+      --accent:     #a134c9;
+      --green:      #6ba676;
+      --radius:     14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      padding: 2.5rem 1.5rem 4rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* ── Header ── */
+    header {
+      margin-bottom: 2.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      font-weight: 300;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    h1 em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .tagline {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.25em;
+      color: var(--text-3);
+      margin-top: 0.55rem;
+    }
+
+    /* ── File loaders ── */
+    .file-section {
+      display: flex;
+      flex-direction: row;
+      gap: 0.5rem;
+      margin-bottom: 1.75rem;
+    }
+
+    input[type="file"] { display: none; }
+
+    .file-btn {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-2);
+      cursor: pointer;
+      text-align: left;
+      -webkit-tap-highlight-color: transparent;
+      transition: border-color 0.2s, background 0.15s;
+      letter-spacing: 0.06em;
+    }
+
+    .file-btn:active { background: var(--surface-2); }
+
+    .file-btn .icon {
+      width: 2rem;
+      height: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface-2);
+      border-radius: 8px;
+      font-size: 1rem;
+      flex-shrink: 0;
+      color: var(--text-2);
+    }
+
+    .file-btn .label {
+      font-weight: 500;
+      text-transform: uppercase;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      color: var(--text-2);
+    }
+
+    .file-btn .status {
+      font-size: 0.65rem;
+      color: var(--text-3);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 100%;
+    }
+
+    .file-btn.loaded {
+      border-color: rgba(107, 166, 118, 0.4);
+    }
+
+    .file-btn.loaded .status { color: var(--green); }
+    .file-btn.loaded .label  { color: var(--text); }
+
+    /* ── Native audio player ── */
+    audio {
+      width: 100%;
+      border-radius: var(--radius);
+      margin-bottom: 1.5rem;
+    }
+
+    /* ── Offset row ── */
+    .offset-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.875rem 1.25rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .offset-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      flex: 1;
+    }
+
+    .offset-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      font-weight: 500;
+      min-width: 3.5rem;
+      text-align: center;
+      color: var(--text);
+      letter-spacing: 0.05em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .offset-btn {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.5rem 0.875rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--text-2);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.12s, color 0.12s, border-color 0.12s;
+      letter-spacing: 0.05em;
+    }
+
+    .offset-btn:active {
+      background: var(--border-2);
+      color: var(--text);
+      border-color: var(--border-2);
+    }
+
+    /* ── Subtitle display ── */
+    .subtitle-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 3rem 2rem;
+      min-height: 11rem;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .subtitle-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 20%;
+      right: 20%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0.5;
+    }
+
+    #subtitle {
+      font-family: 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', serif;
+      font-size: 1.7rem;
+      line-height: 1.85;
+      text-align: center;
+      color: var(--text);
+      user-select: text;
+      -webkit-user-select: text;
+      font-weight: 300;
+      transition: opacity 0.12s ease;
+    }
+
+    #subtitle:empty::before {
+      content: '字幕がここに表示されます';
+      color: var(--text-3);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      font-weight: 400;
+    }
+  </style>
+</head>
 <body>
-  <input type="file" id="audio-file" accept="audio/*">
-  <input type="file" id="sub-file" accept=".srt,.vtt,text/plain">
-  <audio id="audio" controls></audio>
-  
-  <div>
-    Offset: <span id="offset">0</span>s
-    <button onclick="adjustOffset(-0.5)">-0.5s</button>
-    <button onclick="adjustOffset(0.5)">+0.5s</button>
+  <header>
+    <h1>Audio <em>Sub</em> Player</h1>
+    <p class="tagline">聴く · 読む · 覚える</p>
+  </header>
+
+  <div class="file-section">
+    <label class="file-btn" id="audio-btn" for="audio-file">
+      <span class="icon">♪</span>
+      <span class="label">Audio</span>
+      <span class="status">Tap to load</span>
+    </label>
+    <input type="file" id="audio-file" accept="audio/*">
+
+    <label class="file-btn" id="sub-btn" for="sub-file">
+      <span class="icon">字</span>
+      <span class="label">Subtitles</span>
+      <span class="status">Tap to load</span>
+    </label>
+    <input type="file" id="sub-file" accept=".srt,.vtt,text/plain">
   </div>
-  
-  <div id="subtitle" style="font-size: 2em; padding: 1em;"></div>
-  
+
+  <audio id="audio" controls></audio>
+
+  <div class="offset-row">
+    <span class="offset-label">Offset</span>
+    <button class="offset-btn" onclick="adjustOffset(-0.5)">−0.5s</button>
+    <span class="offset-value"><span id="offset">0.0</span>s</span>
+    <button class="offset-btn" onclick="adjustOffset(+0.5)">+0.5s</button>
+  </div>
+
+  <div class="subtitle-card">
+    <div id="subtitle"></div>
+  </div>
+
   <script>
     let subs = [];
     let offset = 0;
     const audio = document.getElementById('audio');
     const subDiv = document.getElementById('subtitle');
-    
+
     document.getElementById('audio-file').onchange = e => {
-      audio.src = URL.createObjectURL(e.target.files[0]);
+      const file = e.target.files[0];
+      audio.src = URL.createObjectURL(file);
+      const btn = document.getElementById('audio-btn');
+      btn.classList.add('loaded');
+      btn.querySelector('.status').textContent = file.name;
     };
-    
+
     document.getElementById('sub-file').onchange = async e => {
-      const text = await e.target.files[0].text();
+      const file = e.target.files[0];
+      const text = await file.text();
       subs = parseSRT(text);
+      const btn = document.getElementById('sub-btn');
+      btn.classList.add('loaded');
+      btn.querySelector('.status').textContent = file.name;
     };
-    
+
     function parseSRT(text) {
       return text.split(/\n\n+/).map(block => {
         const lines = block.split('\n');
@@ -36,21 +305,30 @@
         const toSec = (h, m, s, ms) => +h*3600 + +m*60 + +s + +ms/1000;
         return {
           start: toSec(timing[1], timing[2], timing[3], timing[4]),
-          end: toSec(timing[5], timing[6], timing[7], timing[8]),
-          text: lines.slice(2).join('\n')
+          end:   toSec(timing[5], timing[6], timing[7], timing[8]),
+          text:  lines.slice(2).join('\n')
         };
       }).filter(Boolean);
     }
-    
+
     function adjustOffset(delta) {
       offset += delta;
       document.getElementById('offset').textContent = offset.toFixed(1);
     }
-    
+
+    let lastSubText = '';
     setInterval(() => {
       const t = audio.currentTime + offset;
       const current = subs.find(s => t >= s.start && t <= s.end);
-      subDiv.textContent = current ? current.text : '';
+      const newText = current ? current.text : '';
+      if (newText !== lastSubText) {
+        lastSubText = newText;
+        subDiv.style.opacity = '0';
+        setTimeout(() => {
+          subDiv.textContent = newText;
+          subDiv.style.opacity = '1';
+        }, 120);
+      }
     }, 100);
   </script>
 </body>
