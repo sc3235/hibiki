@@ -45,7 +45,7 @@ Already done, looks good.
 1. Direct file upload — done. Fix iOS Safari: replace `accept="audio/*"` with explicit types:
    `accept="audio/mpeg,audio/mp4,audio/x-m4a,audio/wav,.mp3,.m4a,.wav,.aac"`
 2. **MP3 URL** — paste a direct URL; set as `audio.src` directly. Note: depends on the host sending permissive CORS headers. Most podcast CDNs (Anchor, Libsyn, Buzzsprout, Transistor) do. No workaround if they don't.
-3. **Apple Podcasts episode link** — paste an Apple Podcasts URL; app resolves the MP3 URL automatically via the iTunes lookup API + Cloudflare Worker proxy (see infrastructure section below).
+3. **Apple Podcasts episode link** — see P6 below.
 
 **Subtitle source** (pick one per episode):
 
@@ -61,6 +61,8 @@ Already done, looks good.
 - Previous/next subtitle buttons
 - Loop current subtitle toggle (replay until dismissed)
 - Auto-pause at end of current subtitle toggle
+- Adjust subtitle font size
+- Make play/pause closer to subtitles for better UX
 
 ### P2 — IndexedDB storage and library UI
 
@@ -107,6 +109,10 @@ async function transcribeWithWhisper(audioFile, apiKey) {
 **File size limit**: OpenAI enforces a 25 MB cap per request (~26 min at 128 kbps, ~52 min at 64 kbps). For longer episodes, either use local `whisper-cli` instead, or split the audio before uploading.
 
 **Advantage over local whisper-cli**: works on iPad with no Mac involved. Transcribe → study in one flow on device.
+
+### P6 - Apple Podcast episode link to mpe url
+
+Paste an Apple Podcasts URL; app resolves the MP3 URL automatically via the iTunes lookup API + Cloudflare Worker proxy (see infrastructure section below).
 
 ## Infrastructure
 
