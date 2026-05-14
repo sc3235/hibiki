@@ -68,6 +68,7 @@ Already done, looks good.
 
 - Episode library: save audio (as Blob, or as URL string if sourced from URL) + SRT + metadata to IndexedDB via idb-keyval
 - Library UI: list of saved episodes, tap to load, swipe/button to delete, add episodes
+- `episodes.json` catalogue in repo: a hardcoded list of episodes with pre-filled audio + SRT URLs, loaded on app start so no manual pasting needed for known episodes
 - Export library backup (zip of all audio + SRT files + metadata, downloadable)
 - Import library backup
 
@@ -80,8 +81,6 @@ Already done, looks good.
 
 - Media Session API: lock-screen play/pause controls and episode title on iOS
 - Auto-delete episodes older than N days (configurable)
-- Visual waveform or progress bar with subtitle markers
-- `episodes.json` catalogue in repo: a hardcoded list of episodes with pre-filled audio + SRT URLs, loaded on app start so no manual pasting needed for known episodes
 
 ### P5 — in-browser Whisper API transcription
 

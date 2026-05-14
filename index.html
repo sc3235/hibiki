@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
   <title>Audio Sub Player</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,6 +25,8 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
+    html { background: var(--bg); }
+
     body {
       font-family: 'Cormorant Garamond', Georgia, serif;
       background: var(--bg);
@@ -42,6 +44,7 @@
       z-index: 10;
       background: var(--bg);
       margin-bottom: 2.5rem;
+      padding-top: env(safe-area-inset-top);
       padding-bottom: 1.5rem;
       border-bottom: 1px solid var(--border);
     }
