@@ -27,6 +27,17 @@
 
     html { background: var(--bg); }
 
+    /* Fixed overlay that always covers the Dynamic Island / notch area */
+    html::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: env(safe-area-inset-top);
+      background: var(--bg);
+      z-index: 1000;
+      pointer-events: none;
+    }
+
     body {
       font-family: 'Cormorant Garamond', Georgia, serif;
       background: var(--bg);
@@ -40,11 +51,10 @@
     /* ── Header ── */
     header {
       position: sticky;
-      top: 0;
+      top: env(safe-area-inset-top);
       z-index: 10;
       background: var(--bg);
       margin-bottom: 2.5rem;
-      padding-top: env(safe-area-inset-top);
       padding-bottom: 1.5rem;
       border-bottom: 1px solid var(--border);
     }
