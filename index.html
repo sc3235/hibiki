@@ -28,35 +28,27 @@
 
     html { background: var(--bg); }
 
-    /* Covers the Dynamic Island / notch area at all times */
-    #top-cover {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      height: env(safe-area-inset-top);
-      background: var(--bg);
-      z-index: 9999;
-      pointer-events: none;
-    }
-
     body {
       font-family: 'Cormorant Garamond', Georgia, serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100dvh;
-      /* Start content at least as far down as the safe area so header starts at its sticky threshold */
-      padding: max(2.5rem, env(safe-area-inset-top)) 1.5rem 4rem;
+      /* padding-top is set dynamically by JS to match fixed header height */
+      padding: 0 1.5rem 4rem;
       max-width: 600px;
       margin: 0 auto;
     }
 
     /* ── Header ── */
     header {
-      position: sticky;
-      top: env(safe-area-inset-top);
-      z-index: 10;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
       background: var(--bg);
-      margin-bottom: 2.5rem;
-      padding-bottom: 1.5rem;
+      /* padding-top covers Dynamic Island / notch; sides match body */
+      padding: env(safe-area-inset-top) 1.5rem 1.5rem;
       border-bottom: 1px solid var(--border);
     }
     h1 {
@@ -425,7 +417,6 @@
   </style>
 </head>
 <body>
-  <div id="top-cover" aria-hidden="true"></div>
   <header>
     <h1>Audio <em>Sub</em> Player</h1>
     <p class="tagline">聴く · 読む · 覚える</p>
@@ -749,6 +740,14 @@
 
     /* ── Init ── */
     renderSubList();
+
+    /* ── Fixed header: sync body padding-top to actual header height ── */
+    const headerEl = document.querySelector('header');
+    function syncBodyPad() {
+      document.body.style.paddingTop = headerEl.offsetHeight + 'px';
+    }
+    syncBodyPad();
+    window.addEventListener('resize', syncBodyPad);
   </script>
 </body>
 </html>
