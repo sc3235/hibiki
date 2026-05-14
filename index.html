@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <input type="file" id="audio-file" accept="audio/*">
+  <input type="file" id="sub-file" accept=".srt,.vtt">
+  <audio id="audio" controls></audio>
+  
+  <div>
+    Offset: <span id="offset">0</span>s
+    <button onclick="adjustOffset(-0.5)">-0.5s</button>
+    <button onclick="adjustOffset(0.5)">+0.5s</button>
+  </div>
+  
+  <div id="subtitle" style="font-size: 2em; padding: 1em;"></div>
+  
+  <script>
+    let subs = [];
+    let offset = 0;
+    const audio = document.getElementById('audio');
+    const subDiv = document.getElementById('subtitle');
+    
+    document.getElementById('audio-file').onchange = e => {
+      audio.src = URL.createObjectURL(e.target.files[0]);
+    };
+    
+    document.getElementById('sub-file').onchange = async e => {
+      const text = await e.target.files[0].text();
+      subs = parseSRT(text);
+    };
+    
+    function parseSRT(text) {
+      return text.split(/\n\n+/).map(block => {
+        const lines = block.split('\n');
+        const timing = lines[1]?.match(/(\d+):(\d+):(\d+)[,.](\d+) --> (\d+):(\d+):(\d+)[,.](\d+)/);
+        if (!timing) return null;
+        const toSec = (h, m, s, ms) => +h*3600 + +m*60 + +s + +ms/1000;
+        return {
+          start: toSec(timing[1], timing[2], timing[3], timing[4]),
+          end: toSec(timing[5], timing[6], timing[7], timing[8]),
+          text: lines.slice(2).join('\n')
+        };
+      }).filter(Boolean);
+    }
+    
+    function adjustOffset(delta) {
+      offset += delta;
+      document.getElementById('offset').textContent = offset.toFixed(1);
+    }
+    
+    setInterval(() => {
+      const t = audio.currentTime + offset;
+      const current = subs.find(s => t >= s.start && t <= s.end);
+      subDiv.textContent = current ? current.text : '';
+    }, 100);
+  </script>
+</body>
+</html>
