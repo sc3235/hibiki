@@ -75,10 +75,12 @@ Already done, looks good.
 
 - Resume from last position: save `audio.currentTime` per episode, restore on load
 - Persist offset and playback speed per episode, able to reset
-- Export library backup (zip of all audio + SRT files + metadata, downloadable)
-- Import library backup 
+- Export/import library backup without audio files
 
-### P4 — in-browser Whisper API transcription
+### P3.5[TODO] — export/import with media
+- Export/import library backup full (zip of all audio + SRT files + metadata, downloadable)
+
+### P4[TODO] — in-browser Whisper API transcription
 
 Calls OpenAI's Whisper API directly from the browser. User supplies their own API key (stored in IndexedDB, never leaves the device).
 

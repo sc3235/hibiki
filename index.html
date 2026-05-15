@@ -300,29 +300,29 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0.35rem;
+      gap: 0.25rem;
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 0.65rem 0.875rem;
+      padding: 0.55rem 0.35rem;
     }
     .setting-label {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.58rem;
+      font-size: 0.52rem;
       color: var(--text-3);
       text-transform: uppercase;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.1em;
     }
     .setting-controls {
       display: flex;
       align-items: center;
-      gap: 0.45rem;
+      gap: 0.2rem;
     }
     .setting-val {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.82rem;
+      font-size: 0.72rem;
       font-weight: 500;
-      min-width: 2.6rem;
+      min-width: 2rem;
       text-align: center;
       color: var(--text);
       font-variant-numeric: tabular-nums;
@@ -331,12 +331,13 @@
       background: var(--surface-2);
       border: 1px solid var(--border);
       border-radius: 6px;
-      padding: 0.3rem 0.55rem;
+      padding: 0.25rem 0.35rem;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.65rem;
+      font-size: 0.6rem;
       color: var(--text-2);
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
+      flex-shrink: 0;
     }
     .adj-btn:active { background: var(--border-2); }
 
@@ -598,6 +599,66 @@
       letter-spacing: 0.15em;
     }
 
+    /* Backup */
+    /* Import / Export card */
+    .ie-card {
+      display: flex;
+      flex-direction: column;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .ie-half {
+      padding: 0.75rem 0.875rem 0.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .ie-divider {
+      height: 1px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+    .ie-btn {
+      display: block;
+      width: 100%;
+      padding: 0.55rem 0.5rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border-2);
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      cursor: pointer;
+      text-align: center;
+      -webkit-tap-highlight-color: transparent;
+      transition: color 0.12s, border-color 0.12s;
+    }
+    .ie-btn:active { color: var(--text); border-color: var(--border-2); }
+    .backup-srt-row {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      margin-top: 0.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--text-3);
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      user-select: none;
+    }
+    .backup-srt-row input[type=checkbox] { accent-color: var(--accent); cursor: pointer; }
+    .backup-status:not(:empty) {
+      margin-top: 0.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--text-2);
+      letter-spacing: 0.08em;
+    }
+
   </style>
 </head>
 <body>
@@ -663,31 +724,16 @@
     <div class="toggle-row">
       <button class="toggle-btn" id="loop-btn">↻ Loop</button>
       <button class="toggle-btn" id="autopause-btn">|| Auto-pause</button>
+      <button class="toggle-btn" id="reset-btn">↺ Reset</button>
     </div>
   </div>
 
   <!-- ── Library view ── -->
   <div id="library-view">
 
-    <!-- Bulk Import -->
+    <!-- Add (single episode) -->
     <details class="lib-section">
-      <summary class="lib-section-title">Bulk Import</summary>
-      <div class="bulk-import">
-        <details class="bulk-csv-note">
-          <summary>CSV format</summary>
-          <pre>show,episode,audio_url,sub_url
-My Show,Episode 1,https://…/ep1.mp3,https://…/ep1.srt
-My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
-        </details>
-        <label class="qi-btn" for="bulk-csv-file" style="cursor:pointer;">Upload CSV</label>
-        <input type="file" id="bulk-csv-file" accept=".csv,text/csv,text/plain" style="display:none">
-        <div class="bulk-progress" id="bulk-progress" style="display:none"></div>
-      </div>
-    </details>
-
-    <!-- Import Single Episode -->
-    <details class="lib-section">
-      <summary class="lib-section-title">Import Single Episode</summary>
+      <summary class="lib-section-title">Add</summary>
       <div class="quick-import">
         <div class="qi-field-row">
           <span class="qi-label">Show</span>
@@ -730,6 +776,33 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     <div class="lib-section" id="catalogue-section" style="display:none">
       <div class="lib-section-title">Catalogue</div>
       <div id="catalogue-list"></div>
+    </div>
+
+    <!-- Import and Export -->
+    <div class="lib-section">
+      <div class="lib-section-title">Import and Export</div>
+      <div class="ie-card">
+        <div class="ie-half">
+          <label class="ie-btn" for="bulk-file">Import CSV or JSON</label>
+          <input type="file" id="bulk-file" accept=".csv,.json,text/csv,text/plain,application/json" style="display:none">
+          <details class="bulk-csv-note">
+            <summary>Format</summary>
+            <pre>show,episode,audio_url,sub_url
+My Show,Episode 1,https://…/ep1.mp3,https://…/ep1.srt
+My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
+          </details>
+          <div class="bulk-progress" id="bulk-progress" style="display:none"></div>
+        </div>
+        <div class="ie-divider"></div>
+        <div class="ie-half">
+          <button class="ie-btn" id="export-btn">Export JSON</button>
+          <label class="backup-srt-row">
+            <input type="checkbox" id="export-srt-chk">
+            <span>Include SRT text</span>
+          </label>
+          <div id="backup-status" class="backup-status"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1056,12 +1129,43 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     }
 
     // ── Media Session API ──
+    let _artworkDataUrl = null;
+    function getArtworkDataUrl() {
+      if (_artworkDataUrl) return _artworkDataUrl;
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = 512; canvas.height = 512;
+        const ctx = canvas.getContext('2d');
+        // background
+        ctx.fillStyle = '#111009';
+        ctx.fillRect(0, 0, 512, 512);
+        // subtle radial glow
+        const grad = ctx.createRadialGradient(256, 256, 60, 256, 256, 280);
+        grad.addColorStop(0, 'rgba(161,52,201,0.25)');
+        grad.addColorStop(1, 'rgba(161,52,201,0)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 512, 512);
+        // kanji character
+        ctx.font = 'bold 280px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#a134c9';
+        ctx.fillText('聴', 256, 270);
+        _artworkDataUrl = canvas.toDataURL('image/png');
+      } catch (e) {
+        _artworkDataUrl = '';
+      }
+      return _artworkDataUrl;
+    }
+
     function setMediaSessionMetadata(showName, episodeName) {
       if (!('mediaSession' in navigator)) return;
+      const artwork = getArtworkDataUrl();
       navigator.mediaSession.metadata = new MediaMetadata({
         title:  episodeName,
         artist: showName,
-        album:  'Audio Sub Player'
+        album:  'Audio Sub Player',
+        artwork: artwork ? [{ src: artwork, sizes: '512x512', type: 'image/png' }] : []
       });
     }
 
@@ -1231,27 +1335,67 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         btn.textContent = 'Saved ✓';
         btn.style.opacity = '1';
         btn.style.color = 'var(--green)';
-        setTimeout(() => { btn.textContent = 'Import & Save'; btn.style.color = ''; }, 2000);
+        setTimeout(() => { btn.textContent = 'Add'; btn.style.color = ''; }, 2000);
         renderLibrary();
       } catch (err) {
         alert('Could not import: ' + err.message);
-        btn.textContent = 'Import & Save';
+        btn.textContent = 'Add';
         btn.style.opacity = '1';
       }
     });
 
     // ── Bulk Import ──
-    document.getElementById('bulk-csv-file').addEventListener('change', async e => {
+    document.getElementById('bulk-file').addEventListener('change', async e => {
       const file = e.target.files[0];
       if (!file) return;
       e.target.value = '';
 
-      const text = await file.text();
-      const rows = parseCSV(text);
-      if (rows.length === 0) { alert('No valid rows found in CSV.'); return; }
-
       const progress = document.getElementById('bulk-progress');
       progress.style.display = '';
+      progress.innerHTML = '';
+
+      const isJson = file.name.toLowerCase().endsWith('.json');
+
+      if (isJson) {
+        // ── JSON backup import ──
+        progress.textContent = 'Reading…';
+        try {
+          const text = await file.text();
+          const parsed = JSON.parse(text);
+          const episodes = parsed.episodes;
+          if (!Array.isArray(episodes)) throw new Error('Invalid backup file.');
+          let imported = 0, skipped = 0;
+          for (const ep of episodes) {
+            if (!ep.key || !ep.showName || !ep.episodeName) { skipped++; continue; }
+            const existing = await get(ep.key);
+            await set(ep.key, {
+              showName:     ep.showName,
+              episodeName:  ep.episodeName,
+              audio:        existing?.audio || null,
+              audioUrl:     ep.audioUrl === 'NO_URL' ? null : (ep.audioUrl || null),
+              srt:          ep.srt || existing?.srt || '',
+              srtUrl:       ep.srtUrl === 'NO_URL' ? null : (ep.srtUrl || null),
+              offset:       ep.offset       ?? 0,
+              lastPosition: ep.lastPosition  ?? 0,
+              speed:        ep.speed         ?? 1,
+              addedAt:      ep.addedAt       ?? Date.now(),
+              notes:        ep.notes         || ''
+            });
+            imported++;
+          }
+          progress.textContent = `Done — ${imported} imported${skipped ? `, ${skipped} skipped` : ''}.`;
+          renderLibrary();
+        } catch (err) {
+          progress.textContent = `Error: ${err.message}`;
+        }
+        return;
+      }
+
+      // ── CSV import ──
+      const text = await file.text();
+      const rows = parseCSV(text);
+      if (rows.length === 0) { progress.textContent = 'No valid rows found in CSV.'; return; }
+
       let saved = 0;
       const errors = [];
 
@@ -1290,10 +1434,10 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       if (errors.length) {
         const errList = document.createElement('div');
         errList.style.cssText = 'margin-top:0.5rem; text-align:left;';
-        errors.forEach(e => {
+        errors.forEach(err => {
           const line = document.createElement('div');
           line.style.cssText = 'color:#c96b6b; margin-top:0.25rem;';
-          line.textContent = `✕ ${e.show} · ${e.episode} — ${e.reason}`;
+          line.textContent = `✕ ${err.show} · ${err.episode} — ${err.reason}`;
           errList.appendChild(line);
         });
         progress.appendChild(errList);
@@ -1397,6 +1541,53 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         // episodes.json absent or malformed — silently skip
       }
     }
+
+    // ── Reset offset + speed for current episode ──
+    document.getElementById('reset-btn').addEventListener('click', async () => {
+      if (!currentEpisodeKey) return;
+      offset = 0;
+      document.getElementById('offset-val').textContent = '0.0';
+      audio.playbackRate = 1;
+      syncSpeedDisplay();
+      const data = await get(currentEpisodeKey);
+      if (data) { data.offset = 0; data.speed = 1; await set(currentEpisodeKey, data); }
+    });
+
+    // ── Export library backup ──
+    document.getElementById('export-btn').addEventListener('click', async () => {
+      const includeSrt = document.getElementById('export-srt-chk').checked;
+      const allKeys = await keys();
+      const epKeys  = allKeys.filter(k => typeof k === 'string' && k.startsWith('episode:'));
+      const rows = [];
+      for (const k of epKeys) {
+        const d = await get(k);
+        if (!d) continue;
+        rows.push({
+          key:          k,
+          showName:     d.showName,
+          episodeName:  d.episodeName,
+          audioUrl:     d.audioUrl || (d.audio ? 'NO_URL' : null),
+          srtUrl:       d.srtUrl   || (d.srt && !d.srtUrl ? 'NO_URL' : null),
+          srt:          includeSrt ? (d.srt || null) : null,
+          offset:       d.offset       ?? 0,
+          lastPosition: d.lastPosition  ?? 0,
+          speed:        d.speed         ?? 1,
+          addedAt:      d.addedAt       ?? null,
+          notes:        d.notes         || ''
+        });
+      }
+      const json = JSON.stringify({ version: 1, exportedAt: Date.now(), episodes: rows }, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = `audio-sub-player-backup-${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+      const status = document.getElementById('backup-status');
+      status.textContent = `Exported ${rows.length} episode${rows.length !== 1 ? 's' : ''}.`;
+      setTimeout(() => { status.textContent = ''; }, 4000);
+    });
 
     // ── Init ──
     setupMediaSession();
