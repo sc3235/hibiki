@@ -7,7 +7,7 @@
   <title>Audio Sub Player</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+JP:wght@300;400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=JetBrains+Mono:wght@400;500&family=Shippori+Mincho:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg:        #111009;
@@ -19,9 +19,9 @@
       --text-2:    #7d7567;
       --text-3:    #453f35;
       --accent:    #a134c9;
-      --green:     #6ba676;
+      --green:     #72b87e;
       --radius:    14px;
-      --sub-font:  1.5rem;
+      --sub-font:  2.0rem;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -60,11 +60,12 @@
     }
     h1 em { font-style: italic; color: var(--accent); }
     .tagline {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.65rem;
-      letter-spacing: 0.25em;
-      color: var(--text-3);
-      margin-top: 0.55rem;
+      font-family: 'Shippori Mincho', 'Hiragino Mincho ProN', serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.5em;
+      color: var(--green);
+      opacity: 0.6;
+      margin-top: 0.4rem;
     }
 
     /* ── Tabs ── */
@@ -130,7 +131,8 @@
       font-size: 0.58rem;
       letter-spacing: 0.15em;
       text-transform: uppercase;
-      color: var(--text-3);
+      color: var(--green);
+      opacity: 0.75;
     }
     .episode-info-ep {
       font-size: 1rem;
@@ -239,22 +241,34 @@
     .sub-time {
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.58rem;
-      color: var(--text-3);
+      color: var(--green);
+      opacity: 0.35;
       letter-spacing: 0.15em;
       margin-bottom: 0.15rem;
     }
-    .sub-item.active .sub-time { color: var(--text-2); }
+    .sub-item.active .sub-time { opacity: 0.65; }
+
+    /* Kana at 85% optical size — hiragana, katakana, half-width katakana */
+    @font-face {
+      font-family: 'SubJP';
+      src: local('Hiragino Mincho ProN'), local('Hiragino Mincho Pro'),
+           local('Yu Mincho'), local('YuMincho');
+      unicode-range: U+3040-U+30FF, U+FF65-U+FF9F;
+      size-adjust: 80%;
+      font-weight: 400 500;
+    }
 
     .sub-text {
-      font-family: 'Noto Serif JP', 'Hiragino Mincho ProN', serif;
+      font-family: 'SubJP', 'Shippori Mincho', 'Hiragino Mincho ProN', serif;
       font-size: var(--sub-font);
-      line-height: 1.8;
+      line-height: 1.85;
       color: var(--text);
       user-select: text;
       -webkit-user-select: text;
-      font-weight: 300;
+      font-weight: 400;
+      font-feature-settings: "jp04" 1;
     }
-    .sub-item.active .sub-text { font-weight: 400; }
+    .sub-item.active .sub-text { font-weight: 500; }
 
     /* ── Controls ── */
     .controls-row {
@@ -540,7 +554,8 @@
       font-size: 0.6rem;
       letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: var(--text-2);
+      color: var(--green);
+      opacity: 0.75;
       padding-bottom: 0.4rem;
       border-bottom: 1px solid var(--border);
       margin-bottom: 0.25rem;
@@ -664,7 +679,7 @@
 <body>
   <header>
     <h1>Audio <em>Sub</em> Player</h1>
-    <p class="tagline">聴く · 読む · 覚える</p>
+    <p class="tagline"><strong>音声</strong>から<strong>言葉</strong>へ</p>
     <div class="tab-row">
       <button class="tab-btn active" id="tab-player">Player</button>
       <button class="tab-btn" id="tab-library">Library</button>

@@ -80,7 +80,15 @@ Already done, looks good.
 ### P3.5[TODO] — export/import with media
 - Export/import library backup full (zip of all audio + SRT files + metadata, downloadable)
 
-### P4[TODO] — in-browser Whisper API transcription
+### P4[TODO] — download audio for offline use
+
+For URL-sourced episodes, add a **Download** button in the library episode row. Tapping it fetches the audio URL and stores the response as a Blob in IndexedDB. Keep `audioUrl` (and `srtUrl`) in the record even after downloading — they serve as the canonical source reference for export/import.
+
+- Show a progress indicator while fetching (audio files are large — user needs feedback)
+- After download, swap the button to a "Downloaded ✓" state (or hide it)
+- SRT text is already fetched and stored in IndexedDB at import time, so it's already offline; `srtUrl` is just retained for reference
+
+### P5[TODO] — in-browser Whisper API transcription
 
 Calls OpenAI's Whisper API directly from the browser. User supplies their own API key (stored in IndexedDB, never leaves the device).
 
@@ -108,77 +116,6 @@ async function transcribeWithWhisper(audioFile, apiKey) {
 **Advantage over local whisper-cli**: works on iPad with no Mac involved. Transcribe → study in one flow on device.
 
 ## Infrastructure
-
-### Cloudflare Worker (CORS proxy for iTunes API)
-
-Needed for P0 audio method 3 (Apple Podcasts link → MP3 URL resolution).
-
-The iTunes lookup API doesn't send CORS headers, so it can't be called directly from the browser. A Cloudflare Worker proxies the request server-side and adds CORS headers on the response.
-
-**Free tier**: 100,000 requests/day. No credit card required.
-
-Worker source lives at `cloudflare-worker/index.js` in this repo. Deploy via Cloudflare dashboard or `wrangler`. Store the deployed Worker URL as a constant at the top of `index.html`:
-
-```javascript
-const CORS_PROXY = 'https://your-worker.your-name.workers.dev';
-```
-
-Worker code:
-
-```javascript
-export default {
-  async fetch(request) {
-    const url = new URL(request.url);
-    const target = url.searchParams.get('url');
-
-    if (!target) return new Response('Missing url param', { status: 400 });
-
-    // Allowlist: only proxy Apple/iTunes domains
-    const allowed = ['itunes.apple.com', 'podcasts.apple.com'];
-    const targetHost = new URL(target).hostname;
-    if (!allowed.some(d => targetHost.endsWith(d))) {
-      return new Response('Domain not allowed', { status: 403 });
-    }
-
-    const response = await fetch(target);
-    const body = await response.text();
-
-    return new Response(body, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
-      }
-    });
-  }
-}
-```
-
-### Apple Podcasts → MP3 URL resolution
-
-Apple Podcasts episode URLs look like:
-
-```
-https://podcasts.apple.com/us/podcast/show-name/id123456789?i=1000612345678
-```
-
-- Show ID: `123456789` (from `id...` segment)
-- Episode ID: `1000612345678` (from `?i=` param)
-
-Resolution flow:
-
-1. Parse show ID and episode ID from the URL with a regex.
-
-2. Call iTunes lookup API via the Cloudflare Worker:
-
-   ```
-   GET {CORS_PROXY}/?url=https://itunes.apple.com/lookup?id={showId}&entity=podcastEpisode&limit=200
-   ```
-
-3. Find the episode in the JSON response by matching `trackId` to the episode ID.
-
-4. Use `episodeUrl` field as the direct MP3 URL.
-
-5. **Fallback**: if `episodeUrl` is absent, fetch the show's `feedUrl` (also in the response) via the Worker, parse the RSS `<enclosure url="">` for the matching episode by title or date.
 
 ### GitHub-hosted SRT files
 
@@ -233,13 +170,71 @@ episode:{name} → {
 ## Architecture notes
 
 - **Single HTML file**: inline all JS and CSS. No build step, no bundler. CDN imports are fine (idb-keyval).
-- **No backend**: everything runs client-side except the Cloudflare Worker (stateless, trivial).
+- **No backend**: everything runs client-side.
 - **Yomikiri/Yomitan compatibility**: subtitle text must be plain DOM text in a `<div>` or `<p>`. Never use canvas, SVG text, or JS-rendered non-selectable elements for subtitle display.
 - **Anki export**: handled entirely by Yomikiri (iOS) or Yomitan (desktop) — no AnkiConnect integration needed in the app itself. The app just needs to display selectable text.
-- **Offline**: once loaded, the page should work offline. Add a service worker to cache `index.html` and the idb-keyval CDN import. Audio/SRT in IndexedDB are offline. URL-sourced audio requires network.
 
 ## Deployment
 
 GitHub Pages, single `index.html` at repo root. Push to `main` branch to deploy.
 
 URL: `https://sc3235.github.io/audio-sub-player/`
+
+---
+
+## Appendix
+
+### A1 — Apple Podcasts → MP3 URL resolution (not implemented)
+
+Would enable pasting an Apple Podcasts episode URL directly as the audio source. Requires a Cloudflare Worker to proxy the iTunes lookup API (which doesn't send CORS headers).
+
+Apple Podcasts episode URLs look like:
+
+```
+https://podcasts.apple.com/us/podcast/show-name/id123456789?i=1000612345678
+```
+
+- Show ID: `123456789` (from `id...` segment)
+- Episode ID: `1000612345678` (from `?i=` param)
+
+Resolution flow:
+
+1. Parse show ID and episode ID from the URL with a regex.
+2. Call iTunes lookup API via the Cloudflare Worker:
+   ```
+   GET {CORS_PROXY}/?url=https://itunes.apple.com/lookup?id={showId}&entity=podcastEpisode&limit=200
+   ```
+3. Find the episode in the JSON response by matching `trackId` to the episode ID.
+4. Use `episodeUrl` field as the direct MP3 URL.
+5. **Fallback**: if `episodeUrl` is absent, fetch the show's `feedUrl` via the Worker, parse the RSS `<enclosure url="">` for the matching episode by title or date.
+
+**Cloudflare Worker** (free tier: 100k requests/day, no credit card required):
+
+```javascript
+export default {
+  async fetch(request) {
+    const url = new URL(request.url);
+    const target = url.searchParams.get('url');
+
+    if (!target) return new Response('Missing url param', { status: 400 });
+
+    const allowed = ['itunes.apple.com', 'podcasts.apple.com'];
+    const targetHost = new URL(target).hostname;
+    if (!allowed.some(d => targetHost.endsWith(d))) {
+      return new Response('Domain not allowed', { status: 403 });
+    }
+
+    const response = await fetch(target);
+    const body = await response.text();
+
+    return new Response(body, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      }
+    });
+  }
+}
+```
+
+Deploy via Cloudflare dashboard or `wrangler`. Store the URL as `const CORS_PROXY = 'https://your-worker.your-name.workers.dev'` at the top of `index.html`.
