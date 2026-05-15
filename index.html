@@ -33,7 +33,6 @@
       background: var(--bg);
       color: var(--text);
       min-height: 100dvh;
-      /* padding-top is set dynamically by JS to match fixed header height */
       padding: 0 1.5rem 4rem;
       max-width: 600px;
       margin: 0 auto;
@@ -49,7 +48,7 @@
       max-width: 600px;
       z-index: 100;
       background: var(--bg);
-      padding: calc(env(safe-area-inset-top) + 1.25rem) 1.5rem 0.75rem;
+      padding: calc(env(safe-area-inset-top) + 1.25rem) 1.5rem 0;
       border-bottom: 1px solid var(--border);
     }
     h1 {
@@ -68,11 +67,36 @@
       margin-top: 0.55rem;
     }
 
+    /* ── Tabs ── */
+    .tab-row {
+      display: flex;
+      margin-top: 0.75rem;
+    }
+    .tab-btn {
+      flex: 1;
+      background: none;
+      border: none;
+      border-bottom: 2px solid var(--border);
+      padding: 0.5rem 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: color 0.15s, border-bottom-color 0.15s;
+    }
+    .tab-btn.active {
+      color: var(--text);
+      border-bottom-color: var(--accent);
+    }
+
     /* ── File loaders ── */
     .file-section {
       display: flex;
       gap: 0.5rem;
-      margin-bottom: 1.75rem;
+      margin-bottom: 1rem;
     }
     .file-slot {
       flex: 1;
@@ -185,6 +209,65 @@
       cursor: pointer;
       flex-shrink: 0;
       -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ── Episode info strip (shown when loaded from library) ── */
+    .episode-info {
+      display: none;
+      flex-direction: column;
+      gap: 0.1rem;
+      padding: 0.6rem 0.875rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 1rem;
+    }
+    .episode-info.visible { display: flex; }
+    .episode-info-show {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-3);
+    }
+    .episode-info-ep {
+      font-size: 1rem;
+      font-weight: 300;
+      color: var(--text);
+    }
+
+    /* ── Save bar ── */
+    .save-bar {
+      display: none;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.6rem 0.875rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 1rem;
+    }
+    .save-bar.visible { display: flex; }
+    .save-bar-label {
+      flex: 1;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--text-3);
+      letter-spacing: 0.08em;
+    }
+    .save-bar-btn {
+      background: rgba(161,52,201,0.12);
+      border: 1px solid rgba(161,52,201,0.3);
+      border-radius: 8px;
+      padding: 0.35rem 0.875rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--accent);
+      cursor: pointer;
+      letter-spacing: 0.1em;
+      flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+      transition: color 0.2s, border-color 0.2s;
     }
 
     /* ── Native audio ── */
@@ -415,85 +498,498 @@
       border-color: rgba(161,52,201,0.4);
       color: var(--accent);
     }
+
+    /* ── Library view ── */
+    #library-view { display: none; }
+
+    .lib-section { margin-bottom: 2rem; }
+
+    .lib-section-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 0.875rem;
+    }
+
+    /* Quick Import */
+    .quick-import {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1rem 1.1rem;
+    }
+    .qi-field-row {
+      display: grid;
+      grid-template-columns: 5rem 1fr;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .qi-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.58rem;
+      color: var(--text-3);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .qi-input {
+      background: var(--surface-2);
+      border: 1px solid var(--border-2);
+      border-radius: 8px;
+      padding: 0.55rem 0.75rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--text);
+      outline: none;
+      width: 100%;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .qi-input::placeholder { color: var(--text-3); }
+    .qi-input:focus { border-color: rgba(161,52,201,0.4); }
+    .qi-btn {
+      display: block;
+      width: 100%;
+      margin-top: 0.875rem;
+      padding: 0.65rem;
+      background: rgba(161,52,201,0.1);
+      border: 1px solid rgba(161,52,201,0.28);
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      text-align: center;
+      transition: opacity 0.15s;
+    }
+    .qi-btn:active { opacity: 0.7; }
+
+    /* Side-by-side URL + upload inside single-episode form */
+    .qi-dual {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      min-width: 0;
+    }
+    .qi-dual .qi-input { flex: 1; min-width: 0; }
+    .qi-or {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem;
+      color: var(--text-3);
+      letter-spacing: 0.06em;
+      flex-shrink: 0;
+    }
+    .qi-file-pick {
+      display: block;
+      flex-shrink: 0;
+      max-width: 5.5rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      background: var(--surface-2);
+      border: 1px dashed var(--border-2);
+      border-radius: 8px;
+      padding: 0.55rem 0.6rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--text-3);
+      cursor: pointer;
+      text-align: center;
+      -webkit-tap-highlight-color: transparent;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .qi-file-pick.has-file {
+      color: var(--green);
+      border-color: rgba(107,166,118,0.4);
+      border-style: solid;
+    }
+
+    /* Bulk Import */
+    .bulk-import {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1rem 1.1rem;
+    }
+    .bulk-csv-note {
+      margin-bottom: 0.875rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+    }
+    .bulk-csv-note summary {
+      color: var(--text-3);
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      list-style: none;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .bulk-csv-note summary::-webkit-details-marker { display: none; }
+    .bulk-csv-note summary::before { content: '▸ '; }
+    details[open].bulk-csv-note summary::before { content: '▾ '; }
+    .bulk-csv-note pre {
+      margin-top: 0.6rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.6rem 0.75rem;
+      font-size: 0.58rem;
+      color: var(--text-2);
+      line-height: 1.65;
+      overflow-x: auto;
+      white-space: pre;
+    }
+    .bulk-progress {
+      margin-top: 0.75rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--text-2);
+      letter-spacing: 0.08em;
+      text-align: center;
+    }
+
+    /* Episode groups */
+    .show-group { margin-bottom: 1.25rem; }
+    .show-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 0.25rem;
+    }
+    .ep-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.55rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .ep-item:last-child { border-bottom: none; }
+    .ep-name {
+      flex: 1;
+      font-size: 0.9rem;
+      color: var(--text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .ep-load-btn {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.3rem 0.625rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.58rem;
+      color: var(--text-2);
+      cursor: pointer;
+      flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+      transition: color 0.1s, border-color 0.1s;
+    }
+    .ep-load-btn:active { color: var(--text); border-color: var(--border-2); }
+    .ep-del-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.3rem 0.5rem;
+      font-size: 0.7rem;
+      line-height: 1;
+      color: var(--text-3);
+      cursor: pointer;
+      flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+      transition: color 0.1s, border-color 0.1s;
+    }
+    .ep-del-btn:active { color: #c96b6b; border-color: rgba(201,107,107,0.4); }
+
+    .lib-empty {
+      text-align: center;
+      padding: 2rem 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--text-3);
+      letter-spacing: 0.15em;
+    }
+
+    /* ── Save modal ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 200;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .modal-overlay.visible { display: flex; }
+    .modal-box {
+      background: var(--surface);
+      border: 1px solid var(--border-2);
+      border-radius: var(--radius) var(--radius) 0 0;
+      padding: 1.5rem 1.5rem calc(env(safe-area-inset-bottom) + 1.5rem);
+      width: 100%;
+      max-width: 600px;
+    }
+    .modal-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      margin-bottom: 1.1rem;
+    }
+    .modal-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      margin-bottom: 0.75rem;
+    }
+    .modal-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.57rem;
+      color: var(--text-3);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .modal-input {
+      background: var(--surface-2);
+      border: 1px solid var(--border-2);
+      border-radius: 8px;
+      padding: 0.75rem 0.875rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text);
+      outline: none;
+      width: 100%;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .modal-input:focus { border-color: rgba(161,52,201,0.5); }
+    .modal-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1.1rem;
+    }
+    .modal-cancel {
+      flex: 1;
+      padding: 0.75rem;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+      color: var(--text-3);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .modal-save {
+      flex: 2;
+      padding: 0.75rem;
+      background: rgba(161,52,201,0.13);
+      border: 1px solid rgba(161,52,201,0.33);
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
   </style>
 </head>
 <body>
   <header>
     <h1>Audio <em>Sub</em> Player</h1>
     <p class="tagline">聴く · 読む · 覚える</p>
+    <div class="tab-row">
+      <button class="tab-btn active" id="tab-player">Player</button>
+      <button class="tab-btn" id="tab-library">Library</button>
+    </div>
   </header>
 
-  <div class="file-section">
-    <div class="file-slot">
-      <label class="file-btn" id="audio-btn" for="audio-file">
-        <span class="icon">♪</span>
-        <span class="label">Audio</span>
-        <span class="status">Tap to load</span>
-      </label>
-      <input type="file" id="audio-file" accept="audio/mpeg,audio/mp4,audio/x-m4a,audio/wav,.mp3,.m4a,.wav,.aac">
-      <button class="url-link" onclick="showUrl('audio')">paste url ↗</button>
-      <div class="url-input-row" id="audio-url-row">
-        <input type="url" class="url-field" id="audio-url-field" placeholder="https://…" autocomplete="off" autocorrect="off" autocapitalize="off">
-        <button class="url-confirm" onclick="confirmUrl('audio')">✓</button>
-        <button class="url-cancel"  onclick="hideUrl('audio')">✕</button>
+  <!-- ── Player view ── -->
+  <div id="player-view">
+    <div class="file-section">
+      <div class="file-slot">
+        <label class="file-btn" id="audio-btn" for="audio-file">
+          <span class="icon">♪</span>
+          <span class="label">Audio</span>
+          <span class="status">Tap to load</span>
+        </label>
+        <input type="file" id="audio-file" accept="audio/mpeg,audio/mp4,audio/x-m4a,audio/wav,.mp3,.m4a,.wav,.aac">
+        <button class="url-link" id="audio-url-link">paste url ↗</button>
+        <div class="url-input-row" id="audio-url-row">
+          <input type="url" class="url-field" id="audio-url-field" placeholder="https://…" autocomplete="off" autocorrect="off" autocapitalize="off">
+          <button class="url-confirm" id="audio-url-confirm">✓</button>
+          <button class="url-cancel"  id="audio-url-cancel">✕</button>
+        </div>
+      </div>
+
+      <div class="file-slot">
+        <label class="file-btn" id="sub-btn" for="sub-file">
+          <span class="icon">字</span>
+          <span class="label">Subtitles</span>
+          <span class="status">Tap to load</span>
+        </label>
+        <input type="file" id="sub-file" accept=".srt,.vtt,text/plain">
+        <button class="url-link" id="sub-url-link">paste url ↗</button>
+        <div class="url-input-row" id="sub-url-row">
+          <input type="url" class="url-field" id="sub-url-field" placeholder="https://…" autocomplete="off" autocorrect="off" autocapitalize="off">
+          <button class="url-confirm" id="sub-url-confirm">✓</button>
+          <button class="url-cancel"  id="sub-url-cancel">✕</button>
+        </div>
       </div>
     </div>
 
-    <div class="file-slot">
-      <label class="file-btn" id="sub-btn" for="sub-file">
-        <span class="icon">字</span>
-        <span class="label">Subtitles</span>
-        <span class="status">Tap to load</span>
-      </label>
-      <input type="file" id="sub-file" accept=".srt,.vtt,text/plain">
-      <button class="url-link" onclick="showUrl('sub')">paste url ↗</button>
-      <div class="url-input-row" id="sub-url-row">
-        <input type="url" class="url-field" id="sub-url-field" placeholder="https://…" autocomplete="off" autocorrect="off" autocapitalize="off">
-        <button class="url-confirm" onclick="confirmUrl('sub')">✓</button>
-        <button class="url-cancel"  onclick="hideUrl('sub')">✕</button>
+    <div class="episode-info" id="episode-info">
+      <span class="episode-info-show" id="episode-info-show"></span>
+      <span class="episode-info-ep"   id="episode-info-ep"></span>
+    </div>
+
+    <div class="save-bar" id="save-bar">
+      <span class="save-bar-label">Save this episode to your library?</span>
+      <button class="save-bar-btn" id="save-bar-btn">Save</button>
+    </div>
+
+    <audio id="audio" controls playsinline></audio>
+
+    <div class="subtitle-wrap">
+      <div class="subtitle-scroll" id="subtitle-scroll"></div>
+      <div class="fade-top"></div>
+      <div class="fade-bottom"></div>
+    </div>
+
+    <div class="controls-row">
+      <button class="ctrl-btn" id="prev-btn">← sub</button>
+      <button class="ctrl-btn play-btn" id="play-btn">▶</button>
+      <button class="ctrl-btn" id="next-btn">sub →</button>
+    </div>
+
+    <div class="settings-row">
+      <div class="setting-box">
+        <span class="setting-label">Offset</span>
+        <div class="setting-controls">
+          <button class="adj-btn" id="offset-minus">−</button>
+          <span class="setting-val"><span id="offset-val">0.0</span>s</span>
+          <button class="adj-btn" id="offset-plus">+</button>
+        </div>
+      </div>
+      <div class="setting-box">
+        <span class="setting-label">Font</span>
+        <div class="setting-controls">
+          <button class="adj-btn" id="font-minus">A−</button>
+          <span class="setting-val" id="font-val">1.2</span>
+          <button class="adj-btn" id="font-plus">A+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="toggle-row">
+      <button class="toggle-btn" id="loop-btn">↻ Loop</button>
+      <button class="toggle-btn" id="autopause-btn">|| Auto-pause</button>
+    </div>
+  </div>
+
+  <!-- ── Library view ── -->
+  <div id="library-view">
+
+    <!-- Bulk Import -->
+    <div class="lib-section">
+      <div class="lib-section-title">Bulk Import</div>
+      <div class="bulk-import">
+        <details class="bulk-csv-note">
+          <summary>CSV format</summary>
+          <pre>show,episode,audio_url,sub_url
+My Show,Episode 1,https://…/ep1.mp3,https://…/ep1.srt
+My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
+        </details>
+        <label class="qi-btn" for="bulk-csv-file" style="cursor:pointer;">Upload CSV</label>
+        <input type="file" id="bulk-csv-file" accept=".csv,text/csv,text/plain" style="display:none">
+        <div class="bulk-progress" id="bulk-progress" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- Import Single Episode -->
+    <div class="lib-section">
+      <div class="lib-section-title">Import</div>
+      <div class="quick-import">
+        <div class="qi-field-row">
+          <span class="qi-label">Show</span>
+          <input class="qi-input" id="qi-show" placeholder="Show name" autocorrect="off" autocapitalize="words">
+        </div>
+        <div class="qi-field-row">
+          <span class="qi-label">Episode</span>
+          <input class="qi-input" id="qi-ep" placeholder="Episode name or number" autocorrect="off" autocapitalize="words">
+        </div>
+        <!-- Audio source -->
+        <div class="qi-field-row">
+          <span class="qi-label">Audio</span>
+          <div class="qi-dual">
+            <input type="url" class="qi-input" id="qi-audio" placeholder="https://…" autocomplete="off" autocorrect="off" autocapitalize="off">
+            <span class="qi-or">or</span>
+            <label class="qi-file-pick" id="qi-audio-file-label" for="qi-audio-file-input">upload</label>
+            <input type="file" id="qi-audio-file-input" accept="audio/mpeg,audio/mp4,audio/x-m4a,audio/wav,.mp3,.m4a,.wav,.aac" style="display:none">
+          </div>
+        </div>
+        <!-- Sub source -->
+        <div class="qi-field-row">
+          <span class="qi-label">Sub</span>
+          <div class="qi-dual">
+            <input type="url" class="qi-input" id="qi-sub" placeholder="https://raw.githubusercontent.com/…" autocomplete="off" autocorrect="off" autocapitalize="off">
+            <span class="qi-or">or</span>
+            <label class="qi-file-pick" id="qi-sub-file-label" for="qi-sub-file-input">upload</label>
+            <input type="file" id="qi-sub-file-input" accept=".srt,.vtt,text/plain" style="display:none">
+          </div>
+        </div>
+        <button class="qi-btn" id="qi-btn">Import &amp; Save</button>
+      </div>
+    </div>
+
+    <!-- My Library -->
+    <div class="lib-section">
+      <div class="lib-section-title">My Library</div>
+      <div id="library-list"></div>
+    </div>
+
+    <div class="lib-section" id="catalogue-section" style="display:none">
+      <div class="lib-section-title">Catalogue</div>
+      <div id="catalogue-list"></div>
+    </div>
+  </div>
+
+  <!-- ── Save modal ── -->
+  <div class="modal-overlay" id="save-modal">
+    <div class="modal-box">
+      <div class="modal-title">Save to Library</div>
+      <div class="modal-field">
+        <label class="modal-label" for="modal-show">Show</label>
+        <input class="modal-input" id="modal-show" placeholder="Show name" autocorrect="off" autocapitalize="words">
+      </div>
+      <div class="modal-field">
+        <label class="modal-label" for="modal-ep">Episode</label>
+        <input class="modal-input" id="modal-ep" placeholder="Episode name or number" autocorrect="off" autocapitalize="words">
+      </div>
+      <div class="modal-actions">
+        <button class="modal-cancel" id="modal-cancel">Cancel</button>
+        <button class="modal-save"   id="modal-save">Save</button>
       </div>
     </div>
   </div>
 
-  <audio id="audio" controls playsinline></audio>
+  <script type="module">
+    import { get, set, del, keys } from 'https://cdn.jsdelivr.net/npm/idb-keyval@6/+esm';
 
-  <div class="subtitle-wrap">
-    <div class="subtitle-scroll" id="subtitle-scroll"></div>
-    <div class="fade-top"></div>
-    <div class="fade-bottom"></div>
-  </div>
-
-  <div class="controls-row">
-    <button class="ctrl-btn" onclick="prevSub()">← sub</button>
-    <button class="ctrl-btn play-btn" id="play-btn" onclick="togglePlay()">▶</button>
-    <button class="ctrl-btn" onclick="nextSub()">sub →</button>
-  </div>
-
-  <div class="settings-row">
-    <div class="setting-box">
-      <span class="setting-label">Offset</span>
-      <div class="setting-controls">
-        <button class="adj-btn" onclick="adjustOffset(-0.5)">−</button>
-        <span class="setting-val"><span id="offset-val">0.0</span>s</span>
-        <button class="adj-btn" onclick="adjustOffset(+0.5)">+</button>
-      </div>
-    </div>
-    <div class="setting-box">
-      <span class="setting-label">Font</span>
-      <div class="setting-controls">
-        <button class="adj-btn" onclick="adjustFont(-0.1)">A−</button>
-        <span class="setting-val" id="font-val">1.2</span>
-        <button class="adj-btn" onclick="adjustFont(+0.1)">A+</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="toggle-row">
-    <button class="toggle-btn" id="loop-btn"      onclick="toggleLoop()">↻ Loop</button>
-    <button class="toggle-btn" id="autopause-btn" onclick="toggleAutoPause()">|| Auto-pause</button>
-  </div>
-
-  <script>
+    // ── State ──
     let subs        = [];
     let offset      = 0;
     let currentIdx  = -1;
@@ -501,26 +997,66 @@
     let autoPause   = false;
     let fontSize    = 1.2;
 
+    let loadedAudioBlob   = null;
+    let loadedAudioUrl    = null;
+    let loadedSrtText     = null;
+    let loadedSrtUrl      = null;
+    let currentEpisodeKey = null;
+
+    // ── DOM refs ──
     const audio   = document.getElementById('audio');
     const scroll  = document.getElementById('subtitle-scroll');
     const playBtn = document.getElementById('play-btn');
 
     document.documentElement.style.setProperty('--sub-font', fontSize + 'rem');
 
-    /* ── File inputs ── */
-    document.getElementById('audio-file').onchange = e => {
+    // ── Header padding ──
+    const headerEl = document.querySelector('header');
+    function syncBodyPad() {
+      document.body.style.paddingTop = (headerEl.offsetHeight + 20) + 'px';
+    }
+    syncBodyPad();
+    window.addEventListener('resize', syncBodyPad);
+
+    // ── Tabs ──
+    document.getElementById('tab-player').addEventListener('click', () => showTab('player'));
+    document.getElementById('tab-library').addEventListener('click', () => {
+      showTab('library');
+      renderLibrary();
+    });
+
+    function showTab(tab) {
+      const isPlayer = tab === 'player';
+      document.getElementById('player-view').style.display  = isPlayer ? '' : 'none';
+      document.getElementById('library-view').style.display = isPlayer ? 'none' : 'block';
+      document.getElementById('tab-player').classList.toggle('active', isPlayer);
+      document.getElementById('tab-library').classList.toggle('active', !isPlayer);
+      syncBodyPad();
+    }
+
+    // ── File inputs ──
+    document.getElementById('audio-file').addEventListener('change', e => {
       const file = e.target.files[0];
       if (!file) return;
+      if (loadedAudioBlob) URL.revokeObjectURL(audio.src);
+      loadedAudioBlob = file;
+      loadedAudioUrl  = null;
       audio.src = URL.createObjectURL(file);
       audio.load();
       markLoaded('audio', file.name);
-    };
+      resetEpisodeHeader();
+      checkShowSaveBar();
+    });
 
-    document.getElementById('sub-file').onchange = async e => {
+    document.getElementById('sub-file').addEventListener('change', async e => {
       const file = e.target.files[0];
       if (!file) return;
-      loadSRT(await file.text(), file.name);
-    };
+      loadedSrtText = await file.text();
+      loadedSrtUrl  = null;
+      loadSRT(loadedSrtText, file.name);
+      resetEpisodeHeader();
+      checkShowSaveBar();
+    });
 
     function markLoaded(type, name) {
       const btn = document.getElementById(type + '-btn');
@@ -528,7 +1064,14 @@
       btn.querySelector('.status').textContent = name;
     }
 
-    /* ── URL inputs ── */
+    // ── URL inputs ──
+    document.getElementById('audio-url-link').addEventListener('click', () => showUrl('audio'));
+    document.getElementById('sub-url-link').addEventListener('click', () => showUrl('sub'));
+    document.getElementById('audio-url-confirm').addEventListener('click', () => confirmUrl('audio'));
+    document.getElementById('sub-url-confirm').addEventListener('click', () => confirmUrl('sub'));
+    document.getElementById('audio-url-cancel').addEventListener('click', () => hideUrl('audio'));
+    document.getElementById('sub-url-cancel').addEventListener('click', () => hideUrl('sub'));
+
     function showUrl(type) {
       document.getElementById(type + '-url-row').classList.add('visible');
       document.getElementById(type + '-url-field').focus();
@@ -541,16 +1084,24 @@
       if (!url) return;
       const label = url.split('/').pop().split('?')[0] || url;
       if (type === 'audio') {
+        if (loadedAudioBlob) { URL.revokeObjectURL(audio.src); loadedAudioBlob = null; }
+        loadedAudioUrl = url;
         audio.src = url;
         audio.load();
         markLoaded('audio', label);
         hideUrl('audio');
+        resetEpisodeHeader();
+      checkShowSaveBar();
       } else {
         try {
           const res = await fetch(url);
           if (!res.ok) throw new Error(res.status + ' ' + res.statusText);
-          loadSRT(await res.text(), label);
+          loadedSrtText = await res.text();
+          loadedSrtUrl  = url;
+          loadSRT(loadedSrtText, label);
           hideUrl('sub');
+          resetEpisodeHeader();
+      checkShowSaveBar();
         } catch (err) {
           alert('Could not fetch SRT: ' + err.message);
         }
@@ -564,7 +1115,70 @@
       });
     });
 
-    /* ── SRT ── */
+    // ── Save bar / episode info ──
+    function resetEpisodeHeader() {
+      document.getElementById('episode-info').classList.remove('visible');
+    }
+
+    function checkShowSaveBar() {
+      const hasAudio = loadedAudioBlob || loadedAudioUrl;
+      if (hasAudio && loadedSrtText) {
+        document.getElementById('save-bar').classList.add('visible');
+      }
+    }
+
+    document.getElementById('save-bar-btn').addEventListener('click', () => {
+      document.getElementById('modal-show').value = localStorage.getItem('lastShowName') || '';
+      document.getElementById('modal-ep').value = '';
+      document.getElementById('save-modal').classList.add('visible');
+      setTimeout(() => document.getElementById('modal-show').focus(), 80);
+    });
+
+    // ── Save modal ──
+    document.getElementById('modal-cancel').addEventListener('click', closeModal);
+    document.getElementById('save-modal').addEventListener('click', e => {
+      if (e.target === document.getElementById('save-modal')) closeModal();
+    });
+
+    function closeModal() {
+      document.getElementById('save-modal').classList.remove('visible');
+    }
+
+    document.getElementById('modal-save').addEventListener('click', async () => {
+      const showName = document.getElementById('modal-show').value.trim();
+      const epName   = document.getElementById('modal-ep').value.trim();
+      if (!showName || !epName) { alert('Please enter both show name and episode name.'); return; }
+
+      localStorage.setItem('lastShowName', showName);
+
+      const key = `episode:${showName}|||${epName}`;
+      await set(key, {
+        showName,
+        episodeName:  epName,
+        audio:        loadedAudioBlob instanceof File ? loadedAudioBlob : (loadedAudioBlob || null),
+        audioUrl:     loadedAudioUrl  || null,
+        srt:          loadedSrtText,
+        srtUrl:       loadedSrtUrl    || null,
+        offset,
+        lastPosition: audio.currentTime || 0,
+        speed:        audio.playbackRate || 1,
+        addedAt:      Date.now(),
+        notes:        ''
+      });
+
+      currentEpisodeKey = key;
+      closeModal();
+      document.getElementById('save-bar').classList.remove('visible');
+      document.getElementById('episode-info-show').textContent = showName;
+      document.getElementById('episode-info-ep').textContent   = epName;
+      document.getElementById('episode-info').classList.add('visible');
+    });
+
+    document.getElementById('modal-ep').addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('modal-save').click();
+    });
+
+    // ── SRT ──
     function parseSRT(text) {
       return text.trim().split(/\n\n+/).map(block => {
         const lines = block.split('\n');
@@ -597,7 +1211,7 @@
       if (name) markLoaded('sub', name);
     }
 
-    /* ── Render subtitle list ── */
+    // ── Render subtitle list ──
     function renderSubList() {
       scroll.innerHTML = '';
       if (subs.length === 0) {
@@ -643,7 +1257,6 @@
       const el = scroll.querySelector(`[data-idx="${idx}"]`);
       if (!el) return;
       el.classList.add('active');
-      // center in container
       scroll.scrollTop = el.offsetTop - (scroll.clientHeight / 2) + (el.offsetHeight / 2);
     }
 
@@ -652,7 +1265,7 @@
       audio.currentTime = Math.max(0, subs[idx].start - offset);
     }
 
-    /* ── Playback sync ── */
+    // ── Playback sync ──
     audio.addEventListener('timeupdate', () => {
       const t = audio.currentTime + offset;
 
@@ -673,16 +1286,17 @@
       }
     });
 
-    /* ── Play / pause ── */
+    // ── Play / pause ──
     function togglePlay() {
       if (audio.paused) audio.play().catch(() => {});
       else audio.pause();
     }
+    playBtn.addEventListener('click', togglePlay);
     audio.addEventListener('play',  () => { playBtn.textContent = '||'; });
-    audio.addEventListener('pause', () => { playBtn.textContent = '▶'; });
-    audio.addEventListener('ended', () => { playBtn.textContent = '▶'; });
+    audio.addEventListener('pause', () => { playBtn.textContent = '▶'; saveLastPosition(); });
+    audio.addEventListener('ended', () => { playBtn.textContent = '▶'; saveLastPosition(); });
 
-    /* ── Prev / next subtitle ── */
+    // ── Prev / next subtitle ──
     function prevSub() {
       if (!subs.length) return;
       let idx;
@@ -717,10 +1331,14 @@
       audio.currentTime = Math.max(0, subs[idx].start - offset);
     }
 
-    /* ── Offset / font ── */
+    document.getElementById('prev-btn').addEventListener('click', prevSub);
+    document.getElementById('next-btn').addEventListener('click', nextSub);
+
+    // ── Offset / font ──
     function adjustOffset(delta) {
       offset = Math.round((offset + delta) * 10) / 10;
       document.getElementById('offset-val').textContent = offset.toFixed(1);
+      persistOffsetToLibrary();
     }
 
     function adjustFont(delta) {
@@ -729,26 +1347,411 @@
       document.getElementById('font-val').textContent = fontSize.toFixed(1);
     }
 
-    /* ── Toggles ── */
-    function toggleLoop() {
+    document.getElementById('offset-minus').addEventListener('click', () => adjustOffset(-0.5));
+    document.getElementById('offset-plus').addEventListener('click',  () => adjustOffset(+0.5));
+    document.getElementById('font-minus').addEventListener('click',   () => adjustFont(-0.1));
+    document.getElementById('font-plus').addEventListener('click',    () => adjustFont(+0.1));
+
+    // ── Toggles ──
+    document.getElementById('loop-btn').addEventListener('click', () => {
       loopMode = !loopMode;
       document.getElementById('loop-btn').classList.toggle('on', loopMode);
-    }
-    function toggleAutoPause() {
+    });
+    document.getElementById('autopause-btn').addEventListener('click', () => {
       autoPause = !autoPause;
       document.getElementById('autopause-btn').classList.toggle('on', autoPause);
+    });
+
+    // ── Persist to IndexedDB ──
+    async function saveLastPosition() {
+      if (!currentEpisodeKey) return;
+      const data = await get(currentEpisodeKey);
+      if (!data) return;
+      data.lastPosition = audio.currentTime;
+      data.speed = audio.playbackRate;
+      await set(currentEpisodeKey, data);
     }
 
-    /* ── Init ── */
+    async function persistOffsetToLibrary() {
+      if (!currentEpisodeKey) return;
+      const data = await get(currentEpisodeKey);
+      if (!data) return;
+      data.offset = offset;
+      await set(currentEpisodeKey, data);
+    }
+
+    window.addEventListener('pagehide', () => { saveLastPosition(); });
+
+    // ── Load episode from library ──
+    async function loadEpisodeFromLibrary(key) {
+      const data = await get(key);
+      if (!data) return;
+
+      if (loadedAudioBlob) URL.revokeObjectURL(audio.src);
+      currentEpisodeKey = key;
+
+      if (data.audio) {
+        loadedAudioBlob = data.audio;
+        loadedAudioUrl  = null;
+        audio.src = URL.createObjectURL(data.audio);
+      } else if (data.audioUrl) {
+        loadedAudioBlob = null;
+        loadedAudioUrl  = data.audioUrl;
+        audio.src = data.audioUrl;
+      }
+      audio.load();
+
+      offset = data.offset || 0;
+      document.getElementById('offset-val').textContent = offset.toFixed(1);
+      audio.playbackRate = data.speed || 1;
+
+      loadedSrtText = data.srt;
+      loadedSrtUrl  = data.srtUrl || null;
+      subs = parseSRT(data.srt);
+      currentIdx = -1;
+      renderSubList();
+
+      const pos = data.lastPosition || 0;
+      if (pos > 0) {
+        audio.addEventListener('loadedmetadata', () => { audio.currentTime = pos; }, { once: true });
+      }
+
+      const displayName = data.audioUrl
+        ? data.audioUrl.split('/').pop().split('?')[0]
+        : data.episodeName;
+      markLoaded('audio', displayName);
+      markLoaded('sub', data.episodeName);
+
+      document.getElementById('save-bar').classList.remove('visible');
+      document.getElementById('episode-info-show').textContent = data.showName;
+      document.getElementById('episode-info-ep').textContent   = data.episodeName;
+      document.getElementById('episode-info').classList.add('visible');
+
+      showTab('player');
+    }
+
+    // ── Library render ──
+    async function renderLibrary() {
+      const allKeys = await keys();
+      const epKeys  = allKeys.filter(k => typeof k === 'string' && k.startsWith('episode:'));
+      const listEl  = document.getElementById('library-list');
+      listEl.innerHTML = '';
+
+      if (epKeys.length === 0) {
+        listEl.innerHTML = '<div class="lib-empty">No episodes saved yet.</div>';
+        return;
+      }
+
+      const episodes = await Promise.all(epKeys.map(async k => ({ key: k, ...await get(k) })));
+
+      episodes.sort((a, b) => {
+        const sc = (a.showName || '').localeCompare(b.showName || '', 'ja');
+        return sc !== 0 ? sc : a.addedAt - b.addedAt;
+      });
+
+      const groups = {};
+      episodes.forEach(ep => {
+        const show = ep.showName || '(no show)';
+        if (!groups[show]) groups[show] = [];
+        groups[show].push(ep);
+      });
+
+      Object.entries(groups).forEach(([show, eps]) => {
+        const group = document.createElement('div');
+        group.className = 'show-group';
+
+        const showEl = document.createElement('div');
+        showEl.className = 'show-name';
+        showEl.textContent = show;
+        group.appendChild(showEl);
+
+        eps.forEach(ep => {
+          const item = document.createElement('div');
+          item.className = 'ep-item';
+
+          const nameEl = document.createElement('div');
+          nameEl.className = 'ep-name';
+          nameEl.textContent = ep.episodeName || ep.key;
+
+          const loadBtn = document.createElement('button');
+          loadBtn.className = 'ep-load-btn';
+          loadBtn.textContent = '▶ Load';
+          loadBtn.addEventListener('click', () => loadEpisodeFromLibrary(ep.key));
+
+          const delBtn = document.createElement('button');
+          delBtn.className = 'ep-del-btn';
+          delBtn.textContent = '×';
+          delBtn.addEventListener('click', async () => {
+            if (!confirm(`Delete "${ep.episodeName}"?`)) return;
+            await del(ep.key);
+            if (currentEpisodeKey === ep.key) currentEpisodeKey = null;
+            renderLibrary();
+          });
+
+          item.appendChild(nameEl);
+          item.appendChild(loadBtn);
+          item.appendChild(delBtn);
+          group.appendChild(item);
+        });
+
+        listEl.appendChild(group);
+      });
+    }
+
+    // ── Import Single Episode ──
+    let qiAudioFile = null;
+    let qiSubFile   = null;
+
+    document.getElementById('qi-audio-file-input').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      qiAudioFile = file;
+      const label = document.getElementById('qi-audio-file-label');
+      label.textContent = file.name;
+      label.classList.add('has-file');
+    });
+
+    document.getElementById('qi-sub-file-input').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      qiSubFile = file;
+      const label = document.getElementById('qi-sub-file-label');
+      label.textContent = file.name;
+      label.classList.add('has-file');
+    });
+
+    document.getElementById('qi-btn').addEventListener('click', async () => {
+      const show     = document.getElementById('qi-show').value.trim();
+      const ep       = document.getElementById('qi-ep').value.trim();
+      const audioUrl = document.getElementById('qi-audio').value.trim();
+      const subUrl   = document.getElementById('qi-sub').value.trim();
+
+      if (!show || !ep) { alert('Please enter show name and episode name.'); return; }
+      if (!qiAudioFile && !audioUrl) { alert('Please provide an audio file or URL.'); return; }
+      if (!qiSubFile   && !subUrl)   { alert('Please provide a subtitle file or URL.'); return; }
+
+      const btn = document.getElementById('qi-btn');
+      btn.textContent = (!qiSubFile && subUrl) ? 'Fetching SRT…' : 'Saving…';
+      btn.style.opacity = '0.6';
+
+      try {
+        let srtText, resolvedSrtUrl = null, audioBlob = null, resolvedAudioUrl = null;
+
+        if (qiSubFile) {
+          srtText = await qiSubFile.text();
+        } else {
+          const res = await fetch(subUrl);
+          if (!res.ok) throw new Error(res.status + ' ' + res.statusText);
+          srtText = await res.text();
+          resolvedSrtUrl = subUrl;
+        }
+
+        if (qiAudioFile) {
+          audioBlob = qiAudioFile;
+        } else {
+          resolvedAudioUrl = audioUrl;
+        }
+
+        const key = `episode:${show}|||${ep}`;
+        await set(key, {
+          showName:     show,
+          episodeName:  ep,
+          audio:        audioBlob,
+          audioUrl:     resolvedAudioUrl,
+          srt:          srtText,
+          srtUrl:       resolvedSrtUrl,
+          offset:       0,
+          lastPosition: 0,
+          speed:        1,
+          addedAt:      Date.now(),
+          notes:        ''
+        });
+
+        // Reset form (keep show name)
+        document.getElementById('qi-ep').value    = '';
+        document.getElementById('qi-audio').value = '';
+        document.getElementById('qi-sub').value   = '';
+        qiAudioFile = null; qiSubFile = null;
+        document.getElementById('qi-audio-file-input').value = '';
+        document.getElementById('qi-sub-file-input').value   = '';
+        const aLabel = document.getElementById('qi-audio-file-label');
+        aLabel.textContent = 'upload'; aLabel.classList.remove('has-file');
+        const sLabel = document.getElementById('qi-sub-file-label');
+        sLabel.textContent = 'upload'; sLabel.classList.remove('has-file');
+
+        btn.textContent = 'Saved ✓';
+        btn.style.opacity = '1';
+        btn.style.color = 'var(--green)';
+        setTimeout(() => { btn.textContent = 'Import & Save'; btn.style.color = ''; }, 2000);
+        renderLibrary();
+      } catch (err) {
+        alert('Could not import: ' + err.message);
+        btn.textContent = 'Import & Save';
+        btn.style.opacity = '1';
+      }
+    });
+
+    // ── Bulk Import ──
+    document.getElementById('bulk-csv-file').addEventListener('change', async e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      e.target.value = '';
+
+      const text = await file.text();
+      const rows = parseCSV(text);
+      if (rows.length === 0) { alert('No valid rows found in CSV.'); return; }
+
+      const progress = document.getElementById('bulk-progress');
+      progress.style.display = '';
+      let saved = 0;
+      const errors = [];
+
+      for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        progress.textContent = `Importing ${i + 1} / ${rows.length}…`;
+        try {
+          const srtRes = await fetch(row.sub_url);
+          if (!srtRes.ok) throw new Error('HTTP ' + srtRes.status);
+          const srtText = await srtRes.text();
+          const key = `episode:${row.show}|||${row.episode}`;
+          await set(key, {
+            showName:     row.show,
+            episodeName:  row.episode,
+            audio:        null,
+            audioUrl:     row.audio_url || null,
+            srt:          srtText,
+            srtUrl:       row.sub_url,
+            offset:       0,
+            lastPosition: 0,
+            speed:        1,
+            addedAt:      Date.now(),
+            notes:        ''
+          });
+          saved++;
+        } catch (err) {
+          errors.push({ show: row.show, episode: row.episode, reason: err.message });
+        }
+      }
+
+      progress.innerHTML = '';
+      const summary = document.createElement('div');
+      summary.textContent = `Done — ${saved} saved${errors.length ? `, ${errors.length} failed` : ''}.`;
+      progress.appendChild(summary);
+
+      if (errors.length) {
+        const errList = document.createElement('div');
+        errList.style.cssText = 'margin-top:0.5rem; text-align:left;';
+        errors.forEach(e => {
+          const line = document.createElement('div');
+          line.style.cssText = 'color:#c96b6b; margin-top:0.25rem;';
+          line.textContent = `✕ ${e.show} · ${e.episode} — ${e.reason}`;
+          errList.appendChild(line);
+        });
+        progress.appendChild(errList);
+      }
+
+      renderLibrary();
+    });
+
+    function parseCSV(text) {
+      const lines = text.trim().split(/\r?\n/);
+      if (lines.length < 2) return [];
+      const header = parseCSVRow(lines[0]).map(h => h.trim().toLowerCase());
+      return lines.slice(1)
+        .map(line => {
+          const vals = parseCSVRow(line);
+          const row = {};
+          header.forEach((h, i) => { row[h] = (vals[i] || '').trim(); });
+          return row;
+        })
+        .filter(r => r.show && r.episode && r.sub_url);
+    }
+
+    function parseCSVRow(line) {
+      const result = [];
+      let cur = '', inQuote = false;
+      for (let i = 0; i < line.length; i++) {
+        const c = line[i];
+        if (c === '"') {
+          if (inQuote && line[i + 1] === '"') { cur += '"'; i++; }
+          else inQuote = !inQuote;
+        } else if (c === ',' && !inQuote) {
+          result.push(cur); cur = '';
+        } else {
+          cur += c;
+        }
+      }
+      result.push(cur);
+      return result;
+    }
+
+    // ── Catalogue ──
+    async function loadCatalogue() {
+      try {
+        const res = await fetch('./subtitles/episodes.json');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!Array.isArray(data.catalogue) || data.catalogue.length === 0) return;
+
+        const section = document.getElementById('catalogue-section');
+        const listEl  = document.getElementById('catalogue-list');
+        section.style.display = '';
+
+        data.catalogue.forEach(ep => {
+          const item = document.createElement('div');
+          item.className = 'ep-item';
+
+          const nameEl = document.createElement('div');
+          nameEl.className = 'ep-name';
+          nameEl.textContent = `${ep.showName} · ${ep.episodeName}`;
+
+          const loadBtn = document.createElement('button');
+          loadBtn.className = 'ep-load-btn';
+          loadBtn.textContent = '▶ Load';
+          loadBtn.addEventListener('click', async () => {
+            loadBtn.textContent = '…';
+            const key = `episode:${ep.showName}|||${ep.episodeName}`;
+            const existing = await get(key);
+            if (existing) {
+              loadEpisodeFromLibrary(key);
+              return;
+            }
+            try {
+              const srtRes = await fetch(ep.srtUrl);
+              if (!srtRes.ok) throw new Error('SRT fetch failed');
+              const srtText = await srtRes.text();
+              await set(key, {
+                showName:     ep.showName,
+                episodeName:  ep.episodeName,
+                audio:        null,
+                audioUrl:     ep.audioUrl,
+                srt:          srtText,
+                srtUrl:       ep.srtUrl,
+                offset:       0,
+                lastPosition: 0,
+                speed:        1,
+                addedAt:      Date.now(),
+                notes:        ''
+              });
+              loadEpisodeFromLibrary(key);
+            } catch (err) {
+              alert('Could not load episode: ' + err.message);
+              loadBtn.textContent = '▶ Load';
+            }
+          });
+
+          item.appendChild(nameEl);
+          item.appendChild(loadBtn);
+          listEl.appendChild(item);
+        });
+      } catch (_) {
+        // episodes.json absent or malformed — silently skip
+      }
+    }
+
+    // ── Init ──
     renderSubList();
-
-    /* ── Fixed header: sync body padding-top to actual header height ── */
-    const headerEl = document.querySelector('header');
-    function syncBodyPad() {
-      document.body.style.paddingTop = (headerEl.offsetHeight + 50) + 'px';
-    }
-    syncBodyPad();
-    window.addEventListener('resize', syncBodyPad);
+    loadCatalogue();
   </script>
 </body>
 </html>
