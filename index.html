@@ -17,7 +17,7 @@
       --border-2:  #3a362b;
       --text:      #ede8dd;
       --text-2:    #7d7567;
-      --text-3:    #453f35;
+      --text-3:    #4b453b;
       --accent:    #a134c9;
       --accent-a10: rgba(161,52,201,0.10);
       --accent-a28: rgba(161,52,201,0.28);
@@ -331,6 +331,9 @@
       transition: background 0.12s, color 0.12s;
     }
     .ctrl-btn:active { background: var(--surface-2); color: var(--text); }
+    @media (max-width: 600px) {
+      .ctrl-end { align-items: center; }
+    }
     .play-btn {
       background: var(--surface-2);
       border-color: var(--border-2);
@@ -428,7 +431,7 @@
 
     .lib-section-title {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.58rem;
+      font-size: 0.68rem;
       letter-spacing: 0.28em;
       text-transform: uppercase;
       color: var(--text-3);
@@ -590,10 +593,10 @@
     .show-group { margin-bottom: 1.25rem; }
     .show-name {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.6rem;
+      font-size: 0.72rem;
       letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: var(--green);
+      color: var(--accent);
       opacity: 0.75;
       padding-bottom: 0.4rem;
       border-bottom: 1px solid var(--border);
@@ -790,7 +793,6 @@
       letter-spacing: 0.1em;
       cursor: pointer;
       user-select: none;
-      opacity: 0.45;
     }
     .backup-srt-row input[type=checkbox] { accent-color: var(--accent); cursor: pointer; }
     .backup-status:not(:empty) {
@@ -805,7 +807,8 @@
     .wordlist-header {
       display: flex;
       justify-content: flex-start;
-      margin-bottom: 0.4rem;
+      margin-top: -0.5rem;
+      margin-bottom: 0.875rem;
     }
     .words-toggle-btn {
       flex-shrink: 0;
@@ -1081,7 +1084,7 @@
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.6rem;
       letter-spacing: 0.18em;
-      color: var(--green);
+      color: var(--accent);
       outline: none;
       width: 100%;
       margin-bottom: 0.4rem;
@@ -1218,7 +1221,7 @@
 
     <!-- My Library -->
     <div class="lib-section">
-      <div class="lib-section-title">My Library</div>
+      <div class="lib-section-title"><strong>My Library</strong></div>
       <div id="library-list"></div>
     </div>
 
@@ -1228,8 +1231,8 @@
     </div>
 
     <!-- Import and Export -->
-    <div class="lib-section">
-      <div class="lib-section-title">Import and Export</div>
+    <details class="lib-section">
+      <summary class="lib-section-title">Import and Export</summary>
       <div class="ie-card">
         <div class="ie-half">
           <label class="ie-btn" for="bulk-file">Import CSV or JSON (NO AUDIO UPLOAD)</label>
@@ -1252,12 +1255,12 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
           <div id="backup-status" class="backup-status"></div>
         </div>
       </div>
-    </div>
+    </details>
 
     <!-- CORS Proxy -->
     <div class="lib-section">
       <details class="proxy-details">
-        <summary class="proxy-summary">CORS Proxy</summary>
+        <summary class="lib-section-title">CORS Proxy</summary>
         <div class="proxy-card">
           <div class="proxy-desc">Needed to download audio from CDNs that don't send CORS headers. Deploy <code>cloudflare-worker/index.js</code> to Cloudflare Workers (free), then paste the worker URL here.</div>
           <div class="proxy-row">
