@@ -740,6 +740,7 @@
 
     /* ── Wordlist panel ── */
     .wordlist-panel {
+      margin-top: 1rem;
       margin-bottom: 1rem;
       border: 1px solid var(--border);
       border-radius: var(--radius);
@@ -1567,15 +1568,43 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       });
     }
 
-    document.getElementById('word-add-btn').addEventListener('click', () => {
+    // Clicking the + W button (or its underlying pointerdown) clears the page
+    // selection before the click handler fires, so stash the last non-empty
+    // selection that lands inside a subtitle and use it as fallback.
+    let stashedWord = '';
+    let stashedSentence = '';
+    document.addEventListener('selectionchange', () => {
+      const sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0) return;
+      const text = sel.toString().trim();
+      if (!text) return;
+      const anchorNode = sel.anchorNode;
+      const subItem = anchorNode && (anchorNode.nodeType === 1 ? anchorNode : anchorNode.parentElement)?.closest?.('.sub-item');
+      if (!subItem) return;
+      stashedWord = text;
+      const sentEl = subItem.querySelector('.sub-text');
+      stashedSentence = sentEl ? sentEl.textContent.trim() : '';
+    });
+
+    const wordAddBtn = document.getElementById('word-add-btn');
+    // Keep desktop selection alive through the click. On iOS we rely on the
+    // stash above — touchstart preventDefault would suppress the click event.
+    wordAddBtn.addEventListener('mousedown', (e) => e.preventDefault());
+    wordAddBtn.addEventListener('click', () => {
       if (!currentEpisodeKey) return;
-      const word = window.getSelection().toString().trim();
+      const liveWord = window.getSelection().toString().trim();
+      const word = liveWord || stashedWord;
       if (!word) return;
-      const activeEl = scroll.querySelector('.sub-item.active .sub-text');
-      const sentence = activeEl ? activeEl.textContent.trim() : '';
+      let sentence = stashedSentence;
+      if (liveWord) {
+        const activeEl = scroll.querySelector('.sub-item.active .sub-text');
+        sentence = activeEl ? activeEl.textContent.trim() : '';
+      }
       currentWordlist.push({ word, sentence, timestamp: audio.currentTime, addedAt: Date.now() });
       patchEpisode({ wordlist: currentWordlist });
       renderWordlist();
+      stashedWord = '';
+      stashedSentence = '';
     });
 
     document.getElementById('words-toggle-btn').addEventListener('click', () => {

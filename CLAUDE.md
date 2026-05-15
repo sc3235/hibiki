@@ -115,7 +115,56 @@ document.getElementById('add-word-btn').addEventListener('click', () => {
 - Export/import library backup without audio files
 
 ### P3.5[TODO] — export/import with audio
-- Export/import library backup full (zip of all audio + SRT files + metadata, downloadable)
+
+Full library backup as a downloadable zip (audio Blobs + SRT files + metadata + wordlists).
+
+**Scope decisions** (already settled):
+- Target library size: small (~100MB, few episodes). In-memory zip with JSZip is fine; no streaming needed.
+- Export scope: entire library, single button (no per-show or per-episode selection).
+- Import conflicts: overwrite existing episodes with imported version (no prompt).
+- URL-only episodes (no downloaded audio Blob): include metadata + `audioUrl` in manifest, no audio file in zip. Don't fetch at export time.
+
+**Estimated work**: ~130–170 lines + JSZip CDN import. A few hours of focused work.
+
+**Implementation sketch**:
+
+- CDN import: `import JSZip from 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm'`
+- Use STORE method (no compression) — audio is already compressed, zip compression buys nothing and slows export.
+- Zip layout:
+  ```
+  manifest.json
+  audio/<safe-name>.<ext>      (only for episodes with a downloaded Blob)
+  subtitles/<safe-name>.srt
+  ```
+- Manifest schema:
+  ```json
+  {
+    "version": 1,
+    "exportedAt": 1731600000000,
+    "episodes": [
+      {
+        "key": "episode:foo",
+        "audioFile": "audio/foo.mp3",   // null if URL-only
+        "audioMimeType": "audio/mpeg",  // preserve for Blob reconstruction
+        "audioUrl": null,
+        "srtFile": "subtitles/foo.srt",
+        "offset": 0,
+        "lastPosition": 342.5,
+        "speed": 1,
+        "addedAt": 1731000000000,
+        "notes": "",
+        "wordlist": [...]
+      }
+    ]
+  }
+  ```
+  `version` field enables forward-compatible schema changes.
+
+**Gotchas to remember**:
+- Preserve audio Blob MIME type on extract: `new Blob([data], { type: manifest.audioMimeType })` — JSZip strips MIME on extract.
+- Sanitize episode keys before using as filenames (slashes/colons break some filesystems).
+- Wordlist (P1.5) must roundtrip — include in the manifest record.
+- iOS Safari handles `.zip` downloads at this size reliably; no workaround needed.
 
 ### P4 — download audio for offline use
 
