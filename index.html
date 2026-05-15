@@ -1251,7 +1251,7 @@
       <summary class="lib-section-title">Import and Export</summary>
       <div class="ie-card">
         <div class="ie-half">
-          <label class="ie-btn" for="bulk-file">Import CSV or JSON (NO AUDIO UPLOAD)</label>
+          <label class="ie-btn" for="bulk-file">Import CSV or JSON (URL ONLY)</label>
           <input type="file" id="bulk-file" accept=".csv,.json,text/csv,text/plain,application/json" style="display:none">
           <details class="bulk-csv-note">
             <summary>Format</summary>
@@ -1263,7 +1263,7 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         </div>
         <div class="ie-divider"></div>
         <div class="ie-half">
-          <button class="ie-btn" id="export-btn">Export JSON (NO AUDIO DOWNLOAD)</button>
+          <button class="ie-btn" id="export-btn">Export JSON (URL ONLY)</button>
           <label class="backup-srt-row">
             <input type="checkbox" id="export-srt-chk">
             <span>Include SRT text</span>
@@ -1278,7 +1278,7 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       <details class="proxy-details">
         <summary class="lib-section-title">CORS Proxy</summary>
         <div class="proxy-card">
-          <div class="proxy-desc">Needed to download audio from CDNs that don't send CORS headers. Deploy <code>cloudflare-worker/index.js</code> to Cloudflare Workers (free), then paste the worker URL here.</div>
+          <div class="proxy-desc">Need CORS proxy to download audio from CDNs that do not send CORS headers. Deploy <code>cloudflare-worker/index.js</code> to Cloudflare Workers (free), then paste the worker URL here.</div>
           <div class="proxy-row">
             <input class="proxy-input" id="proxy-input" type="url" placeholder="https://your-worker.workers.dev" autocorrect="off" autocapitalize="none" spellcheck="false">
             <button class="proxy-save-btn" id="proxy-save-btn">Save</button>
@@ -1853,7 +1853,8 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
 
       episodes.sort((a, b) => {
         const sc = (a.showName || '').localeCompare(b.showName || '', 'ja');
-        return sc !== 0 ? sc : a.addedAt - b.addedAt;
+        if (sc !== 0) return sc;
+        return (a.episodeName || '').localeCompare(b.episodeName || '', 'ja');
       });
 
       const groups = {};
@@ -2486,7 +2487,10 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     renderSubList();
     loadCatalogue();
     const _lastKey = localStorage.getItem('last-episode-key');
-    if (_lastKey) loadEpisodeFromLibrary(_lastKey);
+    if (_lastKey) get(_lastKey).then(d => {
+      if (d) loadEpisodeFromLibrary(_lastKey);
+      else localStorage.removeItem('last-episode-key');
+    });
   </script>
 </body>
 </html>
