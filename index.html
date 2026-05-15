@@ -19,6 +19,9 @@
       --text-2:    #7d7567;
       --text-3:    #453f35;
       --accent:    #a134c9;
+      --accent-a10: rgba(161,52,201,0.10);
+      --accent-a28: rgba(161,52,201,0.28);
+      --accent-a40: rgba(161,52,201,0.40);
       --green:     #72b87e;
       --radius:    14px;
       --sub-font:  2.0rem;
@@ -377,8 +380,8 @@
       transition: background 0.15s, border-color 0.15s, color 0.15s;
     }
     .toggle-btn.on {
-      background: rgba(161,52,201,0.1);
-      border-color: rgba(161,52,201,0.4);
+      background: var(--accent-a10);
+      border-color: var(--accent-a40);
       color: var(--accent);
     }
 
@@ -442,14 +445,14 @@
       appearance: none;
     }
     .qi-input::placeholder { color: var(--text-3); }
-    .qi-input:focus { border-color: rgba(161,52,201,0.4); }
+    .qi-input:focus { border-color: var(--accent-a40); }
     .qi-btn {
       display: block;
       width: 100%;
       margin-top: 0.875rem;
       padding: 0.65rem;
-      background: rgba(161,52,201,0.1);
-      border: 1px solid rgba(161,52,201,0.28);
+      background: var(--accent-a10);
+      border: 1px solid var(--accent-a28);
       border-radius: 8px;
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.62rem;
@@ -778,7 +781,7 @@
             <input type="file" id="qi-sub-file-input" accept=".srt,.vtt,text/plain" style="display:none">
           </div>
         </div>
-        <button class="qi-btn" id="qi-btn">Import &amp; Save</button>
+        <button class="qi-btn" id="qi-btn">Add</button>
       </div>
     </details>
 
@@ -1034,14 +1037,14 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     function adjustOffset(delta) {
       offset = Math.round((offset + delta) * 10) / 10;
       document.getElementById('offset-val').textContent = offset.toFixed(1);
-      persistOffsetToLibrary();
+      patchEpisode({ offset });
     }
 
     function adjustSpeed(delta) {
       const speed = Math.round(Math.max(0.5, Math.min(2.0, audio.playbackRate + delta)) * 4) / 4;
       audio.playbackRate = speed;
       document.getElementById('speed-val').textContent = speed.toFixed(2).replace(/\.?0+$/, '') + '×';
-      persistSpeedToLibrary();
+      patchEpisode({ speed });
     }
 
     function adjustFont(delta) {
@@ -1068,29 +1071,19 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     });
 
     // ── Persist to IndexedDB ──
-    async function saveLastPosition() {
+    async function patchEpisode(updates) {
       if (!currentEpisodeKey) return;
       const data = await get(currentEpisodeKey);
       if (!data) return;
-      data.lastPosition = audio.currentTime;
-      data.speed = audio.playbackRate;
-      await set(currentEpisodeKey, data);
+      await set(currentEpisodeKey, { ...data, ...updates });
     }
 
-    async function persistOffsetToLibrary() {
-      if (!currentEpisodeKey) return;
-      const data = await get(currentEpisodeKey);
-      if (!data) return;
-      data.offset = offset;
-      await set(currentEpisodeKey, data);
+    function saveLastPosition() {
+      return patchEpisode({ lastPosition: audio.currentTime, speed: audio.playbackRate });
     }
 
-    async function persistSpeedToLibrary() {
-      if (!currentEpisodeKey) return;
-      const data = await get(currentEpisodeKey);
-      if (!data) return;
-      data.speed = audio.playbackRate;
-      await set(currentEpisodeKey, data);
+    function makeEpisodeRecord({ showName, episodeName, audio = null, audioUrl = null, srt, srtUrl = null }) {
+      return { showName, episodeName, audio, audioUrl, srt, srtUrl, offset: 0, lastPosition: 0, speed: 1, addedAt: Date.now(), notes: '' };
     }
 
     function syncSpeedDisplay() {
@@ -1321,19 +1314,7 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         }
 
         const key = `episode:${show}|||${ep}`;
-        await set(key, {
-          showName:     show,
-          episodeName:  ep,
-          audio:        audioBlob,
-          audioUrl:     resolvedAudioUrl,
-          srt:          srtText,
-          srtUrl:       resolvedSrtUrl,
-          offset:       0,
-          lastPosition: 0,
-          speed:        1,
-          addedAt:      Date.now(),
-          notes:        ''
-        });
+        await set(key, makeEpisodeRecord({ showName: show, episodeName: ep, audio: audioBlob, audioUrl: resolvedAudioUrl, srt: srtText, srtUrl: resolvedSrtUrl }));
 
         // Reset form (keep show name)
         document.getElementById('qi-ep').value    = '';
@@ -1422,19 +1403,7 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
           if (!srtRes.ok) throw new Error('HTTP ' + srtRes.status);
           const srtText = await srtRes.text();
           const key = `episode:${row.show}|||${row.episode}`;
-          await set(key, {
-            showName:     row.show,
-            episodeName:  row.episode,
-            audio:        null,
-            audioUrl:     row.audio_url || null,
-            srt:          srtText,
-            srtUrl:       row.sub_url,
-            offset:       0,
-            lastPosition: 0,
-            speed:        1,
-            addedAt:      Date.now(),
-            notes:        ''
-          });
+          await set(key, makeEpisodeRecord({ showName: row.show, episodeName: row.episode, audioUrl: row.audio_url || null, srt: srtText, srtUrl: row.sub_url }));
           saved++;
         } catch (err) {
           errors.push({ show: row.show, episode: row.episode, reason: err.message });
@@ -1528,19 +1497,7 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
               const srtRes = await fetch(ep.srtUrl);
               if (!srtRes.ok) throw new Error('SRT fetch failed');
               const srtText = await srtRes.text();
-              await set(key, {
-                showName:     ep.showName,
-                episodeName:  ep.episodeName,
-                audio:        null,
-                audioUrl:     ep.audioUrl,
-                srt:          srtText,
-                srtUrl:       ep.srtUrl,
-                offset:       0,
-                lastPosition: 0,
-                speed:        1,
-                addedAt:      Date.now(),
-                notes:        ''
-              });
+              await set(key, makeEpisodeRecord({ showName: ep.showName, episodeName: ep.episodeName, audioUrl: ep.audioUrl, srt: srtText, srtUrl: ep.srtUrl }));
               loadEpisodeFromLibrary(key);
             } catch (err) {
               alert('Could not load episode: ' + err.message);
@@ -1564,8 +1521,7 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       document.getElementById('offset-val').textContent = '0.0';
       audio.playbackRate = 1;
       syncSpeedDisplay();
-      const data = await get(currentEpisodeKey);
-      if (data) { data.offset = 0; data.speed = 1; await set(currentEpisodeKey, data); }
+      await patchEpisode({ offset: 0, speed: 1 });
     });
 
     // ── Export library backup ──
