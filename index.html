@@ -92,124 +92,26 @@
       border-bottom-color: var(--accent);
     }
 
-    /* ── File loaders ── */
-    .file-section {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-    }
-    .file-slot {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-    }
-    input[type="file"] { display: none; }
-
-    .file-btn {
-      display: grid;
-      grid-template-columns: auto 1fr;
-      grid-template-rows: auto auto;
-      align-items: center;
-      column-gap: 0.75rem;
-      row-gap: 0.1rem;
+    /* ── Choose from Library button ── */
+    .choose-lib-btn {
+      display: block;
+      width: 100%;
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 0.65rem 1rem;
+      padding: 0.875rem;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.75rem;
-      color: var(--text-2);
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-      transition: border-color 0.2s, background 0.15s;
-      letter-spacing: 0.06em;
-    }
-    .file-btn:active { background: var(--surface-2); }
-    .file-btn .icon {
-      grid-column: 1;
-      grid-row: 1 / 3;
-      width: 2rem; height: 2rem;
-      display: flex; align-items: center; justify-content: center;
-      background: var(--surface-2);
-      border-radius: 8px;
-      font-size: 1rem;
-      color: var(--text-2);
-    }
-    .file-btn .label {
-      grid-column: 2;
-      grid-row: 1;
-      align-self: end;
-      font-weight: 500;
+      font-size: 0.68rem;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
-      font-size: 0.7rem;
-      letter-spacing: 0.15em;
       color: var(--text-2);
-    }
-    .file-btn .status {
-      grid-column: 2;
-      grid-row: 2;
-      align-self: start;
-      font-size: 0.65rem;
-      color: var(--text-3);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      max-width: 100%;
-    }
-    .file-btn.loaded { border-color: rgba(107,166,118,0.4); }
-    .file-btn.loaded .status { color: var(--green); }
-    .file-btn.loaded .label  { color: var(--text); }
-
-    /* URL link + inline input */
-    .url-link {
-      display: block;
-      width: 100%;
+      cursor: pointer;
       text-align: center;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.6rem;
-      color: var(--text-3);
-      letter-spacing: 0.1em;
-      padding: 0.3rem 0;
-      background: none;
-      border: none;
-      cursor: pointer;
+      margin-bottom: 1rem;
       -webkit-tap-highlight-color: transparent;
-      text-decoration: underline;
-      text-underline-offset: 2px;
+      transition: background 0.12s, color 0.12s;
     }
-    .url-input-row {
-      display: none;
-      gap: 0.35rem;
-      align-items: stretch;
-    }
-    .url-input-row.visible { display: flex; }
-    .url-field {
-      flex: 1;
-      min-width: 0;
-      background: var(--surface);
-      border: 1px solid var(--border-2);
-      border-radius: 8px;
-      padding: 0.75rem 0.875rem;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.65rem;
-      color: var(--text);
-      outline: none;
-      -webkit-appearance: none;
-      appearance: none;
-    }
-    .url-field::placeholder { color: var(--text-3); }
-    .url-confirm, .url-cancel {
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0 0.75rem;
-      font-size: 0.8rem;
-      color: var(--text-2);
-      cursor: pointer;
-      flex-shrink: 0;
-      -webkit-tap-highlight-color: transparent;
-    }
+    .choose-lib-btn:active { background: var(--surface-2); color: var(--text); }
 
     /* ── Episode info strip (shown when loaded from library) ── */
     .episode-info {
@@ -234,40 +136,6 @@
       font-size: 1rem;
       font-weight: 300;
       color: var(--text);
-    }
-
-    /* ── Save bar ── */
-    .save-bar {
-      display: none;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0.6rem 0.875rem;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      margin-bottom: 1rem;
-    }
-    .save-bar.visible { display: flex; }
-    .save-bar-label {
-      flex: 1;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.6rem;
-      color: var(--text-3);
-      letter-spacing: 0.08em;
-    }
-    .save-bar-btn {
-      background: rgba(161,52,201,0.12);
-      border: 1px solid rgba(161,52,201,0.3);
-      border-radius: 8px;
-      padding: 0.35rem 0.875rem;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.62rem;
-      color: var(--accent);
-      cursor: pointer;
-      letter-spacing: 0.1em;
-      flex-shrink: 0;
-      -webkit-tap-highlight-color: transparent;
-      transition: color 0.2s, border-color 0.2s;
     }
 
     /* ── Native audio ── */
@@ -512,6 +380,17 @@
       color: var(--text-3);
       margin-bottom: 0.875rem;
     }
+    summary.lib-section-title {
+      list-style: none;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    summary.lib-section-title::-webkit-details-marker { display: none; }
+    summary.lib-section-title::before { content: '▸  '; }
+    details[open] > summary.lib-section-title::before { content: '▾  '; }
+    details.lib-section > summary.lib-section-title { margin-bottom: 0; }
+    details[open].lib-section > summary.lib-section-title { margin-bottom: 0.875rem; }
 
     /* Quick Import */
     .quick-import {
@@ -719,92 +598,6 @@
       letter-spacing: 0.15em;
     }
 
-    /* ── Save modal ── */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.55);
-      z-index: 200;
-      align-items: flex-end;
-      justify-content: center;
-    }
-    .modal-overlay.visible { display: flex; }
-    .modal-box {
-      background: var(--surface);
-      border: 1px solid var(--border-2);
-      border-radius: var(--radius) var(--radius) 0 0;
-      padding: 1.5rem 1.5rem calc(env(safe-area-inset-bottom) + 1.5rem);
-      width: 100%;
-      max-width: 600px;
-    }
-    .modal-title {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.62rem;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--text-2);
-      margin-bottom: 1.1rem;
-    }
-    .modal-field {
-      display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-      margin-bottom: 0.75rem;
-    }
-    .modal-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.57rem;
-      color: var(--text-3);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-    .modal-input {
-      background: var(--surface-2);
-      border: 1px solid var(--border-2);
-      border-radius: 8px;
-      padding: 0.75rem 0.875rem;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.75rem;
-      color: var(--text);
-      outline: none;
-      width: 100%;
-      -webkit-appearance: none;
-      appearance: none;
-    }
-    .modal-input:focus { border-color: rgba(161,52,201,0.5); }
-    .modal-actions {
-      display: flex;
-      gap: 0.5rem;
-      margin-top: 1.1rem;
-    }
-    .modal-cancel {
-      flex: 1;
-      padding: 0.75rem;
-      background: none;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.62rem;
-      letter-spacing: 0.12em;
-      color: var(--text-3);
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .modal-save {
-      flex: 2;
-      padding: 0.75rem;
-      background: rgba(161,52,201,0.13);
-      border: 1px solid rgba(161,52,201,0.33);
-      border-radius: 8px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.62rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--accent);
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-    }
   </style>
 </head>
 <body>
@@ -819,46 +612,11 @@
 
   <!-- ── Player view ── -->
   <div id="player-view">
-    <div class="file-section">
-      <div class="file-slot">
-        <label class="file-btn" id="audio-btn" for="audio-file">
-          <span class="icon">♪</span>
-          <span class="label">Audio</span>
-          <span class="status">Tap to load</span>
-        </label>
-        <input type="file" id="audio-file" accept="audio/mpeg,audio/mp4,audio/x-m4a,audio/wav,.mp3,.m4a,.wav,.aac">
-        <button class="url-link" id="audio-url-link">paste url ↗</button>
-        <div class="url-input-row" id="audio-url-row">
-          <input type="url" class="url-field" id="audio-url-field" placeholder="https://…" autocomplete="off" autocorrect="off" autocapitalize="off">
-          <button class="url-confirm" id="audio-url-confirm">✓</button>
-          <button class="url-cancel"  id="audio-url-cancel">✕</button>
-        </div>
-      </div>
-
-      <div class="file-slot">
-        <label class="file-btn" id="sub-btn" for="sub-file">
-          <span class="icon">字</span>
-          <span class="label">Subtitles</span>
-          <span class="status">Tap to load</span>
-        </label>
-        <input type="file" id="sub-file" accept=".srt,.vtt,text/plain">
-        <button class="url-link" id="sub-url-link">paste url ↗</button>
-        <div class="url-input-row" id="sub-url-row">
-          <input type="url" class="url-field" id="sub-url-field" placeholder="https://…" autocomplete="off" autocorrect="off" autocapitalize="off">
-          <button class="url-confirm" id="sub-url-confirm">✓</button>
-          <button class="url-cancel"  id="sub-url-cancel">✕</button>
-        </div>
-      </div>
-    </div>
+    <button class="choose-lib-btn" id="choose-lib-btn">Choose from Library</button>
 
     <div class="episode-info" id="episode-info">
       <span class="episode-info-show" id="episode-info-show"></span>
       <span class="episode-info-ep"   id="episode-info-ep"></span>
-    </div>
-
-    <div class="save-bar" id="save-bar">
-      <span class="save-bar-label">Save this episode to your library?</span>
-      <button class="save-bar-btn" id="save-bar-btn">Save</button>
     </div>
 
     <audio id="audio" controls playsinline></audio>
@@ -885,6 +643,14 @@
         </div>
       </div>
       <div class="setting-box">
+        <span class="setting-label">Speed</span>
+        <div class="setting-controls">
+          <button class="adj-btn" id="speed-minus">−</button>
+          <span class="setting-val" id="speed-val">1.0×</span>
+          <button class="adj-btn" id="speed-plus">+</button>
+        </div>
+      </div>
+      <div class="setting-box">
         <span class="setting-label">Font</span>
         <div class="setting-controls">
           <button class="adj-btn" id="font-minus">A−</button>
@@ -904,8 +670,8 @@
   <div id="library-view">
 
     <!-- Bulk Import -->
-    <div class="lib-section">
-      <div class="lib-section-title">Bulk Import</div>
+    <details class="lib-section">
+      <summary class="lib-section-title">Bulk Import</summary>
       <div class="bulk-import">
         <details class="bulk-csv-note">
           <summary>CSV format</summary>
@@ -917,11 +683,11 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         <input type="file" id="bulk-csv-file" accept=".csv,text/csv,text/plain" style="display:none">
         <div class="bulk-progress" id="bulk-progress" style="display:none"></div>
       </div>
-    </div>
+    </details>
 
     <!-- Import Single Episode -->
-    <div class="lib-section">
-      <div class="lib-section-title">Import</div>
+    <details class="lib-section">
+      <summary class="lib-section-title">Import Single Episode</summary>
       <div class="quick-import">
         <div class="qi-field-row">
           <span class="qi-label">Show</span>
@@ -953,7 +719,7 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         </div>
         <button class="qi-btn" id="qi-btn">Import &amp; Save</button>
       </div>
-    </div>
+    </details>
 
     <!-- My Library -->
     <div class="lib-section">
@@ -964,25 +730,6 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     <div class="lib-section" id="catalogue-section" style="display:none">
       <div class="lib-section-title">Catalogue</div>
       <div id="catalogue-list"></div>
-    </div>
-  </div>
-
-  <!-- ── Save modal ── -->
-  <div class="modal-overlay" id="save-modal">
-    <div class="modal-box">
-      <div class="modal-title">Save to Library</div>
-      <div class="modal-field">
-        <label class="modal-label" for="modal-show">Show</label>
-        <input class="modal-input" id="modal-show" placeholder="Show name" autocorrect="off" autocapitalize="words">
-      </div>
-      <div class="modal-field">
-        <label class="modal-label" for="modal-ep">Episode</label>
-        <input class="modal-input" id="modal-ep" placeholder="Episode name or number" autocorrect="off" autocapitalize="words">
-      </div>
-      <div class="modal-actions">
-        <button class="modal-cancel" id="modal-cancel">Cancel</button>
-        <button class="modal-save"   id="modal-save">Save</button>
-      </div>
     </div>
   </div>
 
@@ -1034,148 +781,10 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       syncBodyPad();
     }
 
-    // ── File inputs ──
-    document.getElementById('audio-file').addEventListener('change', e => {
-      const file = e.target.files[0];
-      if (!file) return;
-      if (loadedAudioBlob) URL.revokeObjectURL(audio.src);
-      loadedAudioBlob = file;
-      loadedAudioUrl  = null;
-      audio.src = URL.createObjectURL(file);
-      audio.load();
-      markLoaded('audio', file.name);
-      resetEpisodeHeader();
-      checkShowSaveBar();
-    });
-
-    document.getElementById('sub-file').addEventListener('change', async e => {
-      const file = e.target.files[0];
-      if (!file) return;
-      loadedSrtText = await file.text();
-      loadedSrtUrl  = null;
-      loadSRT(loadedSrtText, file.name);
-      resetEpisodeHeader();
-      checkShowSaveBar();
-    });
-
-    function markLoaded(type, name) {
-      const btn = document.getElementById(type + '-btn');
-      btn.classList.add('loaded');
-      btn.querySelector('.status').textContent = name;
-    }
-
-    // ── URL inputs ──
-    document.getElementById('audio-url-link').addEventListener('click', () => showUrl('audio'));
-    document.getElementById('sub-url-link').addEventListener('click', () => showUrl('sub'));
-    document.getElementById('audio-url-confirm').addEventListener('click', () => confirmUrl('audio'));
-    document.getElementById('sub-url-confirm').addEventListener('click', () => confirmUrl('sub'));
-    document.getElementById('audio-url-cancel').addEventListener('click', () => hideUrl('audio'));
-    document.getElementById('sub-url-cancel').addEventListener('click', () => hideUrl('sub'));
-
-    function showUrl(type) {
-      document.getElementById(type + '-url-row').classList.add('visible');
-      document.getElementById(type + '-url-field').focus();
-    }
-    function hideUrl(type) {
-      document.getElementById(type + '-url-row').classList.remove('visible');
-    }
-    async function confirmUrl(type) {
-      const url = document.getElementById(type + '-url-field').value.trim();
-      if (!url) return;
-      const label = url.split('/').pop().split('?')[0] || url;
-      if (type === 'audio') {
-        if (loadedAudioBlob) { URL.revokeObjectURL(audio.src); loadedAudioBlob = null; }
-        loadedAudioUrl = url;
-        audio.src = url;
-        audio.load();
-        markLoaded('audio', label);
-        hideUrl('audio');
-        resetEpisodeHeader();
-      checkShowSaveBar();
-      } else {
-        try {
-          const res = await fetch(url);
-          if (!res.ok) throw new Error(res.status + ' ' + res.statusText);
-          loadedSrtText = await res.text();
-          loadedSrtUrl  = url;
-          loadSRT(loadedSrtText, label);
-          hideUrl('sub');
-          resetEpisodeHeader();
-      checkShowSaveBar();
-        } catch (err) {
-          alert('Could not fetch SRT: ' + err.message);
-        }
-      }
-    }
-
-    ['audio', 'sub'].forEach(type => {
-      document.getElementById(type + '-url-field').addEventListener('keydown', e => {
-        if (e.key === 'Enter') confirmUrl(type);
-        if (e.key === 'Escape') hideUrl(type);
-      });
-    });
-
-    // ── Save bar / episode info ──
-    function resetEpisodeHeader() {
-      document.getElementById('episode-info').classList.remove('visible');
-    }
-
-    function checkShowSaveBar() {
-      const hasAudio = loadedAudioBlob || loadedAudioUrl;
-      if (hasAudio && loadedSrtText) {
-        document.getElementById('save-bar').classList.add('visible');
-      }
-    }
-
-    document.getElementById('save-bar-btn').addEventListener('click', () => {
-      document.getElementById('modal-show').value = localStorage.getItem('lastShowName') || '';
-      document.getElementById('modal-ep').value = '';
-      document.getElementById('save-modal').classList.add('visible');
-      setTimeout(() => document.getElementById('modal-show').focus(), 80);
-    });
-
-    // ── Save modal ──
-    document.getElementById('modal-cancel').addEventListener('click', closeModal);
-    document.getElementById('save-modal').addEventListener('click', e => {
-      if (e.target === document.getElementById('save-modal')) closeModal();
-    });
-
-    function closeModal() {
-      document.getElementById('save-modal').classList.remove('visible');
-    }
-
-    document.getElementById('modal-save').addEventListener('click', async () => {
-      const showName = document.getElementById('modal-show').value.trim();
-      const epName   = document.getElementById('modal-ep').value.trim();
-      if (!showName || !epName) { alert('Please enter both show name and episode name.'); return; }
-
-      localStorage.setItem('lastShowName', showName);
-
-      const key = `episode:${showName}|||${epName}`;
-      await set(key, {
-        showName,
-        episodeName:  epName,
-        audio:        loadedAudioBlob instanceof File ? loadedAudioBlob : (loadedAudioBlob || null),
-        audioUrl:     loadedAudioUrl  || null,
-        srt:          loadedSrtText,
-        srtUrl:       loadedSrtUrl    || null,
-        offset,
-        lastPosition: audio.currentTime || 0,
-        speed:        audio.playbackRate || 1,
-        addedAt:      Date.now(),
-        notes:        ''
-      });
-
-      currentEpisodeKey = key;
-      closeModal();
-      document.getElementById('save-bar').classList.remove('visible');
-      document.getElementById('episode-info-show').textContent = showName;
-      document.getElementById('episode-info-ep').textContent   = epName;
-      document.getElementById('episode-info').classList.add('visible');
-    });
-
-    document.getElementById('modal-ep').addEventListener('keydown', e => {
-      if (e.key === 'Enter') document.getElementById('modal-save').click();
+    // ── Choose from Library ──
+    document.getElementById('choose-lib-btn').addEventListener('click', () => {
+      showTab('library');
+      renderLibrary();
     });
 
     // ── SRT ──
@@ -1204,11 +813,10 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         : `${m}:${String(s).padStart(2,'0')}`;
     }
 
-    function loadSRT(text, name) {
+    function loadSRT(text) {
       subs = parseSRT(text);
       currentIdx = -1;
       renderSubList();
-      if (name) markLoaded('sub', name);
     }
 
     // ── Render subtitle list ──
@@ -1341,6 +949,13 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       persistOffsetToLibrary();
     }
 
+    function adjustSpeed(delta) {
+      const speed = Math.round(Math.max(0.5, Math.min(2.0, audio.playbackRate + delta)) * 4) / 4;
+      audio.playbackRate = speed;
+      document.getElementById('speed-val').textContent = speed.toFixed(2).replace(/\.?0+$/, '') + '×';
+      persistSpeedToLibrary();
+    }
+
     function adjustFont(delta) {
       fontSize = Math.round(Math.max(0.8, Math.min(3.0, fontSize + delta)) * 10) / 10;
       document.documentElement.style.setProperty('--sub-font', fontSize + 'rem');
@@ -1349,6 +964,8 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
 
     document.getElementById('offset-minus').addEventListener('click', () => adjustOffset(-0.5));
     document.getElementById('offset-plus').addEventListener('click',  () => adjustOffset(+0.5));
+    document.getElementById('speed-minus').addEventListener('click',  () => adjustSpeed(-0.25));
+    document.getElementById('speed-plus').addEventListener('click',   () => adjustSpeed(+0.25));
     document.getElementById('font-minus').addEventListener('click',   () => adjustFont(-0.1));
     document.getElementById('font-plus').addEventListener('click',    () => adjustFont(+0.1));
 
@@ -1380,6 +997,19 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       await set(currentEpisodeKey, data);
     }
 
+    async function persistSpeedToLibrary() {
+      if (!currentEpisodeKey) return;
+      const data = await get(currentEpisodeKey);
+      if (!data) return;
+      data.speed = audio.playbackRate;
+      await set(currentEpisodeKey, data);
+    }
+
+    function syncSpeedDisplay() {
+      const s = audio.playbackRate;
+      document.getElementById('speed-val').textContent = s.toFixed(2).replace(/\.?0+$/, '') + '×';
+    }
+
     window.addEventListener('pagehide', () => { saveLastPosition(); });
 
     // ── Load episode from library ──
@@ -1404,6 +1034,7 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       offset = data.offset || 0;
       document.getElementById('offset-val').textContent = offset.toFixed(1);
       audio.playbackRate = data.speed || 1;
+      syncSpeedDisplay();
 
       loadedSrtText = data.srt;
       loadedSrtUrl  = data.srtUrl || null;
@@ -1416,18 +1047,36 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         audio.addEventListener('loadedmetadata', () => { audio.currentTime = pos; }, { once: true });
       }
 
-      const displayName = data.audioUrl
-        ? data.audioUrl.split('/').pop().split('?')[0]
-        : data.episodeName;
-      markLoaded('audio', displayName);
-      markLoaded('sub', data.episodeName);
-
-      document.getElementById('save-bar').classList.remove('visible');
       document.getElementById('episode-info-show').textContent = data.showName;
       document.getElementById('episode-info-ep').textContent   = data.episodeName;
       document.getElementById('episode-info').classList.add('visible');
 
+      setMediaSessionMetadata(data.showName, data.episodeName);
       showTab('player');
+    }
+
+    // ── Media Session API ──
+    function setMediaSessionMetadata(showName, episodeName) {
+      if (!('mediaSession' in navigator)) return;
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title:  episodeName,
+        artist: showName,
+        album:  'Audio Sub Player'
+      });
+    }
+
+    function setupMediaSession() {
+      if (!('mediaSession' in navigator)) return;
+      navigator.mediaSession.setActionHandler('play',  () => audio.play().catch(() => {}));
+      navigator.mediaSession.setActionHandler('pause', () => audio.pause());
+      navigator.mediaSession.setActionHandler('previoustrack', prevSub);
+      navigator.mediaSession.setActionHandler('nexttrack',     nextSub);
+      navigator.mediaSession.setActionHandler('seekbackward', ({ seekOffset }) => {
+        audio.currentTime = Math.max(0, audio.currentTime - (seekOffset ?? 10));
+      });
+      navigator.mediaSession.setActionHandler('seekforward', ({ seekOffset }) => {
+        audio.currentTime = Math.min(audio.duration || Infinity, audio.currentTime + (seekOffset ?? 10));
+      });
     }
 
     // ── Library render ──
@@ -1750,6 +1399,7 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     }
 
     // ── Init ──
+    setupMediaSession();
     renderSubList();
     loadCatalogue();
   </script>

@@ -42,16 +42,15 @@ Already done, looks good.
 
 **Audio source** (pick one per episode):
 
-1. Direct file upload — done. Fix iOS Safari: replace `accept="audio/*"` with explicit types:
+1. Direct file upload — done. 
    `accept="audio/mpeg,audio/mp4,audio/x-m4a,audio/wav,.mp3,.m4a,.wav,.aac"`
 2. **MP3 URL** — paste a direct URL; set as `audio.src` directly. Note: depends on the host sending permissive CORS headers. Most podcast CDNs (Anchor, Libsyn, Buzzsprout, Transistor) do. No workaround if they don't.
 
 **Subtitle source** (pick one per episode):
 
-1. Direct file upload — done. Fix iOS Safari: replace accept attribute with:
-   `accept=".srt,.vtt,text/plain"`
+1. Direct file upload — done.
 2. **SRT URL** — paste a direct URL; app fetches and parses it. Recommended hosting: push SRT files to a `subtitles/` folder in this GitHub repo; raw URL (`https://raw.githubusercontent.com/...`) works with no CORS issues.
-3. **Whisper API transcription** — see P5 below.
+3. **Whisper API transcription** — see P4 below.
 
 ### P1 — key features
 
@@ -61,28 +60,25 @@ Already done, looks good.
 - Loop current subtitle toggle (replay until dismissed)
 - Auto-pause at end of current subtitle toggle
 - Adjust subtitle font size
+- Offset and playpack options
 - Make play/pause closer to subtitles for better UX
+- Media Session API: lock-screen play/pause controls and episode title on iOS
 
 ### P2 — IndexedDB storage and library UI
 
 - Build Library: save show, episode, audio (as Blob or URL string), SRT (as file or URL string), metadata to IndexedDB via idb-keyval
 - Library UI: list of saved episodes grouped by show, tap to load, swipe/button to delete, add episodes
 - `episodes.json` catalogue in repo: a hardcoded list of episodes with pre-filled audio + SRT URLs, loaded on app start so no manual pasting needed for known episodes
-- Bulk Import for new episodes where both audio and sub are URL: show_name-episode_name, audio_url, sub_url
+- Bulk Import for new episodes where both audio and sub are URL: show, episode, audio_url, sub_url
 
-### P3 — playback features
+### P3 — persist meta and export/import
 
-- Resume from last position: save `audio.currentTime` per episode, restore on load, able to reset
+- Resume from last position: save `audio.currentTime` per episode, restore on load
 - Persist offset and playback speed per episode, able to reset
 - Export library backup (zip of all audio + SRT files + metadata, downloadable)
-- Import library backup
+- Import library backup 
 
-### P4 — nice to have
-
-- Media Session API: lock-screen play/pause controls and episode title on iOS
-- Auto-delete episodes older than N days (configurable)
-
-### P5 — in-browser Whisper API transcription
+### P4 — in-browser Whisper API transcription
 
 Calls OpenAI's Whisper API directly from the browser. User supplies their own API key (stored in IndexedDB, never leaves the device).
 
