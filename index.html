@@ -51,39 +51,48 @@
       max-width: 600px;
       z-index: 100;
       background: var(--bg);
-      padding: calc(env(safe-area-inset-top) + 1.25rem) 1.5rem 0;
+      padding: calc(env(safe-area-inset-top) + 0.75rem) 1.5rem 0.75rem;
       border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
-    h1 {
-      font-size: 1.6rem;
-      font-weight: 300;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      line-height: 1;
+    @keyframes tagline-in {
+      from { opacity: 0; transform: translateY(-3px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
-    h1 em { font-style: italic; color: var(--accent); }
     .tagline {
       font-family: 'Shippori Mincho', 'Hiragino Mincho ProN', serif;
-      font-size: 0.8rem;
-      letter-spacing: 0.5em;
-      color: var(--green);
-      opacity: 0.6;
-      margin-top: 0.4rem;
+      font-size: 1.05rem;
+      letter-spacing: 0.18em;
+      line-height: 1;
+      text-shadow: 0 0 28px rgba(114, 184, 126, 0.18);
+      animation: tagline-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+    }
+    .tl-word {
+      font-weight: 500;
+      color: var(--text);
+    }
+    .tl-particle {
+      font-weight: 400;
+      color: var(--accent);
+      opacity: 09;
+      font-size: 0.78em;
+      letter-spacing: 0.08em;
     }
 
     /* ── Tabs ── */
     .tab-row {
       display: flex;
-      margin-top: 0.75rem;
+      gap: 0.25rem;
     }
     .tab-btn {
-      flex: 1;
       background: none;
       border: none;
-      border-bottom: 2px solid var(--border);
-      padding: 0.5rem 0;
+      border-bottom: 2px solid transparent;
+      padding: 0.25rem 0.5rem 0.25rem;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.65rem;
+      font-size: 0.62rem;
       letter-spacing: 0.2em;
       text-transform: uppercase;
       color: var(--text-3);
@@ -868,8 +877,7 @@
 </head>
 <body>
   <header>
-    <h1>Audio <em>Sub</em> Player</h1>
-    <p class="tagline"><strong>音声</strong>から<strong>言葉</strong>へ</p>
+    <p class="tagline"><span class="tl-word">音声</span><span class="tl-particle">から</span><span class="tl-word">言葉</span><span class="tl-particle">へ</span></p>
     <div class="tab-row">
       <button class="tab-btn active" id="tab-player">Player</button>
       <button class="tab-btn" id="tab-library">Library</button>
