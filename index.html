@@ -1951,13 +1951,15 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
             const isDownloaded = !!ep.audio;
 
             const setDlState = (state) => {
+              dlBtn.style.color = '';
+              dlBtn.title = '';
               if (state === 'idle') {
                 dlBtn.textContent = '↓♪';
-                dlBtn.title = 'Cache audio from URL';
+                dlBtn.title = 'Download and cache audio';
                 dlBtn.className = 'ep-dl-btn';
               } else if (state === 'downloaded') {
                 dlBtn.textContent = '♪';
-                dlBtn.title = 'Remove audio cache from URL';
+                dlBtn.title = 'Cached — click to remove';
                 dlBtn.className = 'ep-dl-btn refresh';
               }
             };
@@ -1995,8 +1997,7 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
                 } catch (fetchErr) {
                   console.error('[download] fetch failed:', fetchErr);
                   const isCors = fetchErr.message === 'Failed to fetch' || fetchErr.message.includes('NetworkError');
-                  dlBtn.className = 'ep-dl-btn';
-                  dlBtn.textContent = '↓♪';
+                  setDlState('idle');
                   dlBtn.title = isCors
                     ? 'CORS blocked — this CDN does not allow cross-origin downloads (hover for details, check console)'
                     : 'Download failed: ' + fetchErr.message;
@@ -2008,9 +2009,8 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
                   if (data) { data.audio = blob; await set(ep.key, data); }
                 } catch (storeErr) {
                   console.error('[download] storage failed:', storeErr);
-                  dlBtn.className = 'ep-dl-btn';
-                  dlBtn.textContent = '↓♪';
-                  dlBtn.title = 'Saved locally but could not cache: ' + storeErr.message;
+                  setDlState('idle');
+                  dlBtn.title = 'Could not cache: ' + storeErr.message;
                   dlBtn.style.color = '#c96b6b';
                   return;
                 }
