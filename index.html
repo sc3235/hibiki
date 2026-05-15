@@ -700,15 +700,20 @@
       letter-spacing: 0.08em;
     }
 
-    /* ── Words toggle (in episode-info strip) ── */
+    /* ── Words toggle (chip-row above wordlist panel) ── */
+    .wordlist-header {
+      display: flex;
+      justify-content: flex-start;
+      margin-bottom: 0.4rem;
+    }
     .words-toggle-btn {
       flex-shrink: 0;
       background: var(--surface-2);
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 0.3rem 0.625rem;
+      padding: 0.35rem 0.7rem;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.56rem;
+      font-size: 0.6rem;
       letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--text-2);
@@ -722,30 +727,49 @@
       color: var(--accent);
     }
 
-    /* ── Word add button (in controls row, flushed right) ── */
-    .word-add-btn {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.4rem 0.875rem;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.6rem;
-      letter-spacing: 0.1em;
-      color: var(--text-2);
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-      transition: background 0.12s, color 0.12s;
+    /* ── Word add button — matches .ctrl-btn dimensions for a uniform row ── */
+    .word-add-btn.ctrl-btn {
+      letter-spacing: 0.08em;
     }
-    .word-add-btn:active { background: var(--surface-2); color: var(--text); }
 
     /* ── Wordlist panel ── */
     .wordlist-panel {
-      margin-top: 1rem;
       margin-bottom: 1rem;
       border: 1px solid var(--border);
       border-radius: var(--radius);
       background: var(--surface);
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .wl-sort-strip {
+      display: flex;
+      justify-content: flex-end;
+      padding: 0.35rem 0.6rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
+    }
+    .wl-sort-btn {
+      background: none;
+      border: none;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.56rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      cursor: pointer;
+      padding: 0.15rem 0.3rem;
+      border-radius: 4px;
+      -webkit-tap-highlight-color: transparent;
+      transition: color 0.12s, background 0.12s;
+    }
+    .wl-sort-btn:hover { color: var(--text-2); }
+    .wl-sort-btn:active { color: var(--accent); }
+    .wl-scroll {
+      max-height: 14rem;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
     }
     .wl-empty {
       padding: 0.875rem 1rem;
@@ -980,7 +1004,6 @@
         <span class="episode-info-show" id="episode-info-show"></span>
         <span class="episode-info-ep"   id="episode-info-ep"></span>
       </div>
-      <button class="words-toggle-btn" id="words-toggle-btn">Words (0)</button>
     </div>
 
     <audio id="audio" controls playsinline></audio>
@@ -997,7 +1020,20 @@
       <button class="ctrl-btn play-btn" id="play-btn">▶</button>
       <button class="ctrl-btn" id="next-btn">sub →</button>
       <div class="ctrl-end">
-        <button class="word-add-btn" id="word-add-btn">+ W</button>
+        <button class="ctrl-btn word-add-btn" id="word-add-btn">+ W</button>
+      </div>
+    </div>
+
+    <div class="wordlist-header" id="wordlist-header">
+      <button class="words-toggle-btn" id="words-toggle-btn">Words (0)</button>
+    </div>
+
+    <div class="wordlist-panel" id="wordlist-panel" style="display:none">
+      <div class="wl-sort-strip" id="wl-sort-strip">
+        <button class="wl-sort-btn" id="wl-sort-btn">↓ Newest first</button>
+      </div>
+      <div class="wl-scroll">
+        <div id="wordlist-items"></div>
       </div>
     </div>
 
@@ -1032,10 +1068,6 @@
       <button class="toggle-btn" id="loop-btn">↻ Loop</button>
       <button class="toggle-btn" id="autopause-btn">|| Auto-pause</button>
       <button class="toggle-btn" id="reset-btn">↺ Reset</button>
-    </div>
-
-    <div class="wordlist-panel" id="wordlist-panel" style="display:none">
-      <div id="wordlist-items"></div>
     </div>
   </div>
 
@@ -1135,6 +1167,7 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     let currentEpisodeKey = null;
     let currentWordlist   = [];
     let wordlistOpen      = false;
+    let wordlistSortDesc  = true;
 
     // ── DOM refs ──
     const audio   = document.getElementById('audio');
@@ -1505,6 +1538,12 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       if (!el) return;
       el.innerHTML = '';
       updateWordsToggle();
+
+      const sortStrip = document.getElementById('wl-sort-strip');
+      const sortBtn = document.getElementById('wl-sort-btn');
+      if (sortBtn) sortBtn.textContent = wordlistSortDesc ? '↓ Newest first' : '↑ Oldest first';
+      if (sortStrip) sortStrip.style.display = currentWordlist.length === 0 ? 'none' : '';
+
       if (currentWordlist.length === 0) {
         const empty = document.createElement('div');
         empty.className = 'wl-empty';
@@ -1512,7 +1551,16 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         el.appendChild(empty);
         return;
       }
-      currentWordlist.forEach((entry, i) => {
+
+      const ordered = currentWordlist
+        .map((entry, i) => ({ entry, i }))
+        .sort((a, b) => {
+          const ta = a.entry.addedAt ?? 0;
+          const tb = b.entry.addedAt ?? 0;
+          return wordlistSortDesc ? tb - ta : ta - tb;
+        });
+
+      ordered.forEach(({ entry, i }) => {
         const row = document.createElement('div');
         row.className = 'wl-row';
 
@@ -1605,6 +1653,11 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       renderWordlist();
       stashedWord = '';
       stashedSentence = '';
+    });
+
+    document.getElementById('wl-sort-btn').addEventListener('click', () => {
+      wordlistSortDesc = !wordlistSortDesc;
+      renderWordlist();
     });
 
     document.getElementById('words-toggle-btn').addEventListener('click', () => {
@@ -1779,26 +1832,15 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
               }
 
               dlBtn.className = 'ep-dl-btn downloading';
-              dlBtn.textContent = '0%';
+              dlBtn.textContent = '…';
               try {
-                const res = await fetch(ep.audioUrl);
+                const res = await fetch(ep.audioUrl, { mode: 'cors', credentials: 'omit' });
                 if (!res.ok) throw new Error('HTTP ' + res.status);
-                const total = +res.headers.get('content-length') || 0;
-                const reader = res.body.getReader();
-                const chunks = [];
-                let received = 0;
-                while (true) {
-                  const { done, value } = await reader.read();
-                  if (done) break;
-                  chunks.push(value);
-                  received += value.length;
-                  dlBtn.textContent = total
-                    ? Math.round(received / total * 100) + '%'
-                    : Math.round(received / 1048576) + 'MB';
-                }
-                const blob = new Blob(chunks);
+                const contentType = res.headers.get('content-type') || 'audio/mpeg';
+                const blob = await res.blob();
+                const typed = new Blob([blob], { type: contentType });
                 const data = await get(ep.key);
-                if (data) { data.audio = blob; await set(ep.key, data); }
+                if (data) { data.audio = typed; await set(ep.key, data); }
                 setDlState('downloaded');
               } catch (err) {
                 dlBtn.className = 'ep-dl-btn';
