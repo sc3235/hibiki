@@ -64,6 +64,43 @@ Already done, looks good.
 - Make play/pause closer to subtitles for better UX
 - Media Session API: lock-screen play/pause controls and episode title on iOS
 
+#### P1.5 — Per-episode wordlist
+
+A lightweight vocabulary list attached to each episode. While listening, the user highlights a word in the subtitle (which also triggers Yomikiri for dictionary lookup), then taps **"+ Word"** to save it. The highlighted text is captured via `window.getSelection().toString()`. The current sentence and playback timestamp are saved automatically as context.
+
+**Storage**: add `wordlist` array to the episode schema in IndexedDB:
+
+javascript
+
+```javascript
+wordlist: [
+  { word: "言語学", sentence: "言語学は面白い", timestamp: 342.5, addedAt: 1234567890 },
+  ...
+]
+```
+
+**Add flow** (~20 lines):
+
+javascript
+
+```javascript
+document.getElementById('add-word-btn').addEventListener('click', () => {
+  const word = window.getSelection().toString().trim();
+  if (!word) return;
+  const sentence = document.getElementById('subtitle').textContent.trim();
+  const timestamp = audio.currentTime;
+  episode.wordlist.push({ word, sentence, timestamp, addedAt: Date.now() });
+  saveEpisode(episode); // persist to IndexedDB
+  renderWordlist();
+});
+```
+
+**Wordlist panel** (~50 lines): a toggleable panel showing the current episode's words as rows of `word | sentence | timestamp | delete button`. Tapping the word text makes it an inline editable input. Timestamp is a clickable link that seeks the audio to that position.
+
+**UI**: a **"+ Word"** button near the subtitle display, and a **"Words (N)"** toggle button in the episode header that shows/hides the panel. The count updates live as words are added.
+
+**Yomikiri compatibility note**: the highlight that triggers Yomikiri is the same selection captured by `getSelection()` — no extra gesture needed. The user highlights → Yomikiri shows definition → taps "+ Word" → both Anki export and wordlist addition are available from the same highlight.
+
 ### P2 — IndexedDB storage and library UI
 
 - Build Library: save show, episode, audio (as Blob or URL string), SRT (as file or URL string), metadata to IndexedDB via idb-keyval
@@ -80,13 +117,15 @@ Already done, looks good.
 ### P3.5[TODO] — export/import with media
 - Export/import library backup full (zip of all audio + SRT files + metadata, downloadable)
 
-### P4[TODO] — download audio for offline use
+### P4 — download audio for offline use
 
 For URL-sourced episodes, add a **Download** button in the library episode row. Tapping it fetches the audio URL and stores the response as a Blob in IndexedDB. Keep `audioUrl` (and `srtUrl`) in the record even after downloading — they serve as the canonical source reference for export/import.
 
 - Show a progress indicator while fetching (audio files are large — user needs feedback)
 - After download, swap the button to a "Downloaded ✓" state (or hide it)
 - SRT text is already fetched and stored in IndexedDB at import time, so it's already offline; `srtUrl` is just retained for reference
+
+Side: within library, allow edit show/episode name; allow refresh url (removes download) 
 
 ### P5[TODO] — in-browser Whisper API transcription
 

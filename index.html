@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#111009">
   <title>Audio Sub Player</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -120,8 +120,9 @@
     /* ── Episode info strip (shown when loaded from library) ── */
     .episode-info {
       display: none;
-      flex-direction: column;
-      gap: 0.1rem;
+      flex-direction: row;
+      align-items: center;
+      gap: 0;
       padding: 0.6rem 0.875rem;
       background: var(--surface);
       border: 1px solid var(--border);
@@ -129,6 +130,13 @@
       margin-bottom: 1rem;
     }
     .episode-info.visible { display: flex; }
+    .episode-info-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+      flex: 1;
+      min-width: 0;
+    }
     .episode-info-show {
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.58rem;
@@ -277,10 +285,11 @@
     .controls-row {
       display: flex;
       align-items: center;
-      justify-content: center;
       gap: 0.75rem;
       margin-bottom: 1.25rem;
     }
+    .ctrl-spacer { flex: 1; }
+    .ctrl-end { flex: 1; display: flex; justify-content: flex-end; }
     .ctrl-btn {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -571,8 +580,14 @@
       border-bottom: 1px solid var(--border);
     }
     .ep-item:last-child { border-bottom: none; }
-    .ep-name {
+    .ep-info {
       flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.05rem;
+    }
+.ep-name {
       font-size: 0.9rem;
       color: var(--text);
       overflow: hidden;
@@ -586,7 +601,7 @@
       padding: 0.3rem 0.625rem;
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.58rem;
-      color: var(--text-2);
+      color: var(--green);
       cursor: pointer;
       flex-shrink: 0;
       -webkit-tap-highlight-color: transparent;
@@ -667,6 +682,7 @@
       letter-spacing: 0.1em;
       cursor: pointer;
       user-select: none;
+      opacity: 0.45;
     }
     .backup-srt-row input[type=checkbox] { accent-color: var(--accent); cursor: pointer; }
     .backup-status:not(:empty) {
@@ -675,6 +691,177 @@
       font-size: 0.6rem;
       color: var(--text-2);
       letter-spacing: 0.08em;
+    }
+
+    /* ── Words toggle (in episode-info strip) ── */
+    .words-toggle-btn {
+      flex-shrink: 0;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.3rem 0.625rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.56rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.12s, color 0.12s, border-color 0.12s;
+    }
+    .words-toggle-btn.on {
+      background: var(--accent-a10);
+      border-color: var(--accent-a40);
+      color: var(--accent);
+    }
+
+    /* ── Word add button (in controls row, flushed right) ── */
+    .word-add-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.4rem 0.875rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      color: var(--text-2);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.12s, color 0.12s;
+    }
+    .word-add-btn:active { background: var(--surface-2); color: var(--text); }
+
+    /* ── Wordlist panel ── */
+    .wordlist-panel {
+      margin-bottom: 1rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      overflow: hidden;
+    }
+    .wl-empty {
+      padding: 0.875rem 1rem;
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--text-3);
+      letter-spacing: 0.08em;
+    }
+    .wl-row {
+      display: grid;
+      grid-template-columns: minmax(3rem, max-content) 1fr auto auto;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .wl-row:last-child { border-bottom: none; }
+    .wl-word {
+      font-family: 'SubJP', 'Shippori Mincho', serif;
+      font-size: 1rem;
+      color: var(--text);
+      cursor: pointer;
+      border-bottom: 1px dotted var(--border-2);
+      user-select: none;
+      -webkit-user-select: none;
+      white-space: nowrap;
+    }
+    .wl-word:active { color: var(--accent); border-bottom-color: var(--accent); }
+    .wl-word-input {
+      font-family: 'SubJP', 'Shippori Mincho', serif;
+      font-size: 1rem;
+      color: var(--text);
+      background: var(--surface-2);
+      border: 1px solid var(--accent-a40);
+      border-radius: 4px;
+      padding: 0.1rem 0.3rem;
+      outline: none;
+      min-width: 3rem;
+      width: 100%;
+    }
+    .wl-sent {
+      font-family: 'SubJP', 'Shippori Mincho', serif;
+      font-size: 0.78rem;
+      color: var(--text-2);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .wl-ts {
+      background: none;
+      border: none;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.56rem;
+      color: var(--green);
+      opacity: 0.6;
+      cursor: pointer;
+      padding: 0;
+      white-space: nowrap;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .wl-ts:active { opacity: 1; }
+    .wl-del {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.15rem 0.35rem;
+      font-size: 0.68rem;
+      line-height: 1;
+      color: var(--text-3);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: color 0.1s, border-color 0.1s;
+    }
+    .wl-del:active { color: #c96b6b; border-color: rgba(201,107,107,0.4); }
+
+    /* ── Library: download button ── */
+    .ep-dl-btn {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.3rem 0.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.56rem;
+      color: var(--text-2);
+      cursor: pointer;
+      flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+      transition: color 0.1s, border-color 0.1s;
+      white-space: nowrap;
+      max-width: 6.5rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .ep-dl-btn:active { color: var(--text); }
+    .ep-dl-btn.downloading { color: var(--text-2); cursor: default; pointer-events: none; }
+    .ep-dl-btn.refresh { color: var(--text-3); }
+
+    /* ── Library: inline edit inputs ── */
+    .ep-name-input {
+      flex: 1;
+      background: var(--surface-2);
+      border: 1px solid var(--accent-a40);
+      border-radius: 6px;
+      padding: 0.25rem 0.5rem;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.9rem;
+      color: var(--text);
+      outline: none;
+      min-width: 0;
+    }
+    .show-name-input {
+      display: block;
+      background: var(--surface-2);
+      border: 1px solid var(--accent-a40);
+      border-radius: 4px;
+      padding: 0.15rem 0.4rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.18em;
+      color: var(--green);
+      outline: none;
+      width: 100%;
+      margin-bottom: 0.4rem;
     }
 
   </style>
@@ -694,8 +881,11 @@
     <button class="choose-lib-btn" id="choose-lib-btn">Choose from Library</button>
 
     <div class="episode-info" id="episode-info">
-      <span class="episode-info-show" id="episode-info-show"></span>
-      <span class="episode-info-ep"   id="episode-info-ep"></span>
+      <div class="episode-info-meta">
+        <span class="episode-info-show" id="episode-info-show"></span>
+        <span class="episode-info-ep"   id="episode-info-ep"></span>
+      </div>
+      <button class="words-toggle-btn" id="words-toggle-btn">Words (0)</button>
     </div>
 
     <audio id="audio" controls playsinline></audio>
@@ -707,9 +897,13 @@
     </div>
 
     <div class="controls-row">
+      <div class="ctrl-spacer"></div>
       <button class="ctrl-btn" id="prev-btn">← sub</button>
       <button class="ctrl-btn play-btn" id="play-btn">▶</button>
       <button class="ctrl-btn" id="next-btn">sub →</button>
+      <div class="ctrl-end">
+        <button class="word-add-btn" id="word-add-btn">+ W</button>
+      </div>
     </div>
 
     <div class="settings-row">
@@ -743,6 +937,10 @@
       <button class="toggle-btn" id="loop-btn">↻ Loop</button>
       <button class="toggle-btn" id="autopause-btn">|| Auto-pause</button>
       <button class="toggle-btn" id="reset-btn">↺ Reset</button>
+    </div>
+
+    <div class="wordlist-panel" id="wordlist-panel" style="display:none">
+      <div id="wordlist-items"></div>
     </div>
   </div>
 
@@ -840,6 +1038,8 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     let loadedSrtText     = null;
     let loadedSrtUrl      = null;
     let currentEpisodeKey = null;
+    let currentWordlist   = [];
+    let wordlistOpen      = false;
 
     // ── DOM refs ──
     const audio   = document.getElementById('audio');
@@ -1083,7 +1283,7 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     }
 
     function makeEpisodeRecord({ showName, episodeName, audio = null, audioUrl = null, srt, srtUrl = null }) {
-      return { showName, episodeName, audio, audioUrl, srt, srtUrl, offset: 0, lastPosition: 0, speed: 1, addedAt: Date.now(), notes: '' };
+      return { showName, episodeName, audio, audioUrl, srt, srtUrl, offset: 0, lastPosition: 0, speed: 1, addedAt: Date.now(), notes: '', wordlist: [] };
     }
 
     function syncSpeedDisplay() {
@@ -1131,6 +1331,12 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       document.getElementById('episode-info-show').textContent = data.showName;
       document.getElementById('episode-info-ep').textContent   = data.episodeName;
       document.getElementById('episode-info').classList.add('visible');
+
+      currentWordlist = data.wordlist || [];
+      wordlistOpen = false;
+      document.getElementById('wordlist-panel').style.display = 'none';
+      renderWordlist();
+      updateWordsToggle();
 
       setMediaSessionMetadata(data.showName, data.episodeName);
       showTab('player');
@@ -1191,6 +1397,99 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       });
     }
 
+    // ── Wordlist (P1.5) ──
+    function updateWordsToggle() {
+      const btn = document.getElementById('words-toggle-btn');
+      if (!btn) return;
+      btn.textContent = `Words (${currentWordlist.length})`;
+      btn.classList.toggle('on', wordlistOpen);
+    }
+
+    function renderWordlist() {
+      const el = document.getElementById('wordlist-items');
+      if (!el) return;
+      el.innerHTML = '';
+      updateWordsToggle();
+      if (currentWordlist.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'wl-empty';
+        empty.textContent = 'No words saved. Highlight text and tap + W.';
+        el.appendChild(empty);
+        return;
+      }
+      currentWordlist.forEach((entry, i) => {
+        const row = document.createElement('div');
+        row.className = 'wl-row';
+
+        const wordEl = document.createElement('span');
+        wordEl.className = 'wl-word';
+        wordEl.textContent = entry.word;
+        wordEl.addEventListener('click', () => {
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.className = 'wl-word-input';
+          input.value = entry.word;
+          row.replaceChild(input, wordEl);
+          input.focus();
+          input.select();
+          const save = () => {
+            input.removeEventListener('blur', save);
+            const w = input.value.trim();
+            if (w) currentWordlist[i].word = w;
+            patchEpisode({ wordlist: currentWordlist });
+            renderWordlist();
+          };
+          input.addEventListener('blur', save);
+          input.addEventListener('keydown', e => {
+            if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+            if (e.key === 'Escape') { row.replaceChild(wordEl, input); }
+          });
+        });
+
+        const sentEl = document.createElement('span');
+        sentEl.className = 'wl-sent';
+        sentEl.textContent = entry.sentence;
+
+        const tsBtn = document.createElement('button');
+        tsBtn.className = 'wl-ts';
+        tsBtn.textContent = fmtTime(entry.timestamp);
+        tsBtn.title = 'Jump to ' + fmtTime(entry.timestamp);
+        tsBtn.addEventListener('click', () => { audio.currentTime = entry.timestamp; });
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'wl-del';
+        delBtn.textContent = '×';
+        delBtn.addEventListener('click', () => {
+          currentWordlist.splice(i, 1);
+          patchEpisode({ wordlist: currentWordlist });
+          renderWordlist();
+        });
+
+        row.appendChild(wordEl);
+        row.appendChild(sentEl);
+        row.appendChild(tsBtn);
+        row.appendChild(delBtn);
+        el.appendChild(row);
+      });
+    }
+
+    document.getElementById('word-add-btn').addEventListener('click', () => {
+      if (!currentEpisodeKey) return;
+      const word = window.getSelection().toString().trim();
+      if (!word) return;
+      const activeEl = scroll.querySelector('.sub-item.active .sub-text');
+      const sentence = activeEl ? activeEl.textContent.trim() : '';
+      currentWordlist.push({ word, sentence, timestamp: audio.currentTime, addedAt: Date.now() });
+      patchEpisode({ wordlist: currentWordlist });
+      renderWordlist();
+    });
+
+    document.getElementById('words-toggle-btn').addEventListener('click', () => {
+      wordlistOpen = !wordlistOpen;
+      document.getElementById('wordlist-panel').style.display = wordlistOpen ? '' : 'none';
+      updateWordsToggle();
+    });
+
     // ── Library render ──
     async function renderLibrary() {
       const allKeys = await keys();
@@ -1230,14 +1529,165 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
           const item = document.createElement('div');
           item.className = 'ep-item';
 
+          const epInfo = document.createElement('div');
+          epInfo.className = 'ep-info';
+
+          // Episode name — tap to edit; show name input revealed in edit mode
           const nameEl = document.createElement('div');
           nameEl.className = 'ep-name';
           nameEl.textContent = ep.episodeName || ep.key;
+          nameEl.style.cursor = 'pointer';
+          nameEl.addEventListener('click', () => {
+            const showInput = document.createElement('input');
+            showInput.className = 'show-name-input';
+            showInput.value = ep.showName || '';
+            showInput.placeholder = 'Show name';
+
+            const nameInput = document.createElement('input');
+            nameInput.className = 'ep-name-input';
+            nameInput.value = ep.episodeName || '';
+
+            epInfo.replaceChild(nameInput, nameEl);
+            epInfo.insertBefore(showInput, nameInput);
+            nameInput.focus();
+            nameInput.select();
+
+            const detach = () => {
+              nameInput.removeEventListener('blur', onBlur);
+              showInput.removeEventListener('blur', onBlur);
+              nameInput.removeEventListener('focus', onFocus);
+              showInput.removeEventListener('focus', onFocus);
+            };
+            const revert = () => {
+              detach();
+              if (showInput.parentNode === epInfo) epInfo.removeChild(showInput);
+              if (nameInput.parentNode === epInfo) epInfo.replaceChild(nameEl, nameInput);
+            };
+            const save = async () => {
+              detach();
+              const newName = nameInput.value.trim() || ep.episodeName;
+              const newShow = showInput.value.trim() || ep.showName;
+              if (newName === ep.episodeName && newShow === ep.showName) { revert(); return; }
+              const newKey = `episode:${newShow}|||${newName}`;
+              if (newKey !== ep.key) {
+                const collision = await get(newKey);
+                if (collision) { alert(`"${newShow} · ${newName}" already exists.`); revert(); return; }
+              }
+              const data = await get(ep.key);
+              if (!data) { revert(); return; }
+              data.episodeName = newName;
+              data.showName = newShow;
+              await set(newKey, data);
+              if (newKey !== ep.key) await del(ep.key);
+              if (currentEpisodeKey === ep.key) {
+                currentEpisodeKey = newKey;
+                document.getElementById('episode-info-ep').textContent = newName;
+                document.getElementById('episode-info-show').textContent = newShow;
+              }
+              renderLibrary();
+            };
+
+            let blurTimer;
+            const onBlur  = () => { blurTimer = setTimeout(save, 50); };
+            const onFocus = () => { clearTimeout(blurTimer); };
+
+            nameInput.addEventListener('blur', onBlur);
+            nameInput.addEventListener('focus', onFocus);
+            showInput.addEventListener('blur', onBlur);
+            showInput.addEventListener('focus', onFocus);
+
+            const onKey = (e) => {
+              if (e.key === 'Enter')  { e.preventDefault(); clearTimeout(blurTimer); save(); }
+              if (e.key === 'Escape') { clearTimeout(blurTimer); revert(); }
+            };
+            nameInput.addEventListener('keydown', onKey);
+            showInput.addEventListener('keydown', onKey);
+          });
+
+          epInfo.appendChild(nameEl);
 
           const loadBtn = document.createElement('button');
           loadBtn.className = 'ep-load-btn';
-          loadBtn.textContent = '▶ Load';
+          loadBtn.textContent = '▶';
           loadBtn.addEventListener('click', () => loadEpisodeFromLibrary(ep.key));
+
+          // Download button (P4) — only for URL-sourced episodes
+          if (ep.audioUrl) {
+            const dlBtn = document.createElement('button');
+            dlBtn.className = 'ep-dl-btn';
+            const isDownloaded = !!ep.audio;
+
+            const setDlState = (state) => {
+              if (state === 'idle') {
+                dlBtn.textContent = '↓';
+                dlBtn.title = 'Download for offline use';
+                dlBtn.className = 'ep-dl-btn';
+              } else if (state === 'downloaded') {
+                dlBtn.textContent = '↻';
+                dlBtn.title = 'Remove download (revert to URL)';
+                dlBtn.className = 'ep-dl-btn refresh';
+              }
+            };
+
+            setDlState(isDownloaded ? 'downloaded' : 'idle');
+
+            dlBtn.addEventListener('click', async () => {
+              if (dlBtn.classList.contains('downloading')) return;
+
+              if (dlBtn.classList.contains('refresh')) {
+                // Remove download
+                const data = await get(ep.key);
+                if (!data) return;
+                data.audio = null;
+                await set(ep.key, data);
+                if (currentEpisodeKey === ep.key && data.audioUrl) {
+                  if (loadedAudioBlob) { URL.revokeObjectURL(audio.src); loadedAudioBlob = null; }
+                  audio.src = data.audioUrl;
+                  audio.load();
+                  loadedAudioUrl = data.audioUrl;
+                }
+                setDlState('idle');
+                return;
+              }
+
+              // Download
+              dlBtn.className = 'ep-dl-btn downloading';
+              dlBtn.textContent = '0%';
+              try {
+                const res = await fetch(ep.audioUrl);
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const total = +res.headers.get('content-length') || 0;
+                const reader = res.body.getReader();
+                const chunks = [];
+                let received = 0;
+                while (true) {
+                  const { done, value } = await reader.read();
+                  if (done) break;
+                  chunks.push(value);
+                  received += value.length;
+                  dlBtn.textContent = total
+                    ? Math.round(received / total * 100) + '%'
+                    : Math.round(received / 1048576) + 'MB';
+                }
+                const blob = new Blob(chunks);
+                const data = await get(ep.key);
+                if (data) { data.audio = blob; await set(ep.key, data); }
+                setDlState('downloaded');
+              } catch (err) {
+                dlBtn.className = 'ep-dl-btn';
+                dlBtn.textContent = '↓';
+                dlBtn.style.color = '#c96b6b';
+                setTimeout(() => { dlBtn.style.color = ''; }, 3000);
+              }
+            });
+
+            item.appendChild(epInfo);
+            item.appendChild(loadBtn);
+            item.appendChild(dlBtn);
+          } else {
+            item.appendChild(epInfo);
+            item.appendChild(loadBtn);
+          }
 
           const delBtn = document.createElement('button');
           delBtn.className = 'ep-del-btn';
@@ -1249,8 +1699,6 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
             renderLibrary();
           });
 
-          item.appendChild(nameEl);
-          item.appendChild(loadBtn);
           item.appendChild(delBtn);
           group.appendChild(item);
         });
@@ -1375,7 +1823,8 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
               lastPosition: ep.lastPosition  ?? 0,
               speed:        ep.speed         ?? 1,
               addedAt:      ep.addedAt       ?? Date.now(),
-              notes:        ep.notes         || ''
+              notes:        ep.notes         || '',
+              wordlist:     ep.wordlist      || existing?.wordlist || []
             });
             imported++;
           }
@@ -1484,7 +1933,7 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
 
           const loadBtn = document.createElement('button');
           loadBtn.className = 'ep-load-btn';
-          loadBtn.textContent = '▶ Load';
+          loadBtn.textContent = '▶';
           loadBtn.addEventListener('click', async () => {
             loadBtn.textContent = '…';
             const key = `episode:${ep.showName}|||${ep.episodeName}`;
@@ -1501,7 +1950,7 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
               loadEpisodeFromLibrary(key);
             } catch (err) {
               alert('Could not load episode: ' + err.message);
-              loadBtn.textContent = '▶ Load';
+              loadBtn.textContent = '▶';
             }
           });
 
@@ -1544,7 +1993,8 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
           lastPosition: d.lastPosition  ?? 0,
           speed:        d.speed         ?? 1,
           addedAt:      d.addedAt       ?? null,
-          notes:        d.notes         || ''
+          notes:        d.notes         || '',
+          wordlist:     d.wordlist      || []
         });
       }
       const json = JSON.stringify({ version: 1, exportedAt: Date.now(), episodes: rows }, null, 2);
