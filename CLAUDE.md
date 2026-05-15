@@ -114,7 +114,7 @@ document.getElementById('add-word-btn').addEventListener('click', () => {
 - Persist offset and playback speed per episode, able to reset
 - Export/import library backup without audio files
 
-### P3.5[TODO] — export/import with media
+### P3.5[TODO] — export/import with audio
 - Export/import library backup full (zip of all audio + SRT files + metadata, downloadable)
 
 ### P4 — download audio for offline use
@@ -153,6 +153,8 @@ async function transcribeWithWhisper(audioFile, apiKey) {
 **File size limit**: OpenAI enforces a 25 MB cap per request (~26 min at 128 kbps, ~52 min at 64 kbps). For longer episodes, either use local `whisper-cli` instead, or split the audio before uploading.
 
 **Advantage over local whisper-cli**: works on iPad with no Mac involved. Transcribe → study in one flow on device.
+
+**Hallucination handling**: Whisper can hallucinate text over silence, music, or low-quality audio. Partial mitigation is possible by switching `response_format` from `'srt'` to `'verbose_json'`, which exposes per-segment confidence fields: `no_speech_prob` (filter if > 0.5), `avg_logprob` (filter if < -1.0), and `compression_ratio` (flag abnormally high values indicating repetitive output). Filtered segments would then be converted to SRT manually (~20 lines). Ceiling: this only catches obvious non-speech segments — Whisper hallucinating plausible Japanese text during noise produces normal confidence scores and cannot be detected automatically. A user-facing note to review the SRT before studying is still advisable.
 
 ## Infrastructure
 

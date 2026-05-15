@@ -586,9 +586,7 @@
       align-items: center;
       gap: 0.5rem;
       padding: 0.55rem 0;
-      border-bottom: 1px solid var(--border);
     }
-    .ep-item:last-child { border-bottom: none; }
     .ep-info {
       flex: 1;
       min-width: 0;
@@ -823,27 +821,115 @@
     }
     .wl-del:active { color: #c96b6b; border-color: rgba(201,107,107,0.4); }
 
+    /* ── Library: episode wrapper (holds item row + srt panel) ── */
+    .ep-wrap { border-bottom: 1px solid var(--border); }
+    .ep-wrap:last-child { border-bottom: none; }
+
     /* ── Library: download button ── */
     .ep-dl-btn {
       background: var(--surface-2);
       border: 1px solid var(--border);
       border-radius: 6px;
-      padding: 0.3rem 0.5rem;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.56rem;
+      padding: 0.3rem 0.55rem;
+      font-size: 0.78rem;
+      line-height: 1;
       color: var(--text-2);
       cursor: pointer;
       flex-shrink: 0;
       -webkit-tap-highlight-color: transparent;
       transition: color 0.1s, border-color 0.1s;
-      white-space: nowrap;
-      max-width: 6.5rem;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
     .ep-dl-btn:active { color: var(--text); }
-    .ep-dl-btn.downloading { color: var(--text-2); cursor: default; pointer-events: none; }
-    .ep-dl-btn.refresh { color: var(--text-3); }
+    .ep-dl-btn.downloading {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.56rem;
+      color: var(--text-2);
+      cursor: default;
+      pointer-events: none;
+    }
+    .ep-dl-btn.refresh {
+      color: var(--green);
+      border-color: rgba(114, 184, 126, 0.35);
+    }
+
+    /* ── Library: SRT refresh button ── */
+    .ep-srt-btn {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.3rem 0.55rem;
+      font-size: 0.78rem;
+      line-height: 1;
+      color: var(--text-2);
+      cursor: pointer;
+      flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+      transition: color 0.1s, border-color 0.1s, background 0.1s;
+    }
+    .ep-srt-btn:active { color: var(--text); }
+    .ep-srt-btn.open {
+      background: var(--accent-a10);
+      border-color: var(--accent-a40);
+      color: var(--accent);
+    }
+
+    /* ── Library: SRT panel (inline, below episode row) ── */
+    .ep-srt-panel {
+      display: none;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.4rem 0 0.5rem;
+    }
+    .ep-srt-panel.open { display: flex; }
+    .ep-srt-url-input {
+      flex: 1;
+      background: var(--surface-2);
+      border: 1px solid var(--border-2);
+      border-radius: 6px;
+      padding: 0.35rem 0.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.58rem;
+      color: var(--text);
+      outline: none;
+      min-width: 0;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .ep-srt-url-input::placeholder { color: var(--text-3); }
+    .ep-srt-url-input:focus { border-color: var(--accent-a40); }
+    .ep-srt-file-pick {
+      flex-shrink: 0;
+      background: var(--surface-2);
+      border: 1px dashed var(--border-2);
+      border-radius: 6px;
+      padding: 0.35rem 0.5rem;
+      font-size: 0.78rem;
+      line-height: 1;
+      color: var(--text-3);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: color 0.12s, border-color 0.12s;
+    }
+    .ep-srt-file-pick.has-file {
+      color: var(--green);
+      border-color: rgba(114,184,126,0.4);
+      border-style: solid;
+    }
+    .ep-srt-apply-btn {
+      flex-shrink: 0;
+      background: var(--accent-a10);
+      border: 1px solid var(--accent-a28);
+      border-radius: 6px;
+      padding: 0.35rem 0.6rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--accent);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: opacity 0.12s;
+    }
+    .ep-srt-apply-btn:active { opacity: 0.7; }
+    .ep-srt-apply-btn:disabled { opacity: 0.4; cursor: default; pointer-events: none; }
 
     /* ── Library: inline edit inputs ── */
     .ep-name-input {
@@ -1007,7 +1093,7 @@
       <div class="lib-section-title">Import and Export</div>
       <div class="ie-card">
         <div class="ie-half">
-          <label class="ie-btn" for="bulk-file">Import CSV or JSON</label>
+          <label class="ie-btn" for="bulk-file">Import CSV or JSON (NO AUDIO UPLOAD)</label>
           <input type="file" id="bulk-file" accept=".csv,.json,text/csv,text/plain,application/json" style="display:none">
           <details class="bulk-csv-note">
             <summary>Format</summary>
@@ -1019,7 +1105,7 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         </div>
         <div class="ie-divider"></div>
         <div class="ie-half">
-          <button class="ie-btn" id="export-btn">Export JSON</button>
+          <button class="ie-btn" id="export-btn">Export JSON (NO AUDIO DOWNLOAD)</button>
           <label class="backup-srt-row">
             <input type="checkbox" id="export-srt-chk">
             <span>Include SRT text</span>
@@ -1534,6 +1620,9 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         group.appendChild(showEl);
 
         eps.forEach(ep => {
+          const wrap = document.createElement('div');
+          wrap.className = 'ep-wrap';
+
           const item = document.createElement('div');
           item.className = 'ep-item';
 
@@ -1619,7 +1708,10 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
           loadBtn.textContent = '▶';
           loadBtn.addEventListener('click', () => loadEpisodeFromLibrary(ep.key));
 
-          // Download button (P4) — only for URL-sourced episodes
+          item.appendChild(epInfo);
+          item.appendChild(loadBtn);
+
+          // Audio download button — only for URL-sourced audio
           if (ep.audioUrl) {
             const dlBtn = document.createElement('button');
             dlBtn.className = 'ep-dl-btn';
@@ -1627,12 +1719,12 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
 
             const setDlState = (state) => {
               if (state === 'idle') {
-                dlBtn.textContent = '↓';
-                dlBtn.title = 'Download for offline use';
+                dlBtn.textContent = '↓♪';
+                dlBtn.title = 'Cache audio from URL';
                 dlBtn.className = 'ep-dl-btn';
               } else if (state === 'downloaded') {
-                dlBtn.textContent = '↻';
-                dlBtn.title = 'Remove download (revert to URL)';
+                dlBtn.textContent = '♪';
+                dlBtn.title = 'Remove audio cache from URL';
                 dlBtn.className = 'ep-dl-btn refresh';
               }
             };
@@ -1643,7 +1735,6 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
               if (dlBtn.classList.contains('downloading')) return;
 
               if (dlBtn.classList.contains('refresh')) {
-                // Remove download
                 const data = await get(ep.key);
                 if (!data) return;
                 data.audio = null;
@@ -1658,7 +1749,6 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
                 return;
               }
 
-              // Download
               dlBtn.className = 'ep-dl-btn downloading';
               dlBtn.textContent = '0%';
               try {
@@ -1683,19 +1773,125 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
                 setDlState('downloaded');
               } catch (err) {
                 dlBtn.className = 'ep-dl-btn';
-                dlBtn.textContent = '↓';
+                dlBtn.textContent = '↓♪';
                 dlBtn.style.color = '#c96b6b';
                 setTimeout(() => { dlBtn.style.color = ''; }, 3000);
               }
             });
 
-            item.appendChild(epInfo);
-            item.appendChild(loadBtn);
             item.appendChild(dlBtn);
-          } else {
-            item.appendChild(epInfo);
-            item.appendChild(loadBtn);
           }
+
+          // SRT button + inline panel — always shown
+          const srtBtn = document.createElement('button');
+          srtBtn.className = 'ep-srt-btn';
+          srtBtn.textContent = '↻字';
+          srtBtn.title = ep.srtUrl || 'Replace SRT';
+
+          const srtPanel = document.createElement('div');
+          srtPanel.className = 'ep-srt-panel';
+
+          const srtUrlInput = document.createElement('input');
+          srtUrlInput.type = 'text';
+          srtUrlInput.className = 'ep-srt-url-input';
+          srtUrlInput.placeholder = ep.srtUrl ? ep.srtUrl : 'SRT URL…';
+          srtUrlInput.value = ep.srtUrl || '';
+
+          const srtFileHidden = document.createElement('input');
+          srtFileHidden.type = 'file';
+          srtFileHidden.accept = '.srt,.vtt,text/plain';
+          srtFileHidden.style.display = 'none';
+
+          const srtFilePick = document.createElement('label');
+          srtFilePick.className = 'ep-srt-file-pick';
+          const srtFilePickText = document.createElement('span');
+          srtFilePickText.textContent = '📁';
+          srtFilePick.appendChild(srtFilePickText);
+          srtFilePick.appendChild(srtFileHidden);
+
+          const srtApplyBtn = document.createElement('button');
+          srtApplyBtn.className = 'ep-srt-apply-btn';
+          srtApplyBtn.textContent = '↻';
+
+          srtPanel.appendChild(srtUrlInput);
+          srtPanel.appendChild(srtFilePick);
+          srtPanel.appendChild(srtApplyBtn);
+
+          let pendingSrtFile = null;
+
+          srtFileHidden.addEventListener('change', () => {
+            if (srtFileHidden.files[0]) {
+              pendingSrtFile = srtFileHidden.files[0];
+              srtUrlInput.value = '';
+              srtUrlInput.placeholder = pendingSrtFile.name;
+              srtFilePickText.textContent = '✓';
+              srtFilePick.classList.add('has-file');
+            }
+          });
+
+          srtBtn.addEventListener('click', () => {
+            const open = srtPanel.classList.toggle('open');
+            srtBtn.classList.toggle('open', open);
+          });
+
+          srtApplyBtn.addEventListener('click', async () => {
+            srtApplyBtn.disabled = true;
+            srtApplyBtn.textContent = '…';
+            try {
+              const data = await get(ep.key);
+              if (!data) return;
+
+              if (pendingSrtFile) {
+                data.srt = await pendingSrtFile.text();
+                data.srtUrl = null;
+                pendingSrtFile = null;
+                srtFilePickText.textContent = '📁';
+                srtFilePick.classList.remove('has-file');
+                srtUrlInput.placeholder = 'SRT URL…';
+              } else if (srtUrlInput.value.trim()) {
+                const res = await fetch(srtUrlInput.value.trim());
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                data.srt = await res.text();
+                data.srtUrl = srtUrlInput.value.trim();
+              } else {
+                srtPanel.classList.remove('open');
+                srtBtn.classList.remove('open');
+                srtApplyBtn.disabled = false;
+                srtApplyBtn.textContent = '↻';
+                return;
+              }
+
+              await set(ep.key, data);
+
+              if (currentEpisodeKey === ep.key) {
+                loadedSrtText = data.srt;
+                loadedSrtUrl  = data.srtUrl;
+                subs = parseSRT(data.srt);
+                renderSubs();
+              }
+
+              srtBtn.title = data.srtUrl || 'Replace SRT';
+              srtUrlInput.value = data.srtUrl || '';
+              srtUrlInput.placeholder = data.srtUrl || 'SRT URL…';
+              srtApplyBtn.textContent = '✓';
+              setTimeout(() => {
+                srtPanel.classList.remove('open');
+                srtBtn.classList.remove('open');
+                srtApplyBtn.textContent = '↻';
+                srtApplyBtn.disabled = false;
+              }, 800);
+            } catch (err) {
+              srtApplyBtn.textContent = '!';
+              srtApplyBtn.style.color = '#c96b6b';
+              setTimeout(() => {
+                srtApplyBtn.textContent = '↻';
+                srtApplyBtn.style.color = '';
+                srtApplyBtn.disabled = false;
+              }, 2500);
+            }
+          });
+
+          item.appendChild(srtBtn);
 
           const delBtn = document.createElement('button');
           delBtn.className = 'ep-del-btn';
@@ -1708,7 +1904,9 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
           });
 
           item.appendChild(delBtn);
-          group.appendChild(item);
+          wrap.appendChild(item);
+          wrap.appendChild(srtPanel);
+          group.appendChild(wrap);
         });
 
         listEl.appendChild(group);
