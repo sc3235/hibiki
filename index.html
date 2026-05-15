@@ -316,7 +316,6 @@
       margin-bottom: 1.25rem;
     }
     .ctrl-spacer { flex: 1; }
-    .ctrl-end { flex: 1; display: flex; justify-content: flex-end; }
     .ctrl-btn {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -331,9 +330,6 @@
       transition: background 0.12s, color 0.12s;
     }
     .ctrl-btn:active { background: var(--surface-2); color: var(--text); }
-    @media (max-width: 600px) {
-      .ctrl-end { align-items: center; }
-    }
     .play-btn {
       background: var(--surface-2);
       border-color: var(--border-2);
@@ -806,7 +802,8 @@
     /* ── Words toggle (chip-row above wordlist panel) ── */
     .wordlist-header {
       display: flex;
-      justify-content: flex-start;
+      align-items: center;
+      gap: 0.5rem;
       margin-top: -0.5rem;
       margin-bottom: 0.875rem;
     }
@@ -818,6 +815,7 @@
       padding: 0.35rem 0.7rem;
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.6rem;
+      line-height: 1.5;
       letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--text-2);
@@ -831,9 +829,28 @@
       color: var(--accent);
     }
 
-    /* ── Word add button — matches .ctrl-btn dimensions for a uniform row ── */
-    .word-add-btn.ctrl-btn {
-      letter-spacing: 0.08em;
+    /* ── Word add button — sits in wordlist-header row, right-aligned ── */
+    .word-add-btn {
+      flex-shrink: 0;
+      margin-left: auto;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.35rem 0.7rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      line-height: 1.5;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.12s, color 0.12s, border-color 0.12s;
+    }
+    .word-add-btn:active {
+      background: var(--accent-a10);
+      border-color: var(--accent-a40);
+      color: var(--accent);
     }
 
     /* ── Wordlist panel ── */
@@ -1128,13 +1145,12 @@
       <button class="ctrl-btn" id="prev-btn">← sub</button>
       <button class="ctrl-btn play-btn" id="play-btn">▶</button>
       <button class="ctrl-btn" id="next-btn">sub →</button>
-      <div class="ctrl-end">
-        <button class="ctrl-btn word-add-btn" id="word-add-btn">+ W</button>
-      </div>
+      <div class="ctrl-spacer"></div>
     </div>
 
     <div class="wordlist-header" id="wordlist-header">
       <button class="words-toggle-btn" id="words-toggle-btn">Words (0)</button>
+      <button class="word-add-btn" id="word-add-btn">+ Word</button>
     </div>
 
     <div class="wordlist-panel" id="wordlist-panel" style="display:none">
@@ -1582,6 +1598,7 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
 
       if (loadedAudioBlob) URL.revokeObjectURL(audio.src);
       currentEpisodeKey = key;
+      localStorage.setItem('last-episode-key', key);
 
       if (data.audio) {
         loadedAudioBlob = data.audio;
@@ -2468,6 +2485,8 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     setupMediaSession();
     renderSubList();
     loadCatalogue();
+    const _lastKey = localStorage.getItem('last-episode-key');
+    if (_lastKey) loadEpisodeFromLibrary(_lastKey);
   </script>
 </body>
 </html>
