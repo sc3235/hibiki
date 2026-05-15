@@ -658,6 +658,27 @@
     }
 
     /* Backup */
+    /* CORS Proxy details/summary */
+    .proxy-details { list-style: none; }
+    .proxy-details::-webkit-details-marker { display: none; }
+    .proxy-summary {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      list-style: none;
+      margin-bottom: 0.75rem;
+    }
+    .proxy-summary::before { content: '▶'; font-size: 0.5rem; transition: transform 0.15s; }
+    .proxy-details[open] .proxy-summary::before { transform: rotate(90deg); }
+
     /* CORS Proxy card */
     .proxy-card {
       background: var(--surface);
@@ -935,12 +956,14 @@
       background: var(--surface-2);
       border: 1px solid var(--border);
       border-radius: 6px;
-      padding: 0.3rem 0.55rem;
+      padding: 0.3rem 0;
       font-size: 0.78rem;
       line-height: 1;
       color: var(--text-2);
       cursor: pointer;
       flex-shrink: 0;
+      width: 2.4rem;
+      text-align: center;
       -webkit-tap-highlight-color: transparent;
       transition: color 0.1s, border-color 0.1s;
     }
@@ -1204,19 +1227,6 @@
       <div id="catalogue-list"></div>
     </div>
 
-    <!-- CORS Proxy -->
-    <div class="lib-section">
-      <div class="lib-section-title">CORS Proxy</div>
-      <div class="proxy-card">
-        <div class="proxy-desc">Needed to download audio from CDNs that don't send CORS headers. Deploy <code>cloudflare-worker/index.js</code> to Cloudflare Workers (free), then paste the worker URL here.</div>
-        <div class="proxy-row">
-          <input class="proxy-input" id="proxy-input" type="url" placeholder="https://your-worker.workers.dev" autocorrect="off" autocapitalize="none" spellcheck="false">
-          <button class="proxy-save-btn" id="proxy-save-btn">Save</button>
-        </div>
-        <div class="proxy-status" id="proxy-status"></div>
-      </div>
-    </div>
-
     <!-- Import and Export -->
     <div class="lib-section">
       <div class="lib-section-title">Import and Export</div>
@@ -1242,6 +1252,21 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
           <div id="backup-status" class="backup-status"></div>
         </div>
       </div>
+    </div>
+
+    <!-- CORS Proxy -->
+    <div class="lib-section">
+      <details class="proxy-details">
+        <summary class="proxy-summary">CORS Proxy</summary>
+        <div class="proxy-card">
+          <div class="proxy-desc">Needed to download audio from CDNs that don't send CORS headers. Deploy <code>cloudflare-worker/index.js</code> to Cloudflare Workers (free), then paste the worker URL here.</div>
+          <div class="proxy-row">
+            <input class="proxy-input" id="proxy-input" type="url" placeholder="https://your-worker.workers.dev" autocorrect="off" autocapitalize="none" spellcheck="false">
+            <button class="proxy-save-btn" id="proxy-save-btn">Save</button>
+          </div>
+          <div class="proxy-status" id="proxy-status"></div>
+        </div>
+      </details>
     </div>
   </div>
 
