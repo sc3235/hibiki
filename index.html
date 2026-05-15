@@ -161,10 +161,28 @@
     }
 
     /* ── Native audio ── */
-    audio {
+    .audio-wrap {
+      position: relative;
+      margin-bottom: 1.25rem;
+    }
+    .audio-wrap audio {
       width: 100%;
       border-radius: var(--radius);
-      margin-bottom: 1.25rem;
+      display: block;
+    }
+    .audio-err {
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.08em;
+      color: #c96b6b;
     }
 
     /* ── Subtitle scroll ── */
@@ -640,6 +658,68 @@
     }
 
     /* Backup */
+    /* CORS Proxy card */
+    .proxy-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.75rem 0.875rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .proxy-desc {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.06em;
+      color: var(--text-3);
+      line-height: 1.6;
+    }
+    .proxy-desc code {
+      color: var(--green);
+      opacity: 0.8;
+    }
+    .proxy-row {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .proxy-input {
+      flex: 1;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.45rem 0.6rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--text);
+      outline: none;
+      min-width: 0;
+    }
+    .proxy-input:focus { border-color: var(--accent-a40); }
+    .proxy-save-btn {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.45rem 0.75rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      color: var(--text-2);
+      cursor: pointer;
+      flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+      transition: color 0.12s, border-color 0.12s;
+    }
+    .proxy-save-btn:active { color: var(--text); }
+    .proxy-status {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.08em;
+      color: var(--green);
+      min-height: 0.8rem;
+    }
+    .proxy-status.err { color: #c96b6b; }
+
     /* Import / Export card */
     .ie-card {
       display: flex;
@@ -1006,7 +1086,10 @@
       </div>
     </div>
 
-    <audio id="audio" controls playsinline></audio>
+    <div class="audio-wrap" id="audio-wrap">
+      <audio id="audio" controls playsinline></audio>
+      <div class="audio-err" id="audio-err" style="display:none"></div>
+    </div>
 
     <div class="subtitle-wrap">
       <div class="subtitle-scroll" id="subtitle-scroll"></div>
@@ -1121,6 +1204,19 @@
       <div id="catalogue-list"></div>
     </div>
 
+    <!-- CORS Proxy -->
+    <div class="lib-section">
+      <div class="lib-section-title">CORS Proxy</div>
+      <div class="proxy-card">
+        <div class="proxy-desc">Needed to download audio from CDNs that don't send CORS headers. Deploy <code>cloudflare-worker/index.js</code> to Cloudflare Workers (free), then paste the worker URL here.</div>
+        <div class="proxy-row">
+          <input class="proxy-input" id="proxy-input" type="url" placeholder="https://your-worker.workers.dev" autocorrect="off" autocapitalize="none" spellcheck="false">
+          <button class="proxy-save-btn" id="proxy-save-btn">Save</button>
+        </div>
+        <div class="proxy-status" id="proxy-status"></div>
+      </div>
+    </div>
+
     <!-- Import and Export -->
     <div class="lib-section">
       <div class="lib-section-title">Import and Export</div>
@@ -1152,6 +1248,26 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
   <script type="module">
     import { get, set, del, keys } from 'https://cdn.jsdelivr.net/npm/idb-keyval@6/+esm';
 
+    // ── CORS proxy ──
+    const PROXY_KEY = 'cors-proxy-url';
+    function getCorsProxy() { return localStorage.getItem(PROXY_KEY) || ''; }
+    function proxied(url) {
+      const p = getCorsProxy();
+      return p ? `${p.replace(/\/$/, '')}?url=${encodeURIComponent(url)}` : url;
+    }
+
+    const proxyInput  = document.getElementById('proxy-input');
+    const proxySaveBtn = document.getElementById('proxy-save-btn');
+    const proxyStatus = document.getElementById('proxy-status');
+    proxyInput.value = getCorsProxy();
+    proxySaveBtn.addEventListener('click', () => {
+      const val = proxyInput.value.trim();
+      localStorage.setItem(PROXY_KEY, val);
+      proxyStatus.textContent = val ? 'Saved.' : 'Cleared.';
+      proxyStatus.className = 'proxy-status';
+      setTimeout(() => { proxyStatus.textContent = ''; }, 2000);
+    });
+
     // ── State ──
     let subs        = [];
     let offset      = 0;
@@ -1170,9 +1286,19 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     let wordlistSortDesc  = true;
 
     // ── DOM refs ──
-    const audio   = document.getElementById('audio');
-    const scroll  = document.getElementById('subtitle-scroll');
-    const playBtn = document.getElementById('play-btn');
+    const audio    = document.getElementById('audio');
+    const audioErr = document.getElementById('audio-err');
+    const scroll   = document.getElementById('subtitle-scroll');
+    const playBtn  = document.getElementById('play-btn');
+
+    audio.addEventListener('error', () => {
+      if (!audio.src || audio.src === window.location.href) return;
+      const code = audio.error ? audio.error.code : 0;
+      const msgs = { 1: 'Aborted', 2: 'Network error', 3: 'Decode error', 4: 'Format not supported' };
+      audioErr.textContent = `Audio failed to load — ${msgs[code] || 'Unknown error'} (${code})`;
+      audioErr.style.display = 'flex';
+    });
+    audio.addEventListener('loadstart', () => { audioErr.style.display = 'none'; });
 
     document.documentElement.style.setProperty('--sub-font', fontSize + 'rem');
 
@@ -1834,19 +1960,42 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
               dlBtn.className = 'ep-dl-btn downloading';
               dlBtn.textContent = '…';
               try {
-                const res = await fetch(ep.audioUrl, { mode: 'cors', credentials: 'omit' });
-                if (!res.ok) throw new Error('HTTP ' + res.status);
-                const contentType = res.headers.get('content-type') || 'audio/mpeg';
-                const blob = await res.blob();
-                const typed = new Blob([blob], { type: contentType });
-                const data = await get(ep.key);
-                if (data) { data.audio = typed; await set(ep.key, data); }
+                let blob;
+                try {
+                  const res = await fetch(proxied(ep.audioUrl));
+                  if (!res.ok) throw new Error('HTTP ' + res.status);
+                  const contentType = res.headers.get('content-type') || 'audio/mpeg';
+                  const raw = await res.blob();
+                  blob = raw.type ? raw : new Blob([raw], { type: contentType });
+                } catch (fetchErr) {
+                  console.error('[download] fetch failed:', fetchErr);
+                  const isCors = fetchErr.message === 'Failed to fetch' || fetchErr.message.includes('NetworkError');
+                  dlBtn.className = 'ep-dl-btn';
+                  dlBtn.textContent = '↓♪';
+                  dlBtn.title = isCors
+                    ? 'CORS blocked — this CDN does not allow cross-origin downloads (hover for details, check console)'
+                    : 'Download failed: ' + fetchErr.message;
+                  dlBtn.style.color = '#c96b6b';
+                  return;
+                }
+                try {
+                  const data = await get(ep.key);
+                  if (data) { data.audio = blob; await set(ep.key, data); }
+                } catch (storeErr) {
+                  console.error('[download] storage failed:', storeErr);
+                  dlBtn.className = 'ep-dl-btn';
+                  dlBtn.textContent = '↓♪';
+                  dlBtn.title = 'Saved locally but could not cache: ' + storeErr.message;
+                  dlBtn.style.color = '#c96b6b';
+                  return;
+                }
                 setDlState('downloaded');
               } catch (err) {
+                console.error('[download] unexpected error:', err);
                 dlBtn.className = 'ep-dl-btn';
                 dlBtn.textContent = '↓♪';
+                dlBtn.title = 'Download failed: ' + err.message;
                 dlBtn.style.color = '#c96b6b';
-                setTimeout(() => { dlBtn.style.color = ''; }, 3000);
               }
             });
 
