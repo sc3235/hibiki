@@ -497,19 +497,20 @@
       letter-spacing: 0.18em;
     }
     .offset-row-tip {
+      display: block;
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.5rem;
       color: var(--green);
-      opacity: 0.55;
+      opacity: 0.5;
       letter-spacing: 0.04em;
-      text-align: right;
       line-height: 1.4;
-      margin-left: 0.5rem;
-      flex: 0 1 auto;
+      margin: 0.45rem 0.15rem 0;
+      text-align: center;
     }
     .offset-row-controls {
       display: flex;
       align-items: stretch;
+      justify-content: center;
       gap: 0.4rem;
     }
     .adj-btn-lg {
@@ -533,11 +534,10 @@
       color: var(--text);
     }
     .offset-val-lg {
-      flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
-      min-width: 3.5rem;
+      min-width: 5rem;
       font-family: 'JetBrains Mono', monospace;
       font-size: 1.02rem;
       color: var(--text);
@@ -555,13 +555,12 @@
     }
     .manual-btn {
       flex-shrink: 0;
-      min-height: 46px;
-      padding: 0 0.85rem;
+      padding: 0.3rem 0.65rem;
       background: var(--surface-2);
-      border: 1px solid var(--border-2);
-      border-radius: 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.58rem;
+      font-size: 0.52rem;
       letter-spacing: 0.16em;
       text-transform: uppercase;
       color: var(--text-3);
@@ -601,6 +600,39 @@
       color: var(--text);
       border-color: var(--border-2);
     }
+
+    /* ── Options foldable section ── */
+    .options-details { list-style: none; margin-bottom: 0.75rem; }
+    .options-details::-webkit-details-marker { display: none; }
+    .options-summary {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.52rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      list-style: none;
+      margin-bottom: 0;
+      padding: 0.1rem 0 0.5rem;
+    }
+    .options-summary::before { content: '▶'; font-size: 0.5rem; transition: transform 0.15s; }
+    .options-details[open] .options-summary::before { transform: rotate(90deg); }
+    .options-body {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .options-speed-font {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .options-speed-font .setting-box { flex: 1; }
+    .options-body > .setting-box-btn { width: 100%; box-sizing: border-box; flex: none; }
 
     /* ── Pin handle (mirrors .sub-jump on the right; only visible when paused) ── */
     .sub-pin {
@@ -1090,13 +1122,19 @@
       letter-spacing: 0.08em;
     }
 
-    /* ── Words toggle (chip-row above wordlist panel) ── */
-    .wordlist-header {
+    /* ── Words unified card ── */
+    .words-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      margin-bottom: 0.875rem;
+      overflow: hidden;
+    }
+    .words-card-header {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      margin-top: -0.5rem;
-      margin-bottom: 0.875rem;
+      padding: 0.45rem 0.6rem;
     }
     .words-toggle-btn {
       flex-shrink: 0;
@@ -1120,10 +1158,10 @@
       color: var(--accent);
     }
 
-    /* ── Word add button — sits in wordlist-header row, right-aligned ── */
+    /* ── Word add button — right side of words-card-header ── */
     .word-add-btn {
       flex-shrink: 0;
-      margin-left: auto;
+      margin-left: auto; /* push to right end of header */
       background: var(--surface-2);
       border: 1px solid var(--border);
       border-radius: 8px;
@@ -1144,12 +1182,9 @@
       color: var(--accent);
     }
 
-    /* ── Wordlist panel ── */
+    /* ── Wordlist panel (lives inside .words-card) ── */
     .wordlist-panel {
-      margin-bottom: 1rem;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      background: var(--surface);
+      border-top: 1px solid var(--border);
       overflow: hidden;
       display: flex;
       flex-direction: column;
@@ -1451,57 +1486,64 @@
       <div class="ctrl-spacer"></div>
     </div>
 
-    <div class="wordlist-header" id="wordlist-header">
-      <button class="words-toggle-btn" id="words-toggle-btn">Words (0)</button>
-      <button class="word-add-btn" id="word-add-btn">+ Word</button>
-    </div>
-
-    <div class="wordlist-panel" id="wordlist-panel" style="display:none">
-      <div class="wl-sort-strip" id="wl-sort-strip">
-        <button class="wl-sort-btn" id="wl-sort-btn">↓ Newest first</button>
+    <div class="words-card" id="wordlist-header">
+      <div class="words-card-header">
+        <button class="words-toggle-btn" id="words-toggle-btn">Words (0)</button>
+        <button class="word-add-btn" id="word-add-btn">+ Word</button>
       </div>
-      <div class="wl-scroll">
-        <div id="wordlist-items"></div>
+      <div class="wordlist-panel" id="wordlist-panel" style="display:none">
+        <div class="wl-sort-strip" id="wl-sort-strip">
+          <button class="wl-sort-btn" id="wl-export-btn">↓ CSV</button>
+          <button class="wl-sort-btn" id="wl-sort-btn">↑ Earlier first</button>
+        </div>
+        <div class="wl-scroll">
+          <div id="wordlist-items"></div>
+        </div>
       </div>
     </div>
 
     <div class="offset-row">
       <div class="offset-row-head">
         <span class="offset-row-label">Offset</span>
-        <span class="offset-row-tip">+offset if sub lags audio<br>pause, tap sub right edge to pin</span>
+        <button class="manual-btn" id="manual-btn">Manual</button>
       </div>
       <div class="offset-row-controls">
         <button class="adj-btn-lg" id="offset-minus">−1s</button>
         <span class="offset-val-lg" id="offset-val-wrap"><span id="offset-val">0</span>&nbsp;s</span>
         <button class="adj-btn-lg" id="offset-plus">+1s</button>
-        <button class="manual-btn" id="manual-btn">Manual</button>
       </div>
+      <span class="offset-row-tip">+offset if sub lags audio · pause &amp; tap right edge to pin</span>
     </div>
 
     <div class="toggle-row" style="margin-bottom: 0.6rem;">
-      <button class="toggle-btn" id="loop-btn">↻ Loop This Sub</button>
-      <button class="toggle-btn" id="autopause-btn">|| Pause Per Sub</button>
+      <button class="toggle-btn" id="loop-btn">↻ Loop Curr Sub</button>
+      <button class="toggle-btn" id="autopause-btn">|| Pause Each Sub</button>
     </div>
 
-    <div class="settings-row">
-      <div class="setting-box">
-        <span class="setting-label">Speed</span>
-        <div class="setting-controls">
-          <button class="adj-btn" id="speed-minus">−</button>
-          <span class="setting-val" id="speed-val">1.0×</span>
-          <button class="adj-btn" id="speed-plus">+</button>
+    <details class="options-details">
+      <summary class="options-summary">Options</summary>
+      <div class="options-body">
+        <div class="options-speed-font">
+          <div class="setting-box">
+            <span class="setting-label">Speed</span>
+            <div class="setting-controls">
+              <button class="adj-btn" id="speed-minus">−</button>
+              <span class="setting-val" id="speed-val">1.0×</span>
+              <button class="adj-btn" id="speed-plus">+</button>
+            </div>
+          </div>
+          <div class="setting-box">
+            <span class="setting-label">Font</span>
+            <div class="setting-controls">
+              <button class="adj-btn" id="font-minus">A−</button>
+              <span class="setting-val" id="font-val">1.2</span>
+              <button class="adj-btn" id="font-plus">A+</button>
+            </div>
+          </div>
         </div>
+        <button class="setting-box-btn" id="reset-btn">↺ Reset</button>
       </div>
-      <div class="setting-box">
-        <span class="setting-label">Font</span>
-        <div class="setting-controls">
-          <button class="adj-btn" id="font-minus">A−</button>
-          <span class="setting-val" id="font-val">1.2</span>
-          <button class="adj-btn" id="font-plus">A+</button>
-        </div>
-      </div>
-      <button class="setting-box-btn" id="reset-btn">↺ Reset</button>
-    </div>
+    </details>
   </div>
 
   <!-- ── Library view ── -->
@@ -1646,6 +1688,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     let currentWordlist   = [];
     let wordlistOpen      = false;
     let wordlistSortDesc  = true;
+    let navLock = -1, navLockExpiry = 0; // prevent timeupdate from undoing a manual seek (float/codec snap)
 
     // ── DOM refs ──
     const audio       = document.getElementById('audio');
@@ -1858,7 +1901,9 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         setActiveSub(idx);
         return;
       }
+      navLock = idx; navLockExpiry = performance.now() + 400;
       audio.currentTime = Math.max(0, subs[idx].start - offset);
+      setActiveSub(idx);
     }
 
     // ── Playback sync ──
@@ -1873,6 +1918,10 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       if (manualMode) return;
 
       const newIdx = subs.findIndex(s => t >= s.start && t <= s.end);
+
+      // If a seek just landed in a float-imprecision gap just before the target sub, hold off
+      if (newIdx === -1 && navLock >= 0 && performance.now() < navLockExpiry) return;
+      navLock = -1;
 
       if (newIdx !== currentIdx) {
         if (autoPause && currentIdx >= 0 && t > subs[currentIdx].end) {
@@ -1911,6 +1960,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         }
       }
       if (!manualMode) {
+        navLock = idx; navLockExpiry = performance.now() + 400;
         audio.currentTime = Math.max(0, subs[idx].start - offset);
       }
       setActiveSub(idx);
@@ -1931,6 +1981,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         }
       }
       if (!manualMode) {
+        navLock = idx; navLockExpiry = performance.now() + 400;
         audio.currentTime = Math.max(0, subs[idx].start - offset);
       }
       setActiveSub(idx);
@@ -1956,9 +2007,12 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     document.getElementById('seek-fwd-btn').addEventListener('click',  () => seekBy(+10));
 
     // ── Offset / font ──
+    function fmtOffset(v) { return Number.isInteger(v) ? String(v) : v.toFixed(1); }
+    function setOffsetDisplay() { document.getElementById('offset-val').textContent = fmtOffset(offset); }
+
     function adjustOffset(delta) {
-      offset = Math.round(offset + delta);
-      document.getElementById('offset-val').textContent = offset;
+      offset = offset + delta;
+      setOffsetDisplay();
       updateAllTimestamps();
       patchEpisode({ offset });
     }
@@ -1968,8 +2022,8 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     //    one at the current audio time without moving the playhead.
     function pinSub(idx) {
       if (idx < 0 || idx >= subs.length) return;
-      offset = Math.round(subs[idx].start - audio.currentTime);
-      document.getElementById('offset-val').textContent = offset;
+      offset = Math.round((subs[idx].start - audio.currentTime) * 10) / 10;
+      setOffsetDisplay();
       updateAllTimestamps();
       flashOffsetVal();
       flashSubPin(idx);
@@ -2083,8 +2137,8 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       }
       audio.load();
 
-      offset = Math.round(data.offset || 0);
-      document.getElementById('offset-val').textContent = offset;
+      offset = data.offset || 0;
+      setOffsetDisplay();
       audio.playbackRate = data.speed || 1;
       syncSpeedDisplay();
       setManualMode(!!data.manual, false);
@@ -2260,7 +2314,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
 
       const sortStrip = document.getElementById('wl-sort-strip');
       const sortBtn = document.getElementById('wl-sort-btn');
-      if (sortBtn) sortBtn.textContent = wordlistSortDesc ? '↓ Newest first' : '↑ Oldest first';
+      if (sortBtn) sortBtn.textContent = wordlistSortDesc ? '↓ Later first' : '↑ Earlier first';
       if (sortStrip) sortStrip.style.display = currentWordlist.length === 0 ? 'none' : '';
 
       if (currentWordlist.length === 0) {
@@ -2274,9 +2328,10 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       const ordered = currentWordlist
         .map((entry, i) => ({ entry, i }))
         .sort((a, b) => {
-          const ta = a.entry.addedAt ?? 0;
-          const tb = b.entry.addedAt ?? 0;
-          return wordlistSortDesc ? tb - ta : ta - tb;
+          const tsa = a.entry.timestamp ?? 0, tsb = b.entry.timestamp ?? 0;
+          if (tsa !== tsb) return wordlistSortDesc ? tsb - tsa : tsa - tsb;
+          const aa = a.entry.addedAt ?? 0, ab = b.entry.addedAt ?? 0;
+          return wordlistSortDesc ? ab - aa : aa - ab;
         });
 
       ordered.forEach(({ entry, i }) => {
@@ -2384,6 +2439,21 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     document.getElementById('wl-sort-btn').addEventListener('click', () => {
       wordlistSortDesc = !wordlistSortDesc;
       renderWordlist();
+    });
+
+    document.getElementById('wl-export-btn').addEventListener('click', () => {
+      if (!currentWordlist.length) return;
+      const escape = s => '"' + String(s ?? '').replace(/"/g, '""') + '"';
+      const rows = [['word', 'sentence', 'timestamp'].map(escape).join(',')];
+      for (const e of currentWordlist) {
+        const ts = e.timestamp != null ? e.timestamp.toFixed(1) : '';
+        rows.push([e.word, e.sentence, ts].map(escape).join(','));
+      }
+      const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+      const name = (currentEpisodeKey || 'wordlist').replace(/^episode:/, '') + '-words.csv';
+      const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: name });
+      a.click();
+      URL.revokeObjectURL(a.href);
     });
 
     document.getElementById('words-toggle-btn').addEventListener('click', () => {
@@ -3014,7 +3084,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       if (!currentEpisodeKey) return;
       if (!confirm('Reset speed, offset, and return to the beginning?')) return;
       offset = 0;
-      document.getElementById('offset-val').textContent = '0';
+      setOffsetDisplay();
       audio.playbackRate = 1;
       syncSpeedDisplay();
       setManualMode(false, false);
