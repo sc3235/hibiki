@@ -39,6 +39,8 @@
       padding: 0 1.5rem 4rem;
       max-width: 600px;
       margin: 0 auto;
+      /* Kill iOS double-tap zoom; viewport meta handles pinch. */
+      touch-action: manipulation;
     }
 
     /* ── Header ── */
@@ -467,18 +469,13 @@
     .offset-row-tip {
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.5rem;
-      color: var(--text-3);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-    .offset-row-foot {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.5rem;
       color: var(--green);
-      opacity: 0.5;
-      letter-spacing: 0.06em;
-      text-align: center;
-      margin-top: 0.6rem;
+      opacity: 0.55;
+      letter-spacing: 0.04em;
+      text-align: right;
+      line-height: 1.4;
+      margin-left: 0.5rem;
+      flex: 0 1 auto;
     }
     .offset-row-controls {
       display: flex;
@@ -631,12 +628,10 @@
     .sub-time-post.visible { opacity: 0.55; }
     .sub-item.active .sub-time-post.visible { opacity: 0.85; }
 
-    /* ── Manual mode: sub area is read-only (no auto-scroll, no auto-highlight, no jump-tap).
-       Sub timestamps and offset controls are also visually de-emphasized to signal
-       that sub-timestamp-driven behaviors are inactive. ── */
-    body.manual-mode .sub-jump { pointer-events: none; }
-    body.manual-mode .sub-jump::after { background: var(--border); opacity: 0.4; }
-    body.manual-mode .sub-item.active .sub-jump::after { background: var(--border-2); opacity: 0.5; }
+    /* ── Manual mode: sub area is decoupled from audio playback. Audio plays
+       independently; sub highlight is moved manually via prev/next/tap (no audio
+       seek), and re-centers on each manual change. Sub timestamps and offset
+       controls are visually de-emphasized to signal the decoupling. ── */
     body.manual-mode .sub-time { color: var(--text-3); opacity: 0.25; }
     body.manual-mode .sub-item.active .sub-time { opacity: 0.4; }
     body.manual-mode .sub-time-post.visible { color: var(--text-3); }
@@ -1374,9 +1369,10 @@
       margin-bottom: 0.4rem;
     }
 
-    /* Prevent iOS Safari auto-zoom on input focus (triggered when font-size < 16px) */
+    /* Prevent iOS Safari auto-zoom on input focus (triggered when font-size < 16px).
+       Apply globally to any text-y input on touch devices so we don't miss any. */
     @media (pointer: coarse) {
-      .qi-input, .proxy-input { font-size: 16px; }
+      input, textarea, select { font-size: 16px !important; }
     }
   </style>
 </head>
@@ -1414,9 +1410,9 @@
     <div class="controls-row">
       <div class="ctrl-spacer"></div>
       <button class="ctrl-btn-sm" id="seek-back-btn">−10s</button>
-      <button class="ctrl-btn" id="prev-btn">← sub</button>
+      <button class="ctrl-btn" id="prev-btn">←sub</button>
       <button class="ctrl-btn play-btn" id="play-btn">▶</button>
-      <button class="ctrl-btn" id="next-btn">sub →</button>
+      <button class="ctrl-btn" id="next-btn">sub→</button>
       <button class="ctrl-btn-sm" id="seek-fwd-btn">+10s</button>
       <div class="ctrl-spacer"></div>
     </div>
@@ -1437,8 +1433,8 @@
 
     <div class="offset-row">
       <div class="offset-row-head">
-        <span class="offset-row-label">Offset</span>
-        <span class="offset-row-tip">+ if subs lag</span>
+        <span class="offset-row-label">Offset (+ if subs lag)</span>
+        <span class="offset-row-tip">Pause + tap sub's right edge to pin</span>
       </div>
       <div class="offset-row-controls">
         <button class="adj-btn-lg" id="offset-minus">−1s</button>
@@ -1446,12 +1442,11 @@
         <button class="adj-btn-lg" id="offset-plus">+1s</button>
         <button class="manual-btn" id="manual-btn">Manual</button>
       </div>
-      <div class="offset-row-foot">Pause + tap any sub's right edge to pin</div>
     </div>
 
     <div class="toggle-row" style="margin-bottom: 0.6rem;">
-      <button class="toggle-btn" id="loop-btn">↻ Loop</button>
-      <button class="toggle-btn" id="autopause-btn">|| Auto-pause</button>
+      <button class="toggle-btn" id="loop-btn">↻ Loop This Sub</button>
+      <button class="toggle-btn" id="autopause-btn">|| Pause By Sub</button>
     </div>
 
     <div class="settings-row">
@@ -1782,14 +1777,19 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       const el = scroll.querySelector(`[data-idx="${idx}"]`);
       if (!el) return;
       el.classList.add('active');
-      if (!manualMode) {
-        scroll.scrollTop = el.offsetTop - (scroll.clientHeight / 2) + (el.offsetHeight / 2);
-      }
+      // Always center: in normal mode this is the auto-follow during playback;
+      // in manual mode the timeupdate handler returns early so setActiveSub is
+      // only invoked by explicit user actions (prev/next/tap/pin), which should
+      // always re-center.
+      scroll.scrollTop = el.offsetTop - (scroll.clientHeight / 2) + (el.offsetHeight / 2);
     }
 
     function jumpToSub(idx) {
-      if (manualMode) return;
       if (idx < 0 || idx >= subs.length) return;
+      if (manualMode) {
+        setActiveSub(idx);
+        return;
+      }
       audio.currentTime = Math.max(0, subs[idx].start - offset);
     }
 
@@ -1842,7 +1842,9 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
           if (subs[i].start <= t) { idx = i; break; }
         }
       }
-      audio.currentTime = Math.max(0, subs[idx].start - offset);
+      if (!manualMode) {
+        audio.currentTime = Math.max(0, subs[idx].start - offset);
+      }
       setActiveSub(idx);
     }
 
@@ -1860,7 +1862,9 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
           if (subs[i].start > t) { idx = i; break; }
         }
       }
-      audio.currentTime = Math.max(0, subs[idx].start - offset);
+      if (!manualMode) {
+        audio.currentTime = Math.max(0, subs[idx].start - offset);
+      }
       setActiveSub(idx);
     }
 
