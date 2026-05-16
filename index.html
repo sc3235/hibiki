@@ -226,6 +226,39 @@
     .fade-top    { top: 0;    background: linear-gradient(to bottom, var(--surface), transparent); border-radius: 20px 20px 0 0; }
     .fade-bottom { bottom: 0; background: linear-gradient(to top,    var(--surface), transparent); border-radius: 0 0 20px 20px; }
 
+    .sub-scrubber {
+      position: absolute;
+      right: 10px;
+      top: 14px;
+      bottom: 14px;
+      width: 3px;
+      border-radius: 2px;
+      background: var(--border-2);
+      z-index: 4;
+      cursor: pointer;
+      touch-action: none;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    .sub-scrubber.active,
+    .subtitle-wrap:hover .sub-scrubber,
+    .subtitle-wrap:focus-within .sub-scrubber {
+      opacity: 1;
+    }
+    .sub-scrubber-thumb {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 9px;
+      height: 20px;
+      border-radius: 3px;
+      background: var(--accent);
+      top: 0;
+      transition: top 0.12s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      will-change: top;
+      box-shadow: 0 0 6px var(--accent-a40);
+    }
+
     .sub-empty {
       text-align: center;
       padding: 0 2rem;
@@ -1405,6 +1438,9 @@
       <div class="subtitle-scroll" id="subtitle-scroll"></div>
       <div class="fade-top"></div>
       <div class="fade-bottom"></div>
+      <div class="sub-scrubber" id="sub-scrubber">
+        <div class="sub-scrubber-thumb" id="sub-scrubber-thumb"></div>
+      </div>
     </div>
 
     <div class="controls-row">
@@ -1446,7 +1482,7 @@
 
     <div class="toggle-row" style="margin-bottom: 0.6rem;">
       <button class="toggle-btn" id="loop-btn">↻ Loop This Sub</button>
-      <button class="toggle-btn" id="autopause-btn">|| Auto-Pause Per Sub</button>
+      <button class="toggle-btn" id="autopause-btn">|| Pause Per Sub</button>
     </div>
 
     <div class="settings-row">
@@ -1466,7 +1502,7 @@
           <button class="adj-btn" id="font-plus">A+</button>
         </div>
       </div>
-      <button class="setting-box-btn" id="reset-btn">↺ Reset Settings</button>
+      <button class="setting-box-btn" id="reset-btn">↺ Reset</button>
     </div>
   </div>
 
@@ -1614,10 +1650,12 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     let wordlistSortDesc  = true;
 
     // ── DOM refs ──
-    const audio    = document.getElementById('audio');
-    const audioErr = document.getElementById('audio-err');
-    const scroll   = document.getElementById('subtitle-scroll');
-    const playBtn  = document.getElementById('play-btn');
+    const audio       = document.getElementById('audio');
+    const audioErr    = document.getElementById('audio-err');
+    const scroll      = document.getElementById('subtitle-scroll');
+    const playBtn     = document.getElementById('play-btn');
+    const scrubber    = document.getElementById('sub-scrubber');
+    const scrubThumb  = document.getElementById('sub-scrubber-thumb');
 
     audio.addEventListener('error', () => {
       // When audio.src is unset, browsers resolve it to the page URL — ignore those errors.
@@ -1745,6 +1783,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         scroll.appendChild(item);
       });
       updateAllTimestamps();
+      updateScrubber(currentIdx >= 0 ? currentIdx : 0);
     }
 
     function updateAllTimestamps() {
@@ -1782,7 +1821,38 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       // only invoked by explicit user actions (prev/next/tap/pin), which should
       // always re-center.
       scroll.scrollTop = el.offsetTop - (scroll.clientHeight / 2) + (el.offsetHeight / 2);
+      updateScrubber(idx);
     }
+
+    // ── Scrubber ──
+    function updateScrubber(idx) {
+      if (!subs.length) return;
+      const frac = Math.max(0, Math.min(1, idx / (subs.length - 1)));
+      const trackH = scrubber.clientHeight - scrubThumb.offsetHeight;
+      scrubThumb.style.top = (frac * trackH) + 'px';
+    }
+
+    function scrubberSeek(clientY) {
+      const rect = scrubber.getBoundingClientRect();
+      const frac = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
+      const idx  = Math.round(frac * (subs.length - 1));
+      jumpToSub(idx);
+    }
+
+    scrubber.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      scrubber.setPointerCapture(e.pointerId);
+      scrubber.classList.add('active');
+      scrubberSeek(e.clientY);
+    });
+    scrubber.addEventListener('pointermove', e => {
+      if (!scrubber.hasPointerCapture(e.pointerId)) return;
+      scrubberSeek(e.clientY);
+    });
+    scrubber.addEventListener('pointerup', e => {
+      scrubber.releasePointerCapture(e.pointerId);
+      scrubber.classList.remove('active');
+    });
 
     function jumpToSub(idx) {
       if (idx < 0 || idx >= subs.length) return;
@@ -2944,13 +3014,16 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     // ── Reset offset + speed for current episode ──
     document.getElementById('reset-btn').addEventListener('click', async () => {
       if (!currentEpisodeKey) return;
+      if (!confirm('Reset speed, offset, and return to the beginning?')) return;
       offset = 0;
       document.getElementById('offset-val').textContent = '0';
       audio.playbackRate = 1;
       syncSpeedDisplay();
       setManualMode(false, false);
       updateAllTimestamps();
-      await patchEpisode({ offset: 0, speed: 1, manual: false });
+      audio.currentTime = 0;
+      if (subs.length) jumpToSub(0);
+      await patchEpisode({ offset: 0, speed: 1, manual: false, lastPosition: 0 });
     });
 
     // ── Export library backup ──
