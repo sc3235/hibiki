@@ -1681,6 +1681,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     let wordlistOpen      = false;
     let wordlistSortDesc  = true;
     let navLock = -1, navLockExpiry = 0; // prevent timeupdate from undoing a manual seek (float/codec snap)
+    let autoPauseFiredFor = -1; // index of the last sub that triggered auto-pause; reset on any sub change
 
     // ── DOM refs ──
     const audio       = document.getElementById('audio');
@@ -1841,6 +1842,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     }
 
     function setActiveSub(idx) {
+      autoPauseFiredFor = -1; // any sub transition (including re-seek to same sub) rearms auto-pause
       if (currentIdx === idx) return;
       const prev = scroll.querySelector('.sub-item.active');
       if (prev) prev.classList.remove('active');
@@ -1909,20 +1911,30 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
 
       if (manualMode) return;
 
-      const newIdx = subs.findIndex(s => t >= s.start && t <= s.end);
-
-      // If a seek just landed in a float-imprecision gap just before the target sub, hold off
-      if (newIdx === -1 && navLock >= 0 && performance.now() < navLockExpiry) return;
-      navLock = -1;
-
-      if (newIdx !== currentIdx) {
-        if (autoPause && currentIdx >= 0 && t > subs[currentIdx].end) {
-          setActiveSub(newIdx);
-          audio.pause();
-        } else {
-          setActiveSub(newIdx);
+      // Exact match, then fall back to the most recently ended sub ("sticky gap"):
+      // keeps the previous subtitle visible during gaps between subtitles.
+      let newIdx = subs.findIndex(s => t >= s.start && t <= s.end);
+      if (newIdx === -1) {
+        for (let i = subs.length - 1; i >= 0; i--) {
+          if (subs[i].end <= t) { newIdx = i; break; }
         }
       }
+
+      // While settling after a seek, don't move away from the target sub yet.
+      if (navLock >= 0 && performance.now() < navLockExpiry) {
+        if (newIdx !== navLock) return;
+      }
+      navLock = -1;
+
+      // Auto-pause: fire once per sub at the sub's end; don't re-fire while replaying
+      // the same gap after the user resumes playback.
+      if (autoPause && currentIdx >= 0 && autoPauseFiredFor !== currentIdx && t > subs[currentIdx].end) {
+        autoPauseFiredFor = currentIdx;
+        audio.pause();
+        return; // keep currentIdx so the just-ended sub stays visible while paused
+      }
+
+      if (newIdx !== currentIdx) setActiveSub(newIdx);
     });
 
     // ── Play / pause ──
@@ -2019,9 +2031,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       updateAllTimestamps();
       flashOffsetVal();
       flashSubPin(idx);
-      const t = audio.currentTime + offset;
-      const newIdx = subs.findIndex(s => t >= s.start && t <= s.end);
-      setActiveSub(newIdx);
+      setActiveSub(idx);
       patchEpisode({ offset });
     }
 
