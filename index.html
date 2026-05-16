@@ -312,15 +312,15 @@
     .controls-row {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.45rem;
       margin-bottom: 1.25rem;
     }
-    .ctrl-spacer { flex: 1; }
+    .ctrl-spacer { flex: 1; min-width: 0; }
     .ctrl-btn {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 0.75rem 1.1rem;
+      padding: 0.75rem 0.85rem;
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.75rem;
       color: var(--text-2);
@@ -328,12 +328,32 @@
       letter-spacing: 0.05em;
       -webkit-tap-highlight-color: transparent;
       transition: background 0.12s, color 0.12s;
+      flex-shrink: 0;
     }
     .ctrl-btn:active { background: var(--surface-2); color: var(--text); }
+    .ctrl-btn-sm {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 0.6rem 0.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.02em;
+      color: var(--text-3);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.12s, color 0.12s, border-color 0.12s;
+      flex-shrink: 0;
+    }
+    .ctrl-btn-sm:active {
+      background: var(--surface-2);
+      color: var(--text);
+      border-color: var(--border-2);
+    }
     .play-btn {
       background: var(--surface-2);
       border-color: var(--border-2);
-      width: 5rem;
+      width: 4.5rem;
       padding: 0.75rem 0;
       text-align: center;
       font-size: 1.05rem;
@@ -444,17 +464,22 @@
       text-transform: uppercase;
       letter-spacing: 0.18em;
     }
-    .pin-hint {
+    .offset-row-tip {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.5rem;
+      color: var(--text-3);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .offset-row-foot {
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.5rem;
       color: var(--green);
-      opacity: 0;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      transition: opacity 0.25s;
-      pointer-events: none;
+      opacity: 0.5;
+      letter-spacing: 0.06em;
+      text-align: center;
+      margin-top: 0.6rem;
     }
-    body.audio-paused .pin-hint { opacity: 0.6; }
     .offset-row-controls {
       display: flex;
       align-items: stretch;
@@ -606,10 +631,17 @@
     .sub-time-post.visible { opacity: 0.55; }
     .sub-item.active .sub-time-post.visible { opacity: 0.85; }
 
-    /* ── Manual mode: sub area is read-only (no auto-scroll, no jump-tap) ── */
+    /* ── Manual mode: sub area is read-only (no auto-scroll, no auto-highlight, no jump-tap).
+       Sub timestamps and offset controls are also visually de-emphasized to signal
+       that sub-timestamp-driven behaviors are inactive. ── */
     body.manual-mode .sub-jump { pointer-events: none; }
     body.manual-mode .sub-jump::after { background: var(--border); opacity: 0.4; }
     body.manual-mode .sub-item.active .sub-jump::after { background: var(--border-2); opacity: 0.5; }
+    body.manual-mode .sub-time { color: var(--text-3); opacity: 0.25; }
+    body.manual-mode .sub-item.active .sub-time { opacity: 0.4; }
+    body.manual-mode .sub-time-post.visible { color: var(--text-3); }
+    body.manual-mode .adj-btn-lg,
+    body.manual-mode .offset-val-lg { opacity: 0.5; }
 
     /* ── Library view ── */
     #library-view { display: none; }
@@ -1381,9 +1413,11 @@
 
     <div class="controls-row">
       <div class="ctrl-spacer"></div>
+      <button class="ctrl-btn-sm" id="seek-back-btn">−10s</button>
       <button class="ctrl-btn" id="prev-btn">← sub</button>
       <button class="ctrl-btn play-btn" id="play-btn">▶</button>
       <button class="ctrl-btn" id="next-btn">sub →</button>
+      <button class="ctrl-btn-sm" id="seek-fwd-btn">+10s</button>
       <div class="ctrl-spacer"></div>
     </div>
 
@@ -1404,7 +1438,7 @@
     <div class="offset-row">
       <div class="offset-row-head">
         <span class="offset-row-label">Offset</span>
-        <span class="pin-hint">📌 Tap sub's right edge to pin</span>
+        <span class="offset-row-tip">+ if subs lag</span>
       </div>
       <div class="offset-row-controls">
         <button class="adj-btn-lg" id="offset-minus">−1s</button>
@@ -1412,6 +1446,7 @@
         <button class="adj-btn-lg" id="offset-plus">+1s</button>
         <button class="manual-btn" id="manual-btn">Manual</button>
       </div>
+      <div class="offset-row-foot">Pause + tap any sub's right edge to pin</div>
     </div>
 
     <div class="toggle-row" style="margin-bottom: 0.6rem;">
@@ -1436,7 +1471,7 @@
           <button class="adj-btn" id="font-plus">A+</button>
         </div>
       </div>
-      <button class="setting-box-btn" id="reset-btn">↺ Reset</button>
+      <button class="setting-box-btn" id="reset-btn">↺ Reset Settings</button>
     </div>
   </div>
 
@@ -1688,11 +1723,15 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
 
         const time = document.createElement('div');
         time.className = 'sub-time';
-        const timeOrig = document.createElement('span');
-        timeOrig.textContent = fmtTime(sub.start);
+        // Primary timestamp = audio time at which this sub plays (sub.start − offset
+        // when offset is non-zero; otherwise just sub.start). SRT-source timestamp
+        // is shown in parens as secondary reference. updateAllTimestamps() fills
+        // both spans based on the current offset.
+        const timePrimary = document.createElement('span');
+        timePrimary.className = 'sub-time-primary';
         const timePost = document.createElement('span');
         timePost.className = 'sub-time-post';
-        time.appendChild(timeOrig);
+        time.appendChild(timePrimary);
         time.appendChild(timePost);
 
         const text = document.createElement('div');
@@ -1714,17 +1753,20 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     }
 
     function updateAllTimestamps() {
-      const showPost = offset !== 0;
+      const hasOffset = offset !== 0;
       scroll.querySelectorAll('.sub-item').forEach(item => {
         const idx = +item.dataset.idx;
         const sub = subs[idx];
         if (!sub) return;
+        const primary = item.querySelector('.sub-time-primary');
         const post = item.querySelector('.sub-time-post');
-        if (!post) return;
-        if (showPost) {
-          post.textContent = ' (' + fmtTime(Math.max(0, sub.start - offset)) + ')';
+        if (!primary || !post) return;
+        if (hasOffset) {
+          primary.textContent = fmtTime(Math.max(0, sub.start - offset));
+          post.textContent = ' (' + fmtTime(sub.start) + ')';
           post.classList.add('visible');
         } else {
+          primary.textContent = fmtTime(sub.start);
           post.textContent = '';
           post.classList.remove('visible');
         }
@@ -1759,6 +1801,8 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         audio.currentTime = Math.max(0, subs[currentIdx].start - offset);
         return;
       }
+
+      if (manualMode) return;
 
       const newIdx = subs.findIndex(s => t >= s.start && t <= s.end);
 
@@ -1822,6 +1866,22 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
 
     document.getElementById('prev-btn').addEventListener('click', prevSub);
     document.getElementById('next-btn').addEventListener('click', nextSub);
+
+    // ── ±10s seek (independent of subtitle timing) ──
+    function seekBy(delta) {
+      const dur = isFinite(audio.duration) ? audio.duration : Infinity;
+      const newTime = Math.max(0, Math.min(dur, audio.currentTime + delta));
+      audio.currentTime = newTime;
+      // timeupdate may not fire while paused on iOS Safari, so refresh the
+      // active sub here unless we're in manual mode (which freezes the highlight).
+      if (!manualMode) {
+        const t = newTime + offset;
+        const newIdx = subs.findIndex(s => t >= s.start && t <= s.end);
+        setActiveSub(newIdx);
+      }
+    }
+    document.getElementById('seek-back-btn').addEventListener('click', () => seekBy(-10));
+    document.getElementById('seek-fwd-btn').addEventListener('click',  () => seekBy(+10));
 
     // ── Offset / font ──
     function adjustOffset(delta) {
@@ -2108,12 +2168,8 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       navigator.mediaSession.setActionHandler('pause', () => audio.pause());
       navigator.mediaSession.setActionHandler('previoustrack', prevSub);
       navigator.mediaSession.setActionHandler('nexttrack',     nextSub);
-      navigator.mediaSession.setActionHandler('seekbackward', ({ seekOffset }) => {
-        audio.currentTime = Math.max(0, audio.currentTime - (seekOffset ?? 10));
-      });
-      navigator.mediaSession.setActionHandler('seekforward', ({ seekOffset }) => {
-        audio.currentTime = Math.min(audio.duration || Infinity, audio.currentTime + (seekOffset ?? 10));
-      });
+      navigator.mediaSession.setActionHandler('seekbackward', ({ seekOffset }) => seekBy(-(seekOffset ?? 10)));
+      navigator.mediaSession.setActionHandler('seekforward',  ({ seekOffset }) => seekBy(+(seekOffset ?? 10)));
     }
 
     // ── Wordlist (P1.5) ──
