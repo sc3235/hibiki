@@ -632,6 +632,17 @@
       transition: color 0.1s, border-color 0.1s;
     }
     .ep-load-btn:active { color: var(--text); border-color: var(--border-2); }
+    .clear-library-btn {
+      background: none;
+      border: 1px solid rgba(201,107,107,0.35);
+      color: #a06060;
+      border-radius: 6px;
+      padding: 7px 20px;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .clear-library-btn:active { color: #c96b6b; border-color: rgba(201,107,107,0.6); }
+
     .ep-del-btn {
       background: none;
       border: 1px solid var(--border);
@@ -1239,6 +1250,9 @@
     <div class="lib-section">
       <div class="lib-section-title"><strong>My Library</strong></div>
       <div id="library-list"></div>
+      <div style="text-align:center; padding-top: 4px;">
+        <button class="clear-library-btn" id="clear-library-btn">Clear Library</button>
+      </div>
     </div>
 
     <div class="lib-section" id="catalogue-section" style="display:none">
@@ -1287,6 +1301,7 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         </div>
       </details>
     </div>
+
   </div>
 
   <script type="module">
@@ -2480,6 +2495,16 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       const status = document.getElementById('backup-status');
       status.textContent = `Exported ${rows.length} episode${rows.length !== 1 ? 's' : ''}.`;
       setTimeout(() => { status.textContent = ''; }, 4000);
+    });
+
+    // ── Clear Library ──
+    document.getElementById('clear-library-btn').addEventListener('click', async () => {
+      const allKeys = await keys();
+      const epKeys = allKeys.filter(k => typeof k === 'string' && k.startsWith('episode:'));
+      if (epKeys.length === 0) { alert('Library is already empty.'); return; }
+      if (!confirm(`Delete all ${epKeys.length} episode${epKeys.length !== 1 ? 's' : ''}? This cannot be undone.`)) return;
+      await Promise.all(epKeys.map(k => del(k)));
+      renderLibrary();
     });
 
     // ── Init ──
