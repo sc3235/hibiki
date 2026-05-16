@@ -382,14 +382,16 @@
     .adj-btn {
       background: var(--surface-2);
       border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 0.25rem 0.35rem;
+      border-radius: 7px;
+      padding: 0.45rem 0.6rem;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.6rem;
+      font-size: 0.72rem;
       color: var(--text-2);
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
       flex-shrink: 0;
+      min-width: 2.1rem;
+      min-height: 2.1rem;
     }
     .adj-btn:active { background: var(--border-2); }
 
@@ -419,6 +421,195 @@
       border-color: var(--accent-a40);
       color: var(--accent);
     }
+
+    /* ── Offset row (dedicated, big tap targets for mobile) ── */
+    .offset-row {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.55rem 0.55rem 0.6rem;
+      margin-bottom: 0.6rem;
+    }
+    .offset-row-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 0 0.15rem 0.45rem;
+      min-height: 0.6rem;
+    }
+    .offset-row-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.52rem;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+    }
+    .pin-hint {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.5rem;
+      color: var(--green);
+      opacity: 0;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: opacity 0.25s;
+      pointer-events: none;
+    }
+    body.audio-paused .pin-hint { opacity: 0.6; }
+    .offset-row-controls {
+      display: flex;
+      align-items: stretch;
+      gap: 0.4rem;
+    }
+    .adj-btn-lg {
+      min-height: 46px;
+      padding: 0 0.9rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border-2);
+      border-radius: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      letter-spacing: 0.04em;
+      color: var(--text-2);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.12s, color 0.12s, border-color 0.12s;
+      flex-shrink: 0;
+    }
+    .adj-btn-lg:active {
+      background: var(--accent-a10);
+      border-color: var(--accent-a40);
+      color: var(--text);
+    }
+    .offset-val-lg {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 3.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.02rem;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+      font-weight: 500;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      transition: background 0.25s, color 0.25s, border-color 0.25s;
+    }
+    .offset-val-lg.flash {
+      background: rgba(114, 184, 126, 0.12);
+      border-color: rgba(114, 184, 126, 0.5);
+      color: var(--green);
+    }
+    .manual-btn {
+      flex-shrink: 0;
+      min-height: 46px;
+      padding: 0 0.85rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border-2);
+      border-radius: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.12s, color 0.12s, border-color 0.12s;
+    }
+    .manual-btn.on {
+      background: var(--accent-a10);
+      border-color: var(--accent-a40);
+      color: var(--accent);
+    }
+
+    /* ── Bottom row: reset button alongside speed/font ── */
+    .setting-box-btn {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.55rem 0.35rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.12s, color 0.12s, border-color 0.12s;
+    }
+    .setting-box-btn:active {
+      background: var(--surface-2);
+      color: var(--text);
+      border-color: var(--border-2);
+    }
+
+    /* ── Pin handle (mirrors .sub-jump on the right; only visible when paused) ── */
+    .sub-pin {
+      flex-shrink: 0;
+      width: 14px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      position: relative;
+      margin: 0.3rem 0;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .sub-pin::after {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2px;
+      background: rgba(114, 184, 126, 0.35);
+      border-radius: 1px;
+      transition: background 0.15s, width 0.15s, box-shadow 0.15s;
+    }
+    body.audio-paused .sub-pin {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .sub-pin:active::after,
+    .sub-pin:hover::after {
+      width: 4px;
+      background: var(--green);
+    }
+    .sub-item.pin-flash .sub-pin::after {
+      background: var(--green);
+      width: 4px;
+      box-shadow: 0 0 14px rgba(114, 184, 126, 0.65);
+    }
+    @keyframes pin-flash-pulse {
+      0%   { background: rgba(114, 184, 126, 0.18); }
+      100% { background: transparent; }
+    }
+    .sub-item.pin-flash {
+      animation: pin-flash-pulse 0.5s ease-out;
+    }
+
+    /* ── Post-offset timestamp annotation ── */
+    .sub-time-post {
+      color: var(--green);
+      opacity: 0;
+      margin-left: 0.35em;
+      font-size: 0.92em;
+      transition: opacity 0.2s;
+    }
+    .sub-time-post.visible { opacity: 0.55; }
+    .sub-item.active .sub-time-post.visible { opacity: 0.85; }
+
+    /* ── Manual mode: sub area is read-only (no auto-scroll, no jump-tap) ── */
+    body.manual-mode .sub-jump { pointer-events: none; }
+    body.manual-mode .sub-jump::after { background: var(--border); opacity: 0.4; }
+    body.manual-mode .sub-item.active .sub-jump::after { background: var(--border-2); opacity: 0.5; }
 
     /* ── Library view ── */
     #library-view { display: none; }
@@ -996,6 +1187,7 @@
       -webkit-tap-highlight-color: transparent;
     }
     .wl-ts:active { opacity: 1; }
+    .wl-ts:disabled { color: var(--text-3); opacity: 0.4; cursor: default; }
     .wl-del {
       background: none;
       border: 1px solid var(--border);
@@ -1150,6 +1342,10 @@
       margin-bottom: 0.4rem;
     }
 
+    /* Prevent iOS Safari auto-zoom on input focus (triggered when font-size < 16px) */
+    @media (pointer: coarse) {
+      .qi-input, .proxy-input { font-size: 16px; }
+    }
   </style>
 </head>
 <body>
@@ -1205,15 +1401,25 @@
       </div>
     </div>
 
-    <div class="settings-row">
-      <div class="setting-box">
-        <span class="setting-label">Offset</span>
-        <div class="setting-controls">
-          <button class="adj-btn" id="offset-minus">−</button>
-          <span class="setting-val"><span id="offset-val">0.0</span>s</span>
-          <button class="adj-btn" id="offset-plus">+</button>
-        </div>
+    <div class="offset-row">
+      <div class="offset-row-head">
+        <span class="offset-row-label">Offset</span>
+        <span class="pin-hint">📌 Tap sub's right edge to pin</span>
       </div>
+      <div class="offset-row-controls">
+        <button class="adj-btn-lg" id="offset-minus">−1s</button>
+        <span class="offset-val-lg" id="offset-val-wrap"><span id="offset-val">0</span>&nbsp;s</span>
+        <button class="adj-btn-lg" id="offset-plus">+1s</button>
+        <button class="manual-btn" id="manual-btn">Manual</button>
+      </div>
+    </div>
+
+    <div class="toggle-row" style="margin-bottom: 0.6rem;">
+      <button class="toggle-btn" id="loop-btn">↻ Loop</button>
+      <button class="toggle-btn" id="autopause-btn">|| Auto-pause</button>
+    </div>
+
+    <div class="settings-row">
       <div class="setting-box">
         <span class="setting-label">Speed</span>
         <div class="setting-controls">
@@ -1230,12 +1436,7 @@
           <button class="adj-btn" id="font-plus">A+</button>
         </div>
       </div>
-    </div>
-
-    <div class="toggle-row">
-      <button class="toggle-btn" id="loop-btn">↻ Loop</button>
-      <button class="toggle-btn" id="autopause-btn">|| Auto-pause</button>
-      <button class="toggle-btn" id="reset-btn">↺ Reset</button>
+      <button class="setting-box-btn" id="reset-btn">↺ Reset</button>
     </div>
   </div>
 
@@ -1370,6 +1571,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     let currentIdx  = -1;
     let loopMode    = false;
     let autoPause   = false;
+    let manualMode  = false;
     let fontSize    = 1.2;
 
     let loadedAudioBlob   = null;
@@ -1398,6 +1600,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     audio.addEventListener('loadstart', () => { audioErr.style.display = 'none'; });
 
     document.documentElement.style.setProperty('--sub-font', fontSize + 'rem');
+    document.body.classList.add('audio-paused');
 
     // ── Header padding ──
     const headerEl = document.querySelector('header');
@@ -1485,21 +1688,51 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
 
         const time = document.createElement('div');
         time.className = 'sub-time';
-        time.textContent = fmtTime(sub.start);
+        const timeOrig = document.createElement('span');
+        timeOrig.textContent = fmtTime(sub.start);
+        const timePost = document.createElement('span');
+        timePost.className = 'sub-time-post';
+        time.appendChild(timeOrig);
+        time.appendChild(timePost);
 
         const text = document.createElement('div');
         text.className = 'sub-text';
         text.textContent = sub.text;
 
+        const pin = document.createElement('div');
+        pin.className = 'sub-pin';
+        pin.addEventListener('click', (e) => { e.stopPropagation(); pinSub(i); });
+
         content.appendChild(time);
         content.appendChild(text);
         item.appendChild(jump);
         item.appendChild(content);
+        item.appendChild(pin);
         scroll.appendChild(item);
+      });
+      updateAllTimestamps();
+    }
+
+    function updateAllTimestamps() {
+      const showPost = offset !== 0;
+      scroll.querySelectorAll('.sub-item').forEach(item => {
+        const idx = +item.dataset.idx;
+        const sub = subs[idx];
+        if (!sub) return;
+        const post = item.querySelector('.sub-time-post');
+        if (!post) return;
+        if (showPost) {
+          post.textContent = ' (' + fmtTime(Math.max(0, sub.start - offset)) + ')';
+          post.classList.add('visible');
+        } else {
+          post.textContent = '';
+          post.classList.remove('visible');
+        }
       });
     }
 
     function setActiveSub(idx) {
+      if (currentIdx === idx) return;
       const prev = scroll.querySelector('.sub-item.active');
       if (prev) prev.classList.remove('active');
       currentIdx = idx;
@@ -1507,10 +1740,13 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       const el = scroll.querySelector(`[data-idx="${idx}"]`);
       if (!el) return;
       el.classList.add('active');
-      scroll.scrollTop = el.offsetTop - (scroll.clientHeight / 2) + (el.offsetHeight / 2);
+      if (!manualMode) {
+        scroll.scrollTop = el.offsetTop - (scroll.clientHeight / 2) + (el.offsetHeight / 2);
+      }
     }
 
     function jumpToSub(idx) {
+      if (manualMode) return;
       if (idx < 0 || idx >= subs.length) return;
       audio.currentTime = Math.max(0, subs[idx].start - offset);
     }
@@ -1542,9 +1778,9 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       else audio.pause();
     }
     playBtn.addEventListener('click', togglePlay);
-    audio.addEventListener('play',  () => { playBtn.textContent = '||'; });
-    audio.addEventListener('pause', () => { playBtn.textContent = '▶'; saveLastPosition(); });
-    audio.addEventListener('ended', () => { playBtn.textContent = '▶'; patchEpisode({ lastPosition: audio.currentTime, speed: audio.playbackRate, isComplete: true }); });
+    audio.addEventListener('play',  () => { playBtn.textContent = '||'; document.body.classList.remove('audio-paused'); });
+    audio.addEventListener('pause', () => { playBtn.textContent = '▶'; document.body.classList.add('audio-paused'); saveLastPosition(); });
+    audio.addEventListener('ended', () => { playBtn.textContent = '▶'; document.body.classList.add('audio-paused'); patchEpisode({ lastPosition: audio.currentTime, speed: audio.playbackRate, isComplete: true }); });
     audio.addEventListener('loadedmetadata', () => { if (audio.duration && isFinite(audio.duration)) patchEpisode({ duration: audio.duration }); });
 
     // ── Prev / next subtitle ──
@@ -1563,6 +1799,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         }
       }
       audio.currentTime = Math.max(0, subs[idx].start - offset);
+      setActiveSub(idx);
     }
 
     function nextSub() {
@@ -1580,6 +1817,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         }
       }
       audio.currentTime = Math.max(0, subs[idx].start - offset);
+      setActiveSub(idx);
     }
 
     document.getElementById('prev-btn').addEventListener('click', prevSub);
@@ -1587,9 +1825,52 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
 
     // ── Offset / font ──
     function adjustOffset(delta) {
-      offset = Math.round((offset + delta) * 10) / 10;
-      document.getElementById('offset-val').textContent = offset.toFixed(1);
+      offset = Math.round(offset + delta);
+      document.getElementById('offset-val').textContent = offset;
+      updateAllTimestamps();
       patchEpisode({ offset });
+    }
+
+    // ── Pin a specific sub to the current audio position (paused-only UX, but math
+    //    works any time). offset = sub.start − currentTime makes that sub the active
+    //    one at the current audio time without moving the playhead.
+    function pinSub(idx) {
+      if (idx < 0 || idx >= subs.length) return;
+      offset = Math.round(subs[idx].start - audio.currentTime);
+      document.getElementById('offset-val').textContent = offset;
+      updateAllTimestamps();
+      flashOffsetVal();
+      flashSubPin(idx);
+      const t = audio.currentTime + offset;
+      const newIdx = subs.findIndex(s => t >= s.start && t <= s.end);
+      setActiveSub(newIdx);
+      patchEpisode({ offset });
+    }
+
+    function flashOffsetVal() {
+      const el = document.getElementById('offset-val-wrap');
+      if (!el) return;
+      el.classList.remove('flash');
+      // Force reflow so the animation restarts even on rapid pins.
+      void el.offsetWidth;
+      el.classList.add('flash');
+      setTimeout(() => el.classList.remove('flash'), 600);
+    }
+
+    function flashSubPin(idx) {
+      const el = scroll.querySelector(`[data-idx="${idx}"]`);
+      if (!el) return;
+      el.classList.remove('pin-flash');
+      void el.offsetWidth;
+      el.classList.add('pin-flash');
+      setTimeout(() => el.classList.remove('pin-flash'), 500);
+    }
+
+    function setManualMode(on, persist = true) {
+      manualMode = !!on;
+      document.body.classList.toggle('manual-mode', manualMode);
+      document.getElementById('manual-btn').classList.toggle('on', manualMode);
+      if (persist) patchEpisode({ manual: manualMode });
     }
 
     function adjustSpeed(delta) {
@@ -1605,8 +1886,8 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       document.getElementById('font-val').textContent = fontSize.toFixed(1);
     }
 
-    document.getElementById('offset-minus').addEventListener('click', () => adjustOffset(-0.5));
-    document.getElementById('offset-plus').addEventListener('click',  () => adjustOffset(+0.5));
+    document.getElementById('offset-minus').addEventListener('click', () => adjustOffset(-1));
+    document.getElementById('offset-plus').addEventListener('click',  () => adjustOffset(+1));
     document.getElementById('speed-minus').addEventListener('click',  () => adjustSpeed(-0.25));
     document.getElementById('speed-plus').addEventListener('click',   () => adjustSpeed(+0.25));
     document.getElementById('font-minus').addEventListener('click',   () => adjustFont(-0.1));
@@ -1620,6 +1901,9 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     document.getElementById('autopause-btn').addEventListener('click', () => {
       autoPause = !autoPause;
       document.getElementById('autopause-btn').classList.toggle('on', autoPause);
+    });
+    document.getElementById('manual-btn').addEventListener('click', () => {
+      setManualMode(!manualMode);
     });
 
     // ── Persist to IndexedDB ──
@@ -1637,7 +1921,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     // Refactor note: the `audio` param here shadows the outer `audio` DOM element.
     // Consider renaming to `audioBlob` for clarity (update callers and the return object).
     function makeEpisodeRecord({ showName, episodeName, audio = null, audioUrl = null, srt, srtUrl = null }) {
-      return { showName, episodeName, audio, audioUrl, srt, srtUrl, offset: 0, lastPosition: 0, speed: 1, addedAt: Date.now(), notes: '', wordlist: [], duration: 0, isComplete: false };
+      return { showName, episodeName, audio, audioUrl, srt, srtUrl, offset: 0, lastPosition: 0, speed: 1, addedAt: Date.now(), notes: '', wordlist: [], duration: 0, isComplete: false, manual: false };
     }
 
     function syncSpeedDisplay() {
@@ -1667,10 +1951,11 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       }
       audio.load();
 
-      offset = data.offset || 0;
-      document.getElementById('offset-val').textContent = offset.toFixed(1);
+      offset = Math.round(data.offset || 0);
+      document.getElementById('offset-val').textContent = offset;
       audio.playbackRate = data.speed || 1;
       syncSpeedDisplay();
+      setManualMode(!!data.manual, false);
 
       loadedSrtText = data.srt;
       loadedSrtUrl  = data.srtUrl || null;
@@ -1853,7 +2138,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       if (currentWordlist.length === 0) {
         const empty = document.createElement('div');
         empty.className = 'wl-empty';
-        empty.textContent = 'No words saved. Highlight text and tap + W.';
+        empty.textContent = 'No words saved. Highlight text and tap + Word.';
         el.appendChild(empty);
         return;
       }
@@ -1901,9 +2186,14 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
 
         const tsBtn = document.createElement('button');
         tsBtn.className = 'wl-ts';
-        tsBtn.textContent = fmtTime(entry.timestamp);
-        tsBtn.title = 'Jump to ' + fmtTime(entry.timestamp);
-        tsBtn.addEventListener('click', () => { audio.currentTime = entry.timestamp; });
+        if (entry.timestamp == null) {
+          tsBtn.textContent = '—';
+          tsBtn.disabled = true;
+        } else {
+          tsBtn.textContent = fmtTime(entry.timestamp);
+          tsBtn.title = 'Jump to ' + fmtTime(entry.timestamp);
+          tsBtn.addEventListener('click', () => { audio.currentTime = entry.timestamp; });
+        }
 
         const delBtn = document.createElement('button');
         delBtn.className = 'wl-del';
@@ -1955,7 +2245,8 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         const activeEl = scroll.querySelector('.sub-item.active .sub-text');
         sentence = activeEl ? activeEl.textContent.trim() : '';
       }
-      currentWordlist.push({ word, sentence, timestamp: audio.currentTime, addedAt: Date.now() });
+      const timestamp = manualMode ? null : audio.currentTime;
+      currentWordlist.push({ word, sentence, timestamp, addedAt: Date.now() });
       patchEpisode({ wordlist: currentWordlist });
       renderWordlist();
       stashedWord = '';
@@ -2450,7 +2741,8 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
               speed:        ep.speed         ?? 1,
               addedAt:      ep.addedAt       ?? Date.now(),
               notes:        ep.notes         || '',
-              wordlist:     ep.wordlist      || existing?.wordlist || []
+              wordlist:     ep.wordlist      || existing?.wordlist || [],
+              manual:       !!ep.manual
             });
             imported++;
           }
@@ -2593,10 +2885,12 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     document.getElementById('reset-btn').addEventListener('click', async () => {
       if (!currentEpisodeKey) return;
       offset = 0;
-      document.getElementById('offset-val').textContent = '0.0';
+      document.getElementById('offset-val').textContent = '0';
       audio.playbackRate = 1;
       syncSpeedDisplay();
-      await patchEpisode({ offset: 0, speed: 1 });
+      setManualMode(false, false);
+      updateAllTimestamps();
+      await patchEpisode({ offset: 0, speed: 1, manual: false });
     });
 
     // ── Export library backup ──
@@ -2620,7 +2914,8 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
           speed:        d.speed         ?? 1,
           addedAt:      d.addedAt       ?? null,
           notes:        d.notes         || '',
-          wordlist:     d.wordlist      || []
+          wordlist:     d.wordlist      || [],
+          manual:       !!d.manual
         });
       }
       const json = JSON.stringify({ version: 1, exportedAt: Date.now(), episodes: rows }, null, 2);
