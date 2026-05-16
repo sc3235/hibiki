@@ -225,14 +225,13 @@
 
     .sub-scrubber {
       position: absolute;
-      right: 10px;
-      top: 14px;
-      bottom: 14px;
-      width: 3px;
-      border-radius: 2px;
+      top: 0;
+      left: 0; right: 0;
+      height: 4px;
+      border-radius: 20px 20px 0 0;
       background: var(--border-2);
       z-index: 4;
-      cursor: pointer;
+      cursor: ew-resize;
       touch-action: none;
       opacity: 0;
       transition: opacity 0.15s;
@@ -244,15 +243,15 @@
     }
     .sub-scrubber-thumb {
       position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 9px;
-      height: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px;
+      height: 9px;
       border-radius: 3px;
       background: var(--accent);
-      top: 0;
-      transition: top 0.12s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-      will-change: top;
+      left: 0;
+      transition: left 0.12s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      will-change: left;
       box-shadow: 0 0 6px var(--accent-a40);
     }
 
@@ -532,6 +531,11 @@
       background: var(--accent-a10);
       border-color: var(--accent-a40);
       color: var(--text);
+    }
+    .adj-btn-half {
+      padding: 0 0.6rem;
+      font-size: 0.65rem;
+      color: var(--text-3);
     }
     .offset-val-lg {
       display: flex;
@@ -1508,11 +1512,13 @@
         <button class="manual-btn" id="manual-btn">Manual</button>
       </div>
       <div class="offset-row-controls">
+        <button class="adj-btn-lg adj-btn-half" id="offset-minus-half">−0.5s</button>
         <button class="adj-btn-lg" id="offset-minus">−1s</button>
         <span class="offset-val-lg" id="offset-val-wrap"><span id="offset-val">0</span>&nbsp;s</span>
         <button class="adj-btn-lg" id="offset-plus">+1s</button>
+        <button class="adj-btn-lg adj-btn-half" id="offset-plus-half">+0.5s</button>
       </div>
-      <span class="offset-row-tip">+offset if sub lags audio · pause &amp; tap right edge to pin</span>
+      <span class="offset-row-tip">+offset if sub lags audio · pause + tap right edge to pin</span>
     </div>
 
     <div class="toggle-row" style="margin-bottom: 0.6rem;">
@@ -1869,13 +1875,13 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     function updateScrubber(idx) {
       if (!subs.length) return;
       const frac = Math.max(0, Math.min(1, idx / (subs.length - 1)));
-      const trackH = scrubber.clientHeight - scrubThumb.offsetHeight;
-      scrubThumb.style.top = (frac * trackH) + 'px';
+      const trackW = scrubber.clientWidth - scrubThumb.offsetWidth;
+      scrubThumb.style.left = (frac * trackW) + 'px';
     }
 
-    function scrubberSeek(clientY) {
+    function scrubberSeek(clientX) {
       const rect = scrubber.getBoundingClientRect();
-      const frac = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
+      const frac = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
       const idx  = Math.round(frac * (subs.length - 1));
       jumpToSub(idx);
     }
@@ -1884,11 +1890,11 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       e.preventDefault();
       scrubber.setPointerCapture(e.pointerId);
       scrubber.classList.add('active');
-      scrubberSeek(e.clientY);
+      scrubberSeek(e.clientX);
     });
     scrubber.addEventListener('pointermove', e => {
       if (!scrubber.hasPointerCapture(e.pointerId)) return;
-      scrubberSeek(e.clientY);
+      scrubberSeek(e.clientX);
     });
     scrubber.addEventListener('pointerup', e => {
       scrubber.releasePointerCapture(e.pointerId);
@@ -2072,8 +2078,10 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       document.getElementById('font-val').textContent = fontSize.toFixed(1);
     }
 
-    document.getElementById('offset-minus').addEventListener('click', () => adjustOffset(-1));
-    document.getElementById('offset-plus').addEventListener('click',  () => adjustOffset(+1));
+    document.getElementById('offset-minus').addEventListener('click',      () => adjustOffset(-1));
+    document.getElementById('offset-plus').addEventListener('click',       () => adjustOffset(+1));
+    document.getElementById('offset-minus-half').addEventListener('click', () => adjustOffset(-0.5));
+    document.getElementById('offset-plus-half').addEventListener('click',  () => adjustOffset(+0.5));
     document.getElementById('speed-minus').addEventListener('click',  () => adjustSpeed(-0.25));
     document.getElementById('speed-plus').addEventListener('click',   () => adjustSpeed(+0.25));
     document.getElementById('font-minus').addEventListener('click',   () => adjustFont(-0.1));
@@ -2151,7 +2159,20 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
 
       const pos = data.lastPosition || 0;
       if (pos > 0) {
-        audio.addEventListener('loadedmetadata', () => { audio.currentTime = pos; }, { once: true });
+        // loadedmetadata fires early (readyState=1); on iOS with remote URLs the seek can be
+        // silently discarded if the audio hasn't buffered yet.  canplay (readyState≥3) is when
+        // seeking is reliably honoured.  Use whichever fires first, then sync the subtitle
+        // immediately so the display is correct before the user hits play.
+        let seekApplied = false;
+        const restorePosition = () => {
+          if (seekApplied) return;
+          seekApplied = true;
+          audio.currentTime = pos;
+          const t = pos + offset;
+          setActiveSub(subs.findIndex(s => t >= s.start && t <= s.end));
+        };
+        audio.addEventListener('loadedmetadata', restorePosition, { once: true });
+        audio.addEventListener('canplay',        restorePosition, { once: true });
       }
 
       document.getElementById('episode-info-show').textContent = data.showName;
