@@ -618,6 +618,23 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
+    .ep-progress {
+      height: 2px;
+      background: var(--border);
+      border-radius: 1px;
+      overflow: hidden;
+      margin-top: 3px;
+    }
+    .ep-progress-fill {
+      height: 100%;
+      border-radius: 1px;
+      background: var(--accent);
+      transition: width 0.3s ease;
+    }
+    .ep-progress-fill.complete {
+      background: var(--green);
+      opacity: 0.45;
+    }
     .ep-load-btn {
       background: var(--surface-2);
       border: 1px solid var(--border);
@@ -801,7 +818,7 @@
       cursor: pointer;
       user-select: none;
     }
-    .backup-srt-row input[type=checkbox] { accent-color: var(--accent); cursor: pointer; }
+    .backup-srt-row input[type=checkbox] { accent-color: var(--accent); cursor: pointer; opacity: 0.4; }
     .backup-status:not(:empty) {
       margin-top: 0.5rem;
       font-family: 'JetBrains Mono', monospace;
@@ -1250,9 +1267,6 @@
     <div class="lib-section">
       <div class="lib-section-title"><strong>My Library</strong></div>
       <div id="library-list"></div>
-      <div style="text-align:center; padding-top: 4px;">
-        <button class="clear-library-btn" id="clear-library-btn">Clear Library</button>
-      </div>
     </div>
 
     <div class="lib-section" id="catalogue-section" style="display:none">
@@ -1262,7 +1276,7 @@
 
     <!-- Import and Export -->
     <details class="lib-section">
-      <summary class="lib-section-title">Import and Export</summary>
+      <summary class="lib-section-title">Data</summary>
       <div class="ie-card">
         <div class="ie-half">
           <label class="ie-btn" for="bulk-file">Import CSV or JSON (URL ONLY)</label>
@@ -1284,6 +1298,9 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
           </label>
           <div id="backup-status" class="backup-status"></div>
         </div>
+      </div>
+      <div style="text-align:center; padding: 0.75rem 0.875rem 0.75rem;">
+        <button class="clear-library-btn" id="clear-library-btn">Clear Library</button>
       </div>
     </details>
 
@@ -1506,7 +1523,8 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     playBtn.addEventListener('click', togglePlay);
     audio.addEventListener('play',  () => { playBtn.textContent = '||'; });
     audio.addEventListener('pause', () => { playBtn.textContent = '▶'; saveLastPosition(); });
-    audio.addEventListener('ended', () => { playBtn.textContent = '▶'; saveLastPosition(); });
+    audio.addEventListener('ended', () => { playBtn.textContent = '▶'; patchEpisode({ lastPosition: audio.currentTime, speed: audio.playbackRate, isComplete: true }); });
+    audio.addEventListener('loadedmetadata', () => { if (audio.duration && isFinite(audio.duration)) patchEpisode({ duration: audio.duration }); });
 
     // ── Prev / next subtitle ──
     function prevSub() {
@@ -1596,7 +1614,7 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     }
 
     function makeEpisodeRecord({ showName, episodeName, audio = null, audioUrl = null, srt, srtUrl = null }) {
-      return { showName, episodeName, audio, audioUrl, srt, srtUrl, offset: 0, lastPosition: 0, speed: 1, addedAt: Date.now(), notes: '', wordlist: [] };
+      return { showName, episodeName, audio, audioUrl, srt, srtUrl, offset: 0, lastPosition: 0, speed: 1, addedAt: Date.now(), notes: '', wordlist: [], duration: 0, isComplete: false };
     }
 
     function syncSpeedDisplay() {
@@ -1971,6 +1989,19 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
           });
 
           epInfo.appendChild(nameEl);
+
+          const lastPos = ep.lastPosition || 0;
+          const dur = ep.duration || 0;
+          if (lastPos > 0 || ep.isComplete) {
+            const progressWrap = document.createElement('div');
+            progressWrap.className = 'ep-progress';
+            const fill = document.createElement('div');
+            fill.className = 'ep-progress-fill' + (ep.isComplete ? ' complete' : '');
+            const pct = ep.isComplete ? 100 : (dur > 0 ? Math.min(100, (lastPos / dur) * 100) : 10);
+            fill.style.width = pct + '%';
+            progressWrap.appendChild(fill);
+            epInfo.appendChild(progressWrap);
+          }
 
           const loadBtn = document.createElement('button');
           loadBtn.className = 'ep-load-btn';
