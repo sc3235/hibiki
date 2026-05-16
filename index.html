@@ -108,29 +108,9 @@
     }
 
     /* ── Choose from Library button ── */
-    .choose-lib-btn {
-      display: block;
-      width: 100%;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 0.875rem;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.68rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--text-2);
-      cursor: pointer;
-      text-align: center;
-      margin-bottom: 1rem;
-      -webkit-tap-highlight-color: transparent;
-      transition: background 0.12s, color 0.12s;
-    }
-    .choose-lib-btn:active { background: var(--surface-2); color: var(--text); }
-
-    /* ── Episode info strip (shown when loaded from library) ── */
+    /* ── Episode info strip (always visible; toggles between empty + loaded states) ── */
     .episode-info {
-      display: none;
+      display: flex;
       flex-direction: row;
       align-items: center;
       gap: 0;
@@ -140,14 +120,31 @@
       border-radius: var(--radius);
       margin-bottom: 1rem;
     }
-    .episode-info.visible { display: flex; }
+    .ep-choose-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      padding: 0.25rem 0;
+      -webkit-tap-highlight-color: transparent;
+      transition: color 0.12s;
+    }
+    .ep-choose-btn:active { color: var(--text); }
+    .episode-info.has-episode .ep-choose-btn { display: none; }
     .episode-info-meta {
-      display: flex;
+      display: none;
       flex-direction: column;
       gap: 0.1rem;
       flex: 1;
       min-width: 0;
     }
+    .episode-info.has-episode .episode-info-meta { display: flex; }
     .episode-info-show {
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.58rem;
@@ -1420,9 +1417,8 @@
 
   <!-- ── Player view ── -->
   <div id="player-view">
-    <button class="choose-lib-btn" id="choose-lib-btn">Choose from Library</button>
-
     <div class="episode-info" id="episode-info">
+      <button class="ep-choose-btn" id="choose-lib-btn">Choose from Library</button>
       <div class="episode-info-meta">
         <span class="episode-info-show" id="episode-info-show"></span>
         <span class="episode-info-ep"   id="episode-info-ep"></span>
@@ -2104,7 +2100,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
 
       document.getElementById('episode-info-show').textContent = data.showName;
       document.getElementById('episode-info-ep').textContent   = data.episodeName;
-      document.getElementById('episode-info').classList.add('visible');
+      document.getElementById('episode-info').classList.add('has-episode');
 
       currentWordlist = data.wordlist || [];
       wordlistOpen = false;
