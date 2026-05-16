@@ -392,11 +392,6 @@
     }
 
     /* ── Settings row ── */
-    .settings-row {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 0.75rem;
-    }
     .setting-box {
       flex: 1;
       min-width: 0;
@@ -826,12 +821,6 @@
     }
 
     /* Bulk Import */
-    .bulk-import {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1rem 1rem 1.1rem;
-    }
     .bulk-csv-note {
       margin-bottom: 0.875rem;
       font-family: 'JetBrains Mono', monospace;
@@ -1687,9 +1676,6 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     let fontSize    = 1.2;
 
     let loadedAudioBlob   = null;
-    let loadedAudioUrl    = null;
-    let loadedSrtText     = null;
-    let loadedSrtUrl      = null;
     let currentEpisodeKey = null;
     let currentWordlist   = [];
     let wordlistOpen      = false;
@@ -2112,10 +2098,8 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       return patchEpisode({ lastPosition: audio.currentTime, speed: audio.playbackRate });
     }
 
-    // Refactor note: the `audio` param here shadows the outer `audio` DOM element.
-    // Consider renaming to `audioBlob` for clarity (update callers and the return object).
-    function makeEpisodeRecord({ showName, episodeName, audio = null, audioUrl = null, srt, srtUrl = null }) {
-      return { showName, episodeName, audio, audioUrl, srt, srtUrl, offset: 0, lastPosition: 0, speed: 1, addedAt: Date.now(), notes: '', wordlist: [], duration: 0, isComplete: false, manual: false };
+    function makeEpisodeRecord({ showName, episodeName, audioBlob = null, audioUrl = null, srt, srtUrl = null }) {
+      return { showName, episodeName, audio: audioBlob, audioUrl, srt, srtUrl, offset: 0, lastPosition: 0, speed: 1, addedAt: Date.now(), notes: '', wordlist: [], duration: 0, isComplete: false, manual: false };
     }
 
     function syncSpeedDisplay() {
@@ -2136,11 +2120,9 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
 
       if (data.audio) {
         loadedAudioBlob = data.audio;
-        loadedAudioUrl  = null;
         audio.src = URL.createObjectURL(data.audio);
       } else if (data.audioUrl) {
         loadedAudioBlob = null;
-        loadedAudioUrl  = data.audioUrl;
         audio.src = data.audioUrl;
       }
       audio.load();
@@ -2151,8 +2133,6 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       syncSpeedDisplay();
       setManualMode(!!data.manual, false);
 
-      loadedSrtText = data.srt;
-      loadedSrtUrl  = data.srtUrl || null;
       subs = parseSRT(data.srt);
       currentIdx = -1;
       renderSubList();
@@ -2661,7 +2641,6 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
                   if (loadedAudioBlob) { URL.revokeObjectURL(audio.src); loadedAudioBlob = null; }
                   audio.src = data.audioUrl;
                   audio.load();
-                  loadedAudioUrl = data.audioUrl;
                 }
                 setDlState('idle');
                 return;
@@ -2792,8 +2771,6 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
               await set(ep.key, data);
 
               if (currentEpisodeKey === ep.key) {
-                loadedSrtText = data.srt;
-                loadedSrtUrl  = data.srtUrl;
                 subs = parseSRT(data.srt);
                 renderSubList();
               }
@@ -2897,7 +2874,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         }
 
         const key = `episode:${handle}`;
-        await set(key, makeEpisodeRecord({ showName: show || handle, episodeName: ep || handle, audio: audioBlob, audioUrl: resolvedAudioUrl, srt: srtText, srtUrl: resolvedSrtUrl }));
+        await set(key, makeEpisodeRecord({ showName: show || handle, episodeName: ep || handle, audioBlob, audioUrl: resolvedAudioUrl, srt: srtText, srtUrl: resolvedSrtUrl }));
 
         // Reset form (keep show name)
         document.getElementById('qi-handle').value = '';
