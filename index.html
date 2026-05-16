@@ -76,7 +76,7 @@
     .tl-particle {
       font-weight: 400;
       color: var(--accent);
-      opacity: 09;
+      opacity: 0.9;
       font-size: 0.78em;
       letter-spacing: 0.08em;
     }
@@ -1388,6 +1388,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     const playBtn  = document.getElementById('play-btn');
 
     audio.addEventListener('error', () => {
+      // When audio.src is unset, browsers resolve it to the page URL — ignore those errors.
       if (!audio.src || audio.src === window.location.href) return;
       const code = audio.error ? audio.error.code : 0;
       const msgs = { 1: 'Aborted', 2: 'Network error', 3: 'Decode error', 4: 'Format not supported' };
@@ -1633,6 +1634,8 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       return patchEpisode({ lastPosition: audio.currentTime, speed: audio.playbackRate });
     }
 
+    // Refactor note: the `audio` param here shadows the outer `audio` DOM element.
+    // Consider renaming to `audioBlob` for clarity (update callers and the return object).
     function makeEpisodeRecord({ showName, episodeName, audio = null, audioUrl = null, srt, srtUrl = null }) {
       return { showName, episodeName, audio, audioUrl, srt, srtUrl, offset: 0, lastPosition: 0, speed: 1, addedAt: Date.now(), notes: '', wordlist: [], duration: 0, isComplete: false };
     }
@@ -1695,28 +1698,107 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     }
 
     // ── Media Session API ──
+    // Lazily generated once; '' means canvas failed (e.g. cross-origin worker
+    // restrictions) — falsy so callers can skip artwork safely.
     let _artworkDataUrl = null;
     function getArtworkDataUrl() {
-      if (_artworkDataUrl) return _artworkDataUrl;
+      if (_artworkDataUrl !== null) return _artworkDataUrl;
       try {
         const canvas = document.createElement('canvas');
         canvas.width = 512; canvas.height = 512;
         const ctx = canvas.getContext('2d');
-        // background
-        ctx.fillStyle = '#111009';
+        const cx = 256, cy = 256;
+        const font = '300 268px "Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif';
+
+        // Background
+        ctx.fillStyle = '#0e0c09';
         ctx.fillRect(0, 0, 512, 512);
-        // subtle radial glow
-        const grad = ctx.createRadialGradient(256, 256, 60, 256, 256, 280);
-        grad.addColorStop(0, 'rgba(161,52,201,0.25)');
-        grad.addColorStop(1, 'rgba(161,52,201,0)');
-        ctx.fillStyle = grad;
+
+        // Atmospheric radial glow
+        const atmos = ctx.createRadialGradient(cx, cy, 0, cx, cy, 370);
+        atmos.addColorStop(0,   'rgba(161,52,201,0.20)');
+        atmos.addColorStop(0.45,'rgba(114,184,126,0.05)');
+        atmos.addColorStop(1,   'rgba(0,0,0,0)');
+        ctx.fillStyle = atmos;
         ctx.fillRect(0, 0, 512, 512);
-        // kanji character
-        ctx.font = 'bold 280px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillStyle = '#a134c9';
-        ctx.fillText('聴', 256, 270);
+
+        // Decorative concentric rings
+        [105, 150, 195, 238].forEach((r, i) => {
+          ctx.beginPath();
+          ctx.arc(cx, cy, r, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(161,52,201,${0.13 - i * 0.024})`;
+          ctx.lineWidth = i === 0 ? 0.8 : 0.4;
+          ctx.stroke();
+        });
+
+        // Tick marks on innermost ring
+        for (let a = 0; a < 360; a += 30) {
+          const rad = (a * Math.PI) / 180;
+          const len = a % 90 === 0 ? 13 : 6;
+          ctx.beginPath();
+          ctx.moveTo(cx + Math.cos(rad) * 105, cy + Math.sin(rad) * 105);
+          ctx.lineTo(cx + Math.cos(rad) * (105 - len), cy + Math.sin(rad) * (105 - len));
+          ctx.strokeStyle = `rgba(161,52,201,${a % 90 === 0 ? 0.5 : 0.2})`;
+          ctx.lineWidth = a % 90 === 0 ? 0.8 : 0.4;
+          ctx.stroke();
+        }
+
+        // Diagonal accent lines
+        [[0,512,512,0],[0,0,512,512]].forEach(([x1,y1,x2,y2]) => {
+          const lg = ctx.createLinearGradient(x1,y1,x2,y2);
+          lg.addColorStop(0,   'rgba(161,52,201,0)');
+          lg.addColorStop(0.5, 'rgba(161,52,201,0.06)');
+          lg.addColorStop(1,   'rgba(161,52,201,0)');
+          ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+          ctx.strokeStyle = lg; ctx.lineWidth = 0.5; ctx.stroke();
+        });
+
+        // Ghost character — large, very faded, offset for depth
+        ctx.save();
+        ctx.globalAlpha = 0.038;
+        ctx.font = '300 430px "Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#c060e8';
+        ctx.fillText('聴', cx + 12, cy + 12);
+        ctx.restore();
+
+        // Diffuse outer glow pass
+        ctx.save();
+        ctx.shadowColor = 'rgba(161,52,201,0.85)';
+        ctx.shadowBlur = 52;
+        ctx.font = font; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = 'rgba(161,52,201,0.01)';
+        ctx.fillText('聴', cx, cy + 8);
+        ctx.restore();
+
+        // Main character — gradient fill with tight glow
+        ctx.save();
+        ctx.shadowColor = 'rgba(200,100,255,0.55)';
+        ctx.shadowBlur = 20;
+        const charGrad = ctx.createLinearGradient(cx, cy - 140, cx, cy + 140);
+        charGrad.addColorStop(0,    '#e488ff');
+        charGrad.addColorStop(0.35, '#b83dd6');
+        charGrad.addColorStop(0.72, '#8c22b2');
+        charGrad.addColorStop(1,    '#661a87');
+        ctx.font = font; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = charGrad;
+        ctx.fillText('聴', cx, cy + 8);
+        ctx.restore();
+
+        // Crisp stroke overlay
+        ctx.save();
+        ctx.font = font; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.strokeStyle = 'rgba(225,148,255,0.18)';
+        ctx.lineWidth = 0.6;
+        ctx.strokeText('聴', cx, cy + 8);
+        ctx.restore();
+
+        // Cardinal dots
+        [[cx,38],[474,cy],[cx,474],[38,cy]].forEach(([x,y]) => {
+          ctx.beginPath(); ctx.arc(x, y, 2.5, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(161,52,201,0.5)'; ctx.fill();
+        });
+
         _artworkDataUrl = canvas.toDataURL('image/png');
       } catch (e) {
         _artworkDataUrl = '';
@@ -1840,9 +1922,9 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       });
     }
 
-    // Clicking the + W button (or its underlying pointerdown) clears the page
-    // selection before the click handler fires, so stash the last non-empty
-    // selection that lands inside a subtitle and use it as fallback.
+    // On iOS, a tap on any button clears the page selection before the click
+    // handler fires. Stash the last non-empty subtitle selection here so the
+    // + Word handler can fall back to it even after the selection is gone.
     let stashedWord = '';
     let stashedSentence = '';
     document.addEventListener('selectionchange', () => {
@@ -1859,8 +1941,9 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     });
 
     const wordAddBtn = document.getElementById('word-add-btn');
-    // Keep desktop selection alive through the click. On iOS we rely on the
-    // stash above — touchstart preventDefault would suppress the click event.
+    // preventDefault on mousedown keeps the browser from collapsing the text
+    // selection when the button receives focus (desktop). iOS uses the stash
+    // instead — touchstart preventDefault would suppress the click event entirely.
     wordAddBtn.addEventListener('mousedown', (e) => e.preventDefault());
     wordAddBtn.addEventListener('click', () => {
       if (!currentEpisodeKey) return;
@@ -1991,6 +2074,9 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
               renderLibrary();
             };
 
+            // When focus jumps between the two inputs, both a blur and a focus
+            // fire in quick succession. The 50ms delay lets focus settle so we
+            // don't save prematurely when the user is tabbing between fields.
             let blurTimer;
             const onBlur  = () => { blurTimer = setTimeout(save, 50); };
             const onFocus = () => { clearTimeout(blurTimer); };
@@ -2199,7 +2285,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
                 loadedSrtText = data.srt;
                 loadedSrtUrl  = data.srtUrl;
                 subs = parseSRT(data.srt);
-                renderSubs();
+                renderSubList();
               }
 
               srtBtn.title = data.srtUrl || 'Replace SRT';
