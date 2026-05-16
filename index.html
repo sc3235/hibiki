@@ -649,16 +649,31 @@
       transition: color 0.1s, border-color 0.1s;
     }
     .ep-load-btn:active { color: var(--text); border-color: var(--border-2); }
+    .ie-danger-divider {
+      height: 1px;
+      background: rgba(201,107,107,0.2);
+      flex-shrink: 0;
+    }
+    .ie-danger-row {
+      padding: 0.6rem 0.875rem;
+      display: flex;
+      justify-content: center;
+    }
     .clear-library-btn {
       background: none;
-      border: 1px solid rgba(201,107,107,0.35);
-      color: #a06060;
+      border: 1px solid rgba(201,107,107,0.3);
+      color: #9a5858;
       border-radius: 6px;
-      padding: 7px 20px;
-      font-size: 0.85rem;
+      padding: 0.3rem 0.75rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
       cursor: pointer;
+      transition: color 0.12s, border-color 0.12s;
+      -webkit-tap-highlight-color: transparent;
     }
-    .clear-library-btn:active { color: #c96b6b; border-color: rgba(201,107,107,0.6); }
+    .clear-library-btn:active { color: #c96b6b; border-color: rgba(201,107,107,0.55); }
 
     .ep-del-btn {
       background: none;
@@ -1232,6 +1247,10 @@
       <summary class="lib-section-title">Add</summary>
       <div class="quick-import">
         <div class="qi-field-row">
+          <span class="qi-label">Handle</span>
+          <input class="qi-input" id="qi-handle" placeholder="unique-id (e.g. show-ep01)" autocorrect="off" autocapitalize="none">
+        </div>
+        <div class="qi-field-row">
           <span class="qi-label">Show</span>
           <input class="qi-input" id="qi-show" placeholder="Show name" autocorrect="off" autocapitalize="words">
         </div>
@@ -1283,9 +1302,9 @@
           <input type="file" id="bulk-file" accept=".csv,.json,text/csv,text/plain,application/json" style="display:none">
           <details class="bulk-csv-note">
             <summary>Format</summary>
-            <pre>show,episode,audio_url,sub_url
-My Show,Episode 1,https://…/ep1.mp3,https://…/ep1.srt
-My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
+            <pre>handle,show,episode,audio_url,sub_url
+my-show-ep1,My Show,Episode 1,https://…/ep1.mp3,https://…/ep1.srt
+my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
           </details>
           <div class="bulk-progress" id="bulk-progress" style="display:none"></div>
         </div>
@@ -1298,9 +1317,10 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
           </label>
           <div id="backup-status" class="backup-status"></div>
         </div>
-      </div>
-      <div style="text-align:center; padding: 0.75rem 0.875rem 0.75rem;">
-        <button class="clear-library-btn" id="clear-library-btn">Clear Library</button>
+        <div class="ie-danger-divider"></div>
+        <div class="ie-danger-row">
+          <button class="clear-library-btn" id="clear-library-btn">Clear Library</button>
+        </div>
       </div>
     </details>
 
@@ -2248,12 +2268,13 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     });
 
     document.getElementById('qi-btn').addEventListener('click', async () => {
+      const handle   = document.getElementById('qi-handle').value.trim();
       const show     = document.getElementById('qi-show').value.trim();
       const ep       = document.getElementById('qi-ep').value.trim();
       const audioUrl = document.getElementById('qi-audio').value.trim();
       const subUrl   = document.getElementById('qi-sub').value.trim();
 
-      if (!show || !ep) { alert('Please enter show name and episode name.'); return; }
+      if (!handle) { alert('Please enter a handle.'); return; }
       if (!qiAudioFile && !audioUrl) { alert('Please provide an audio file or URL.'); return; }
       if (!qiSubFile   && !subUrl)   { alert('Please provide a subtitle file or URL.'); return; }
 
@@ -2279,10 +2300,11 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
           resolvedAudioUrl = audioUrl;
         }
 
-        const key = `episode:${show}|||${ep}`;
-        await set(key, makeEpisodeRecord({ showName: show, episodeName: ep, audio: audioBlob, audioUrl: resolvedAudioUrl, srt: srtText, srtUrl: resolvedSrtUrl }));
+        const key = `episode:${handle}`;
+        await set(key, makeEpisodeRecord({ showName: show || handle, episodeName: ep || handle, audio: audioBlob, audioUrl: resolvedAudioUrl, srt: srtText, srtUrl: resolvedSrtUrl }));
 
         // Reset form (keep show name)
+        document.getElementById('qi-handle').value = '';
         document.getElementById('qi-ep').value    = '';
         document.getElementById('qi-audio').value = '';
         document.getElementById('qi-sub').value   = '';
@@ -2369,11 +2391,11 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
           const srtRes = await fetch(row.sub_url);
           if (!srtRes.ok) throw new Error('HTTP ' + srtRes.status);
           const srtText = await srtRes.text();
-          const key = `episode:${row.show}|||${row.episode}`;
-          await set(key, makeEpisodeRecord({ showName: row.show, episodeName: row.episode, audioUrl: row.audio_url || null, srt: srtText, srtUrl: row.sub_url }));
+          const key = `episode:${row.handle}`;
+          await set(key, makeEpisodeRecord({ showName: row.show || row.handle, episodeName: row.episode || row.handle, audioUrl: row.audio_url || null, srt: srtText, srtUrl: row.sub_url }));
           saved++;
         } catch (err) {
-          errors.push({ show: row.show, episode: row.episode, reason: err.message });
+          errors.push({ handle: row.handle, reason: err.message });
         }
       }
 
@@ -2388,7 +2410,7 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         errors.forEach(err => {
           const line = document.createElement('div');
           line.style.cssText = 'color:#c96b6b; margin-top:0.25rem;';
-          line.textContent = `✕ ${err.show} · ${err.episode} — ${err.reason}`;
+          line.textContent = `✕ ${err.handle} — ${err.reason}`;
           errList.appendChild(line);
         });
         progress.appendChild(errList);
@@ -2408,7 +2430,7 @@ My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
           header.forEach((h, i) => { row[h] = (vals[i] || '').trim(); });
           return row;
         })
-        .filter(r => r.show && r.episode && r.sub_url);
+        .filter(r => r.handle && r.sub_url);
     }
 
     function parseCSVRow(line) {
