@@ -1403,6 +1403,8 @@
        Apply globally to any text-y input on touch devices so we don't miss any. */
     @media (pointer: coarse) {
       input, textarea, select { font-size: 16px !important; }
+      /* Library-Add and Library-CORS inputs: zoom shrinks visually without triggering iOS auto-zoom */
+      .qi-input, .proxy-input { font-size: 16px !important; zoom: 0.8; }
     }
   </style>
 </head>
