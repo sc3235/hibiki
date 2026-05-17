@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#111009">
-  <title>Audio Sub Player</title>
+  <title>響</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Dela+Gothic+One&family=JetBrains+Mono:wght@400;500&family=Shippori+Mincho:wght@400;500&display=swap" rel="stylesheet">
@@ -2168,7 +2168,36 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     }
 
     function makeEpisodeRecord({ showName, episodeName, audioBlob = null, audioUrl = null, srt, srtUrl = null }) {
-      return { showName, episodeName, audio: audioBlob, audioUrl, srt, srtUrl, offset: 0, lastPosition: 0, speed: 1, addedAt: Date.now(), notes: '', wordlist: [], duration: 0, isComplete: false, manual: false };
+      return { showName, episodeName, audio: audioBlob, audioOPFS: null, audioUrl, srt, srtUrl, offset: 0, lastPosition: 0, speed: 1, addedAt: Date.now(), notes: '', wordlist: [], duration: 0, isComplete: false, manual: false };
+    }
+
+    function mimeToExt(mime) {
+      if (!mime) return 'mp3';
+      if (mime.includes('mp4') || mime.includes('m4a')) return 'm4a';
+      if (mime.includes('wav')) return 'wav';
+      if (mime.includes('aac')) return 'aac';
+      return 'mp3';
+    }
+
+    async function opfsWrite(filename, blob) {
+      const root = await navigator.storage.getDirectory();
+      const fh = await root.getFileHandle(filename, { create: true });
+      const w = await fh.createWritable();
+      await w.write(blob);
+      await w.close();
+    }
+
+    async function opfsRead(filename) {
+      const root = await navigator.storage.getDirectory();
+      const fh = await root.getFileHandle(filename);
+      return fh.getFile();
+    }
+
+    async function opfsDelete(filename) {
+      try {
+        const root = await navigator.storage.getDirectory();
+        await root.removeEntry(filename);
+      } catch {}
     }
 
     function syncSpeedDisplay() {
@@ -2204,9 +2233,21 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       currentEpisodeKey = key;
       localStorage.setItem('last-episode-key', key);
 
-      if (data.audio) {
+      if (data.audioOPFS) {
+        loadedAudioBlob = await opfsRead(data.audioOPFS);
+        audio.src = URL.createObjectURL(loadedAudioBlob);
+      } else if (data.audio) {
         loadedAudioBlob = data.audio;
         audio.src = URL.createObjectURL(data.audio);
+        // Migrate legacy IndexedDB Blob to OPFS in the background
+        (async () => {
+          try {
+            const filename = `audio_${data.addedAt}.${mimeToExt(data.audio.type)}`;
+            await opfsWrite(filename, data.audio);
+            const rec = await get(key);
+            if (rec) { rec.audioOPFS = filename; rec.audio = null; await set(key, rec); }
+          } catch {}
+        })();
       } else if (data.audioUrl) {
         loadedAudioBlob = null;
         audio.src = data.audioUrl;
@@ -2317,7 +2358,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         ctx.font = '400 430px "Dela Gothic One","Shippori Mincho",serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillStyle = '#c060e8';
-        ctx.fillText('聴', cx + 10, cy + 4);
+        ctx.fillText('響', cx + 10, cy + 4);
         ctx.restore();
 
         // Diffuse outer glow pass
@@ -2326,7 +2367,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         ctx.shadowBlur = 52;
         ctx.font = font; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillStyle = 'rgba(161,52,201,0.01)';
-        ctx.fillText('聴', cx, cy);
+        ctx.fillText('響', cx, cy);
         ctx.restore();
 
         // Main character — gradient fill with tight glow
@@ -2340,7 +2381,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         charGrad.addColorStop(1,    '#661a87');
         ctx.font = font; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillStyle = charGrad;
-        ctx.fillText('聴', cx, cy);
+        ctx.fillText('響', cx, cy);
         ctx.restore();
 
         // Crisp stroke overlay
@@ -2348,7 +2389,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         ctx.font = font; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.strokeStyle = 'rgba(225,148,255,0.18)';
         ctx.lineWidth = 0.6;
-        ctx.strokeText('聴', cx, cy);
+        ctx.strokeText('響', cx, cy);
         ctx.restore();
 
         // Cardinal dots
@@ -2366,7 +2407,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
 
     // Pre-warm artwork once the CJK font subset is confirmed loaded, so the
     // canvas never falls back to a system font with different glyph proportions.
-    document.fonts.load('400 268px "Dela Gothic One"', '聴').then(() => {
+    document.fonts.load('400 268px "Dela Gothic One"', '響').then(() => {
       if (_artworkDataUrl === null) getArtworkDataUrl();
     }).catch(() => {});
 
@@ -2376,7 +2417,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       navigator.mediaSession.metadata = new MediaMetadata({
         title:  episodeName,
         artist: showName,
-        album:  'Audio Sub Player',
+        album:  'Hibiki',
         artwork: artwork ? [{ src: artwork, sizes: '512x512', type: 'image/png' }] : []
       });
     }
@@ -2712,7 +2753,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
           if (ep.audioUrl) {
             const dlBtn = document.createElement('button');
             dlBtn.className = 'ep-dl-btn';
-            const isDownloaded = !!ep.audio;
+            const isDownloaded = !!(ep.audioOPFS || ep.audio);
 
             const setDlState = (state) => {
               dlBtn.style.color = '';
@@ -2736,6 +2777,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
               if (dlBtn.classList.contains('refresh')) {
                 const data = await get(ep.key);
                 if (!data) return;
+                if (data.audioOPFS) { await opfsDelete(data.audioOPFS); data.audioOPFS = null; }
                 data.audio = null;
                 await set(ep.key, data);
                 if (currentEpisodeKey === ep.key && data.audioUrl) {
@@ -2768,8 +2810,15 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
                   return;
                 }
                 try {
+                  await navigator.storage?.persist?.();
                   const data = await get(ep.key);
-                  if (data) { data.audio = blob; await set(ep.key, data); }
+                  if (data) {
+                    const filename = `audio_${data.addedAt}.${mimeToExt(blob.type)}`;
+                    await opfsWrite(filename, blob);
+                    data.audioOPFS = filename;
+                    data.audio = null;
+                    await set(ep.key, data);
+                  }
                 } catch (storeErr) {
                   console.error('[download] storage failed:', storeErr);
                   setDlState('idle');
@@ -2904,6 +2953,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
           delBtn.textContent = '×';
           delBtn.addEventListener('click', async () => {
             if (!confirm(`Delete "${ep.episodeName}"?`)) return;
+            if (ep.audioOPFS) await opfsDelete(ep.audioOPFS);
             await del(ep.key);
             if (currentEpisodeKey === ep.key) unloadEpisode();
             renderLibrary();
@@ -3206,7 +3256,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
           key:          k,
           showName:     d.showName,
           episodeName:  d.episodeName,
-          audioUrl:     d.audioUrl || (d.audio ? 'NO_URL' : null),
+          audioUrl:     d.audioUrl || (d.audioOPFS || d.audio ? 'NO_URL' : null),
           srtUrl:       d.srtUrl   || (d.srt && !d.srtUrl ? 'NO_URL' : null),
           srt:          includeSrt ? (d.srt || null) : null,
           offset:       d.offset       ?? 0,
@@ -3243,6 +3293,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     });
 
     // ── Init ──
+    navigator.storage?.persist?.();
     setupMediaSession();
     renderSubList();
     loadCatalogue();
