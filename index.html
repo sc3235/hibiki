@@ -2307,7 +2307,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         canvas.width = 512; canvas.height = 512;
         const ctx = canvas.getContext('2d');
         const cx = 256, cy = 256;
-        const font = '400 268px "Dela Gothic One","Shippori Mincho",serif';
+        const font = '400 268px "Noto Serif JP","Shippori Mincho",serif';
 
         // Background
         ctx.fillStyle = '#0e0c09';
@@ -2355,7 +2355,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         // Ghost character — large, very faded, offset for depth
         ctx.save();
         ctx.globalAlpha = 0.038;
-        ctx.font = '400 430px "Dela Gothic One","Shippori Mincho",serif';
+        ctx.font = '400 430px "Noto Serif JP","Shippori Mincho",serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillStyle = '#c060e8';
         ctx.fillText('響', cx + 10, cy + 4);
@@ -2407,7 +2407,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
 
     // Pre-warm artwork once the CJK font subset is confirmed loaded, so the
     // canvas never falls back to a system font with different glyph proportions.
-    document.fonts.load('400 268px "Dela Gothic One"', '響').then(() => {
+    document.fonts.load('400 268px "Noto Serif JP"', '響').then(() => {
       if (_artworkDataUrl === null) getArtworkDataUrl();
     }).catch(() => {});
 
