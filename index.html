@@ -7,7 +7,7 @@
   <title>Audio Sub Player</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=JetBrains+Mono:wght@400;500&family=Shippori+Mincho:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Dela+Gothic+One&family=JetBrains+Mono:wght@400;500&family=Shippori+Mincho:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg:        #111009;
@@ -1184,10 +1184,14 @@
     }
     .wl-sort-strip {
       display: flex;
-      justify-content: flex-end;
+      justify-content: space-between;
       padding: 0.35rem 0.6rem;
       border-bottom: 1px solid var(--border);
       background: var(--surface-2);
+    }
+    .wl-sort-strip-left {
+      display: flex;
+      gap: 0.2rem;
     }
     .wl-sort-btn {
       background: none;
@@ -1205,6 +1209,22 @@
     }
     .wl-sort-btn:hover { color: var(--text-2); }
     .wl-sort-btn:active { color: var(--accent); }
+    .wl-clear-btn {
+      background: none;
+      border: none;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.56rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      cursor: pointer;
+      padding: 0.15rem 0.3rem;
+      border-radius: 4px;
+      -webkit-tap-highlight-color: transparent;
+      transition: color 0.12s;
+    }
+    .wl-clear-btn:hover { color: #c96b6b; }
+    .wl-clear-btn:active { color: #a04444; }
     .wl-scroll {
       max-height: 14rem;
       overflow-y: auto;
@@ -1486,8 +1506,11 @@
       </div>
       <div class="wordlist-panel" id="wordlist-panel" style="display:none">
         <div class="wl-sort-strip" id="wl-sort-strip">
-          <button class="wl-sort-btn" id="wl-export-btn">↓ CSV</button>
-          <button class="wl-sort-btn" id="wl-sort-btn">↑ Earlier first</button>
+          <div class="wl-sort-strip-left">
+            <button class="wl-sort-btn" id="wl-sort-btn">↑ Earlier first</button>
+            <button class="wl-sort-btn" id="wl-export-btn">CSV</button>
+          </div>
+          <button class="wl-clear-btn" id="wl-clear-btn">Clear</button>
         </div>
         <div class="wl-scroll">
           <div id="wordlist-items"></div>
@@ -1507,7 +1530,7 @@
         <button class="adj-btn-lg" id="offset-plus">+1s</button>
         <button class="adj-btn-lg adj-btn-half" id="offset-plus-half">+0.5s</button>
       </div>
-      <span class="offset-row-tip">+offset if sub lags audio · pause + tap right edge to pin</span>
+      <span class="offset-row-tip"> (-) sub leads audio · sub lags audio (+)</span>
     </div>
 
     <div class="toggle-row" style="margin-bottom: 0.6rem;">
@@ -2190,7 +2213,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         canvas.width = 512; canvas.height = 512;
         const ctx = canvas.getContext('2d');
         const cx = 256, cy = 256;
-        const font = '300 268px "Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif';
+        const font = '400 268px "Dela Gothic One","Shippori Mincho",serif';
 
         // Background
         ctx.fillStyle = '#0e0c09';
@@ -2238,7 +2261,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         // Ghost character — large, very faded, offset for depth
         ctx.save();
         ctx.globalAlpha = 0.038;
-        ctx.font = '300 430px "Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif';
+        ctx.font = '400 430px "Dela Gothic One","Shippori Mincho",serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillStyle = '#c060e8';
         ctx.fillText('聴', cx + 12, cy + 12);
@@ -2434,11 +2457,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       const liveWord = window.getSelection().toString().trim();
       const word = liveWord || stashedWord;
       if (!word) return;
-      let sentence = stashedSentence;
-      if (liveWord) {
-        const activeEl = scroll.querySelector('.sub-item.active .sub-text');
-        sentence = activeEl ? activeEl.textContent.trim() : '';
-      }
+      const sentence = stashedSentence;
       const timestamp = manualMode ? null : audio.currentTime;
       currentWordlist.push({ word, sentence, timestamp, addedAt: Date.now() });
       patchEpisode({ wordlist: currentWordlist });
@@ -2465,6 +2484,14 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: name });
       a.click();
       URL.revokeObjectURL(a.href);
+    });
+
+    document.getElementById('wl-clear-btn').addEventListener('click', () => {
+      if (!currentWordlist.length) return;
+      if (!confirm('Clear all words for this episode?')) return;
+      currentWordlist = [];
+      patchEpisode({ wordlist: currentWordlist });
+      renderWordlist();
     });
 
     document.getElementById('words-toggle-btn').addEventListener('click', () => {
