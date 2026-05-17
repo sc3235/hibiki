@@ -212,7 +212,7 @@ async function transcribeWithWhisper(audioFile, apiKey) {
 SRT files are small (~100–200 KB per hour of audio). Store them in this repo:
 
 ```
-audio-sub-player/
+hibiki/
   index.html
   subtitles/
     episode-name.srt
@@ -224,7 +224,7 @@ audio-sub-player/
 Raw URL format (no CORS issues):
 
 ```
-https://raw.githubusercontent.com/sc3235/audio-sub-player/main/subtitles/episode-name.srt
+https://raw.githubusercontent.com/sc3235/hibiki/main/subtitles/episode-name.srt
 ```
 
 ## Storage design
@@ -268,7 +268,7 @@ episode:{name} → {
 
 GitHub Pages, single `index.html` at repo root. Push to `main` branch to deploy.
 
-URL: `https://sc3235.github.io/audio-sub-player/`
+URL: `https://sc3235.github.io/hibiki/`
 
 ---
 

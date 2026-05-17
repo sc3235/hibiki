@@ -1,4 +1,4 @@
-// CORS proxy for audio-sub-player
+// CORS proxy for hibiki
 // Deploy to Cloudflare Workers (free tier: 100k req/day)
 // Usage: GET https://your-worker.workers.dev/?url=<encoded-audio-url>
 

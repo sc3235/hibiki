@@ -3273,7 +3273,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       const url  = URL.createObjectURL(blob);
       const a    = document.createElement('a');
       a.href     = url;
-      a.download = `audio-sub-player-backup-${new Date().toISOString().slice(0,10)}.json`;
+      a.download = `hibiki-backup-${new Date().toISOString().slice(0,10)}.json`;
       a.click();
       setTimeout(() => URL.revokeObjectURL(url), 5000);
       const status = document.getElementById('backup-status');
