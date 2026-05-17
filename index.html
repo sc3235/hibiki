@@ -25,6 +25,7 @@
       --green:     #72b87e;
       --radius:    14px;
       --sub-font:  2.0rem;
+      --test: #0a140e;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -2331,7 +2332,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         const font = '400 268px "Noto Serif JP","Shippori Mincho",serif';
 
         // Background
-        ctx.fillStyle = '#7d7567';
+        ctx.fillStyle = '#1e1030';
         ctx.fillRect(0, 0, 512, 512);
 
         // Atmospheric radial glow
@@ -2403,6 +2404,17 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         ctx.font = font; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillStyle = charGrad;
         ctx.fillText('響', cx, cy);
+        ctx.restore();
+
+        // Antique gold border with soft glow
+        ctx.save();
+        ctx.font = font; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.strokeStyle = 'rgba(220,175,60,0.80)';
+        ctx.lineWidth = 0.6;
+        ctx.lineJoin = 'round';
+        ctx.shadowColor = 'rgba(220,175,60,0.80)';
+        ctx.shadowBlur = 5;
+        ctx.strokeText('響', cx, cy);
         ctx.restore();
 
         // Crisp stroke overlay
