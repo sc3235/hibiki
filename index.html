@@ -2142,6 +2142,23 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
 
     window.addEventListener('pagehide', () => { saveLastPosition(); });
 
+    // ── Unload current episode (reset player to "choose from library") ──
+    function unloadEpisode() {
+      audio.pause();
+      if (loadedAudioBlob) { URL.revokeObjectURL(audio.src); loadedAudioBlob = null; }
+      audio.removeAttribute('src');
+      audio.load();
+      currentEpisodeKey = null;
+      subs = []; currentIdx = -1;
+      renderSubList();
+      document.getElementById('episode-info').classList.remove('has-episode');
+      document.getElementById('episode-info-show').textContent = '';
+      document.getElementById('episode-info-ep').textContent   = '';
+      currentWordlist = []; wordlistOpen = false;
+      document.getElementById('wordlist-panel').style.display = 'none';
+      renderWordlist(); updateWordsToggle();
+    }
+
     // ── Load episode from library ──
     async function loadEpisodeFromLibrary(key) {
       const data = await get(key);
@@ -2841,7 +2858,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
           delBtn.addEventListener('click', async () => {
             if (!confirm(`Delete "${ep.episodeName}"?`)) return;
             await del(ep.key);
-            if (currentEpisodeKey === ep.key) currentEpisodeKey = null;
+            if (currentEpisodeKey === ep.key) unloadEpisode();
             renderLibrary();
           });
 
@@ -3174,6 +3191,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       if (epKeys.length === 0) { alert('Library is already empty.'); return; }
       if (!confirm(`Delete all ${epKeys.length} episode${epKeys.length !== 1 ? 's' : ''}? This cannot be undone.`)) return;
       await Promise.all(epKeys.map(k => del(k)));
+      if (currentEpisodeKey) unloadEpisode();
       renderLibrary();
     });
 
