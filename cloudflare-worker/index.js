@@ -49,6 +49,15 @@ export default {
     headers.set('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
     headers.set('Access-Control-Expose-Headers', 'Content-Length, Content-Range, Accept-Ranges');
 
+    // CDNs (including GitHub Releases) often serve audio as application/octet-stream.
+    // Safari refuses to stream audio with that Content-Type, so override it from the URL extension.
+    const ct = headers.get('Content-Type') || '';
+    if (ct.includes('octet-stream')) {
+      const ext = targetUrl.pathname.split('.').pop().toLowerCase();
+      const mime = { mp3: 'audio/mpeg', m4a: 'audio/mp4', mp4: 'audio/mp4', aac: 'audio/aac', wav: 'audio/wav', ogg: 'audio/ogg' }[ext];
+      if (mime) headers.set('Content-Type', mime);
+    }
+
     return new Response(upstream.body, {
       status: upstream.status,
       statusText: upstream.statusText,

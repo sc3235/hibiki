@@ -2179,6 +2179,27 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       return 'mp3';
     }
 
+    function extToMime(url) {
+      const ext = (url || '').split('?')[0].split('.').pop().toLowerCase();
+      return { mp3: 'audio/mpeg', m4a: 'audio/mp4', mp4: 'audio/mp4', aac: 'audio/aac', wav: 'audio/wav', ogg: 'audio/ogg' }[ext] || null;
+    }
+
+    // Set audio src from a URL, using a <source> element with explicit type so Safari
+    // doesn't reject the stream when the CDN sends Content-Type: application/octet-stream.
+    function setAudioUrl(url) {
+      audio.removeAttribute('src');
+      while (audio.firstChild) audio.removeChild(audio.firstChild);
+      const mime = extToMime(url);
+      if (mime) {
+        const s = document.createElement('source');
+        s.src = url;
+        s.type = mime;
+        audio.appendChild(s);
+      } else {
+        audio.src = url;
+      }
+    }
+
     async function opfsWrite(filename, blob) {
       const root = await navigator.storage.getDirectory();
       const fh = await root.getFileHandle(filename, { create: true });
@@ -2250,7 +2271,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         })();
       } else if (data.audioUrl) {
         loadedAudioBlob = null;
-        audio.src = data.audioUrl;
+        setAudioUrl(proxied(data.audioUrl));
       }
       audio.load();
 
@@ -2782,7 +2803,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
                 await set(ep.key, data);
                 if (currentEpisodeKey === ep.key && data.audioUrl) {
                   if (loadedAudioBlob) { URL.revokeObjectURL(audio.src); loadedAudioBlob = null; }
-                  audio.src = data.audioUrl;
+                  setAudioUrl(proxied(data.audioUrl));
                   audio.load();
                 }
                 setDlState('idle');
@@ -2796,9 +2817,12 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
                 try {
                   const res = await fetch(proxied(ep.audioUrl));
                   if (!res.ok) throw new Error('HTTP ' + res.status);
-                  const contentType = res.headers.get('content-type') || 'audio/mpeg';
+                  const serverType = res.headers.get('content-type') || '';
                   const raw = await res.blob();
-                  blob = raw.type ? raw : new Blob([raw], { type: contentType });
+                  // Prefer MIME derived from URL extension — CDNs often return application/octet-stream
+                  const inferredMime = extToMime(ep.audioUrl);
+                  const effectiveMime = (serverType && !serverType.includes('octet-stream')) ? serverType : (inferredMime || 'audio/mpeg');
+                  blob = (raw.type && !raw.type.includes('octet-stream')) ? raw : new Blob([raw], { type: effectiveMime });
                 } catch (fetchErr) {
                   console.error('[download] fetch failed:', fetchErr);
                   const isCors = fetchErr.message === 'Failed to fetch' || fetchErr.message.includes('NetworkError');
