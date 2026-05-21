@@ -3,34 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#111009">
+  <meta name="theme-color" content="#edecea">
   <title>響</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Dela+Gothic+One&family=JetBrains+Mono:wght@400;500&family=Shippori+Mincho:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg:        #111009;
-      --surface:   #1c1916;
-      --surface-2: #242118;
-      --border:    #2e2b22;
-      --border-2:  #3a362b;
-      --text:      #ede8dd;
-      --text-2:    #7d7567;
-      --text-3:    #4b453b;
+      --bg:        #edecea;
+      --surface:   #fbfbf9;
+      --surface-2: #e6e5e2;
+      --border:    #dad9d5;
+      --border-2:  #c4c3be;
+      --text:      #2a2a2d;
+      --text-2:    #6b6b6e;
+      --text-3:    #a0a09d;
       --accent:    #a134c9;
       --accent-a10: rgba(161,52,201,0.10);
       --accent-a28: rgba(161,52,201,0.28);
       --accent-a40: rgba(161,52,201,0.40);
-      --green:     #72b87e;
+      --green:     #3f8a52;
+      --green-a14: rgba(63,138,82,0.14);
+      --green-a40: rgba(63,138,82,0.40);
+      --green-a55: rgba(63,138,82,0.55);
+      --red:        #bf5250;
+      --red-strong: #9a3633;
+      --red-a20:   rgba(191,82,80,0.20);
+      --red-a30:   rgba(191,82,80,0.30);
+      --red-a40:   rgba(191,82,80,0.40);
+      --red-a55:   rgba(191,82,80,0.55);
       --radius:    14px;
       --sub-font:  2.0rem;
-      --test: #0a140e;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    html { background: var(--bg); }
+    html { background: var(--bg); color-scheme: light; }
 
     body {
       font-family: 'Cormorant Garamond', Georgia, serif;
@@ -69,7 +77,6 @@
       font-size: 1.05rem;
       letter-spacing: 0.18em;
       line-height: 1;
-      text-shadow: 0 0 28px rgba(114, 184, 126, 0.18);
       animation: tagline-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
     }
     .tl-word {
@@ -182,7 +189,7 @@
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.62rem;
       letter-spacing: 0.08em;
-      color: #c96b6b;
+      color: var(--red);
     }
 
     /* ── Subtitle scroll ── */
@@ -550,8 +557,8 @@
       transition: background 0.25s, color 0.25s, border-color 0.25s;
     }
     .offset-val-lg.flash {
-      background: rgba(114, 184, 126, 0.12);
-      border-color: rgba(114, 184, 126, 0.5);
+      background: var(--green-a14);
+      border-color: var(--green-a55);
       color: var(--green);
     }
     .manual-btn {
@@ -677,7 +684,7 @@
       left: 50%;
       transform: translateX(-50%);
       width: 2px;
-      background: rgba(114, 184, 126, 0.35);
+      background: var(--green-a40);
       border-radius: 1px;
       transition: background 0.15s, width 0.15s, box-shadow 0.15s;
     }
@@ -693,10 +700,10 @@
     .sub-item.pin-flash .sub-pin::after {
       background: var(--green);
       width: 4px;
-      box-shadow: 0 0 14px rgba(114, 184, 126, 0.65);
+      box-shadow: 0 0 14px var(--green-a55);
     }
     @keyframes pin-flash-pulse {
-      0%   { background: rgba(114, 184, 126, 0.18); }
+      0%   { background: var(--green-a14); }
       100% { background: transparent; }
     }
     .sub-item.pin-flash {
@@ -841,7 +848,7 @@
     }
     .qi-file-pick.has-file {
       color: var(--green);
-      border-color: rgba(107,166,118,0.4);
+      border-color: var(--green-a40);
       border-style: solid;
     }
 
@@ -949,7 +956,7 @@
     .ep-load-btn:active { color: var(--text); border-color: var(--border-2); }
     .ie-danger-divider {
       height: 1px;
-      background: rgba(201,107,107,0.2);
+      background: var(--red-a20);
       flex-shrink: 0;
     }
     .ie-danger-row {
@@ -959,8 +966,8 @@
     }
     .clear-library-btn {
       background: none;
-      border: 1px solid rgba(201,107,107,0.3);
-      color: #9a5858;
+      border: 1px solid var(--red-a30);
+      color: var(--red);
       border-radius: 6px;
       padding: 0.3rem 0.75rem;
       font-family: 'JetBrains Mono', monospace;
@@ -971,7 +978,7 @@
       transition: color 0.12s, border-color 0.12s;
       -webkit-tap-highlight-color: transparent;
     }
-    .clear-library-btn:active { color: #c96b6b; border-color: rgba(201,107,107,0.55); }
+    .clear-library-btn:active { color: var(--red-strong); border-color: var(--red-a55); }
 
     .ep-del-btn {
       background: none;
@@ -986,7 +993,7 @@
       -webkit-tap-highlight-color: transparent;
       transition: color 0.1s, border-color 0.1s;
     }
-    .ep-del-btn:active { color: #c96b6b; border-color: rgba(201,107,107,0.4); }
+    .ep-del-btn:active { color: var(--red-strong); border-color: var(--red-a40); }
 
     .lib-empty {
       text-align: center;
@@ -1079,7 +1086,7 @@
       color: var(--green);
       min-height: 0.8rem;
     }
-    .proxy-status.err { color: #c96b6b; }
+    .proxy-status.err { color: var(--red); }
 
     /* Import / Export card */
     .ie-card {
@@ -1248,8 +1255,8 @@
       -webkit-tap-highlight-color: transparent;
       transition: color 0.12s;
     }
-    .wl-clear-btn:hover { color: #c96b6b; }
-    .wl-clear-btn:active { color: #a04444; }
+    .wl-clear-btn:hover { color: var(--red); }
+    .wl-clear-btn:active { color: var(--red-strong); }
     .wl-scroll {
       max-height: 14rem;
       overflow-y: auto;
@@ -1330,7 +1337,7 @@
       -webkit-tap-highlight-color: transparent;
       transition: color 0.1s, border-color 0.1s;
     }
-    .wl-del:active { color: #c96b6b; border-color: rgba(201,107,107,0.4); }
+    .wl-del:active { color: var(--red-strong); border-color: var(--red-a40); }
 
     /* ── Library: episode wrapper (holds item row + srt panel) ── */
     .ep-wrap { border-bottom: 1px solid var(--border); }
@@ -1362,7 +1369,7 @@
     }
     .ep-dl-btn.refresh {
       color: var(--green);
-      border-color: rgba(114, 184, 126, 0.35);
+      border-color: var(--green-a40);
     }
 
     /* ── Library: SRT refresh button ── */
@@ -1425,7 +1432,7 @@
     }
     .ep-srt-file-pick.has-file {
       color: var(--green);
-      border-color: rgba(114,184,126,0.4);
+      border-color: var(--green-a40);
       border-style: solid;
     }
     .ep-srt-apply-btn {
@@ -2337,15 +2344,18 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         const cx = 256, cy = 256;
         const font = '400 268px "Noto Serif JP","Shippori Mincho",serif';
 
-        // Background
-        ctx.fillStyle = '#1e1030';
+        // Background — soft light paper field
+        const bgGrad = ctx.createLinearGradient(0, 0, 0, 512);
+        bgGrad.addColorStop(0, '#f4f3f1');
+        bgGrad.addColorStop(1, '#e7e6e3');
+        ctx.fillStyle = bgGrad;
         ctx.fillRect(0, 0, 512, 512);
 
         // Atmospheric radial glow
         const atmos = ctx.createRadialGradient(cx, cy, 0, cx, cy, 370);
-        atmos.addColorStop(0,   'rgba(161,52,201,0.20)');
-        atmos.addColorStop(0.45,'rgba(114,184,126,0.05)');
-        atmos.addColorStop(1,   'rgba(0,0,0,0)');
+        atmos.addColorStop(0,   'rgba(161,52,201,0.13)');
+        atmos.addColorStop(0.45,'rgba(63,138,82,0.05)');
+        atmos.addColorStop(1,   'rgba(161,52,201,0)');
         ctx.fillStyle = atmos;
         ctx.fillRect(0, 0, 512, 512);
 
@@ -2353,7 +2363,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         [105, 150, 195, 238].forEach((r, i) => {
           ctx.beginPath();
           ctx.arc(cx, cy, r, 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(161,52,201,${0.13 - i * 0.024})`;
+          ctx.strokeStyle = `rgba(161,52,201,${0.20 - i * 0.035})`;
           ctx.lineWidth = i === 0 ? 0.8 : 0.4;
           ctx.stroke();
         });
@@ -2365,7 +2375,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
           ctx.beginPath();
           ctx.moveTo(cx + Math.cos(rad) * 105, cy + Math.sin(rad) * 105);
           ctx.lineTo(cx + Math.cos(rad) * (105 - len), cy + Math.sin(rad) * (105 - len));
-          ctx.strokeStyle = `rgba(161,52,201,${a % 90 === 0 ? 0.5 : 0.2})`;
+          ctx.strokeStyle = `rgba(161,52,201,${a % 90 === 0 ? 0.55 : 0.25})`;
           ctx.lineWidth = a % 90 === 0 ? 0.8 : 0.4;
           ctx.stroke();
         }
@@ -2374,7 +2384,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         [[0,512,512,0],[0,0,512,512]].forEach(([x1,y1,x2,y2]) => {
           const lg = ctx.createLinearGradient(x1,y1,x2,y2);
           lg.addColorStop(0,   'rgba(161,52,201,0)');
-          lg.addColorStop(0.5, 'rgba(161,52,201,0.06)');
+          lg.addColorStop(0.5, 'rgba(161,52,201,0.09)');
           lg.addColorStop(1,   'rgba(161,52,201,0)');
           ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
           ctx.strokeStyle = lg; ctx.lineWidth = 0.5; ctx.stroke();
@@ -2382,31 +2392,31 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
 
         // Ghost character — large, very faded, offset for depth
         ctx.save();
-        ctx.globalAlpha = 0.038;
+        ctx.globalAlpha = 0.055;
         ctx.font = '400 430px "Noto Serif JP","Shippori Mincho",serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillStyle = '#c060e8';
+        ctx.fillStyle = '#a134c9';
         ctx.fillText('響', cx + 10, cy + 4);
         ctx.restore();
 
         // Diffuse outer glow pass
         ctx.save();
-        ctx.shadowColor = 'rgba(161,52,201,0.85)';
-        ctx.shadowBlur = 52;
+        ctx.shadowColor = 'rgba(161,52,201,0.5)';
+        ctx.shadowBlur = 46;
         ctx.font = font; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillStyle = 'rgba(161,52,201,0.01)';
+        ctx.fillStyle = 'rgba(161,52,201,0.02)';
         ctx.fillText('響', cx, cy);
         ctx.restore();
 
         // Main character — gradient fill with tight glow
         ctx.save();
-        ctx.shadowColor = 'rgba(200,100,255,0.55)';
-        ctx.shadowBlur = 20;
+        ctx.shadowColor = 'rgba(161,52,201,0.30)';
+        ctx.shadowBlur = 18;
         const charGrad = ctx.createLinearGradient(cx, cy - 140, cx, cy + 140);
-        charGrad.addColorStop(0,    '#e488ff');
-        charGrad.addColorStop(0.35, '#b83dd6');
-        charGrad.addColorStop(0.72, '#8c22b2');
-        charGrad.addColorStop(1,    '#661a87');
+        charGrad.addColorStop(0,    '#b94fd6');
+        charGrad.addColorStop(0.35, '#a134c9');
+        charGrad.addColorStop(0.72, '#7d1f9e');
+        charGrad.addColorStop(1,    '#5a1574');
         ctx.font = font; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillStyle = charGrad;
         ctx.fillText('響', cx, cy);
@@ -2415,10 +2425,10 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         // Antique gold border with soft glow
         ctx.save();
         ctx.font = font; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.strokeStyle = 'rgba(220,175,60,0.80)';
+        ctx.strokeStyle = 'rgba(178,136,50,0.85)';
         ctx.lineWidth = 0.6;
         ctx.lineJoin = 'round';
-        ctx.shadowColor = 'rgba(220,175,60,0.80)';
+        ctx.shadowColor = 'rgba(178,136,50,0.65)';
         ctx.shadowBlur = 5;
         ctx.strokeText('響', cx, cy);
         ctx.restore();
@@ -2426,7 +2436,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         // Crisp stroke overlay
         ctx.save();
         ctx.font = font; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.strokeStyle = 'rgba(225,148,255,0.18)';
+        ctx.strokeStyle = 'rgba(74,18,96,0.22)';
         ctx.lineWidth = 0.6;
         ctx.strokeText('響', cx, cy);
         ctx.restore();
@@ -2434,7 +2444,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         // Cardinal dots
         [[cx,38],[474,cy],[cx,474],[38,cy]].forEach(([x,y]) => {
           ctx.beginPath(); ctx.arc(x, y, 2.5, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(161,52,201,0.5)'; ctx.fill();
+          ctx.fillStyle = 'rgba(161,52,201,0.55)'; ctx.fill();
         });
 
         _artworkDataUrl = canvas.toDataURL('image/png');
@@ -2848,7 +2858,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
                   dlBtn.title = isCors
                     ? 'CORS blocked — this CDN does not allow cross-origin downloads (hover for details, check console)'
                     : 'Download failed: ' + fetchErr.message;
-                  dlBtn.style.color = '#c96b6b';
+                  dlBtn.style.color = 'var(--red)';
                   return;
                 }
                 try {
@@ -2865,7 +2875,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
                   console.error('[download] storage failed:', storeErr);
                   setDlState('idle');
                   dlBtn.title = 'Could not cache: ' + storeErr.message;
-                  dlBtn.style.color = '#c96b6b';
+                  dlBtn.style.color = 'var(--red)';
                   return;
                 }
                 setDlState('downloaded');
@@ -2874,7 +2884,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
                 dlBtn.className = 'ep-dl-btn';
                 dlBtn.textContent = '↓♪';
                 dlBtn.title = 'Download failed: ' + err.message;
-                dlBtn.style.color = '#c96b6b';
+                dlBtn.style.color = 'var(--red)';
               }
             });
 
@@ -2979,7 +2989,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
               }, 800);
             } catch (err) {
               srtApplyBtn.textContent = '!';
-              srtApplyBtn.style.color = '#c96b6b';
+              srtApplyBtn.style.color = 'var(--red)';
               setTimeout(() => {
                 srtApplyBtn.textContent = '↻';
                 srtApplyBtn.style.color = '';
@@ -3176,7 +3186,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         errList.style.cssText = 'margin-top:0.5rem; text-align:left;';
         errors.forEach(err => {
           const line = document.createElement('div');
-          line.style.cssText = 'color:#c96b6b; margin-top:0.25rem;';
+          line.style.cssText = 'color:var(--red); margin-top:0.25rem;';
           line.textContent = `✕ ${err.handle} — ${err.reason}`;
           errList.appendChild(line);
         });
