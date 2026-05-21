@@ -272,6 +272,7 @@
       transition: opacity 0.2s;
     }
     .sub-item.active { opacity: 1; }
+    .sub-item.adjacent { opacity: 0.55; }
 
     .sub-jump {
       flex-shrink: 0;
@@ -1894,11 +1895,16 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
       if (currentIdx === idx) return;
       const prev = scroll.querySelector('.sub-item.active');
       if (prev) prev.classList.remove('active');
+      scroll.querySelectorAll('.sub-item.adjacent').forEach(el => el.classList.remove('adjacent'));
       currentIdx = idx;
       if (idx < 0) return;
       const el = scroll.querySelector(`[data-idx="${idx}"]`);
       if (!el) return;
       el.classList.add('active');
+      const prevEl = scroll.querySelector(`[data-idx="${idx - 1}"]`);
+      if (prevEl) prevEl.classList.add('adjacent');
+      const nextEl = scroll.querySelector(`[data-idx="${idx + 1}"]`);
+      if (nextEl) nextEl.classList.add('adjacent');
       // Always center: in normal mode this is the auto-follow during playback;
       // in manual mode the timeupdate handler returns early so setActiveSub is
       // only invoked by explicit user actions (prev/next/tap/pin), which should
