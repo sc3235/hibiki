@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#edecea">
   <title>響</title>
+  <link rel="icon" id="favicon" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Dela+Gothic+One&family=JetBrains+Mono:wght@400;500&family=Shippori+Mincho:wght@400;500&display=swap" rel="stylesheet">
@@ -2448,6 +2449,7 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
         });
 
         _artworkDataUrl = canvas.toDataURL('image/png');
+        document.getElementById('favicon').href = _artworkDataUrl;
       } catch (e) {
         _artworkDataUrl = '';
       }
