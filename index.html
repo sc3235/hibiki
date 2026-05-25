@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#edecea">
   <title>響</title>
-  <link rel="icon" id="favicon" type="image/png">
+  <link rel="icon" href="icon.png" type="image/png">
+  <link rel="apple-touch-icon" href="icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Dela+Gothic+One&family=JetBrains+Mono:wght@400;500&family=Shippori+Mincho:wght@400;500&display=swap" rel="stylesheet">
@@ -2333,143 +2334,13 @@ my-show-ep2,My Show,Episode 2,https://…/ep2.mp3,https://…/ep2.srt</pre>
     }
 
     // ── Media Session API ──
-    // Lazily generated once; '' means canvas failed (e.g. cross-origin worker
-    // restrictions) — falsy so callers can skip artwork safely.
-    let _artworkDataUrl = null;
-    function getArtworkDataUrl() {
-      if (_artworkDataUrl !== null) return _artworkDataUrl;
-      try {
-        const canvas = document.createElement('canvas');
-        canvas.width = 512; canvas.height = 512;
-        const ctx = canvas.getContext('2d');
-        const cx = 256, cy = 256;
-        const font = '400 268px "Noto Serif JP","Shippori Mincho",serif';
-
-        // Background — soft light paper field
-        const bgGrad = ctx.createLinearGradient(0, 0, 0, 512);
-        bgGrad.addColorStop(0, '#f4f3f1');
-        bgGrad.addColorStop(1, '#e7e6e3');
-        ctx.fillStyle = bgGrad;
-        ctx.fillRect(0, 0, 512, 512);
-
-        // Atmospheric radial glow
-        const atmos = ctx.createRadialGradient(cx, cy, 0, cx, cy, 370);
-        atmos.addColorStop(0,   'rgba(161,52,201,0.13)');
-        atmos.addColorStop(0.45,'rgba(63,138,82,0.05)');
-        atmos.addColorStop(1,   'rgba(161,52,201,0)');
-        ctx.fillStyle = atmos;
-        ctx.fillRect(0, 0, 512, 512);
-
-        // Decorative concentric rings
-        [105, 150, 195, 238].forEach((r, i) => {
-          ctx.beginPath();
-          ctx.arc(cx, cy, r, 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(161,52,201,${0.20 - i * 0.035})`;
-          ctx.lineWidth = i === 0 ? 0.8 : 0.4;
-          ctx.stroke();
-        });
-
-        // Tick marks on innermost ring
-        for (let a = 0; a < 360; a += 30) {
-          const rad = (a * Math.PI) / 180;
-          const len = a % 90 === 0 ? 13 : 6;
-          ctx.beginPath();
-          ctx.moveTo(cx + Math.cos(rad) * 105, cy + Math.sin(rad) * 105);
-          ctx.lineTo(cx + Math.cos(rad) * (105 - len), cy + Math.sin(rad) * (105 - len));
-          ctx.strokeStyle = `rgba(161,52,201,${a % 90 === 0 ? 0.55 : 0.25})`;
-          ctx.lineWidth = a % 90 === 0 ? 0.8 : 0.4;
-          ctx.stroke();
-        }
-
-        // Diagonal accent lines
-        [[0,512,512,0],[0,0,512,512]].forEach(([x1,y1,x2,y2]) => {
-          const lg = ctx.createLinearGradient(x1,y1,x2,y2);
-          lg.addColorStop(0,   'rgba(161,52,201,0)');
-          lg.addColorStop(0.5, 'rgba(161,52,201,0.09)');
-          lg.addColorStop(1,   'rgba(161,52,201,0)');
-          ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
-          ctx.strokeStyle = lg; ctx.lineWidth = 0.5; ctx.stroke();
-        });
-
-        // Ghost character — large, very faded, offset for depth
-        ctx.save();
-        ctx.globalAlpha = 0.055;
-        ctx.font = '400 430px "Noto Serif JP","Shippori Mincho",serif';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillStyle = '#a134c9';
-        ctx.fillText('響', cx + 10, cy + 4);
-        ctx.restore();
-
-        // Diffuse outer glow pass
-        ctx.save();
-        ctx.shadowColor = 'rgba(161,52,201,0.5)';
-        ctx.shadowBlur = 46;
-        ctx.font = font; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillStyle = 'rgba(161,52,201,0.02)';
-        ctx.fillText('響', cx, cy);
-        ctx.restore();
-
-        // Main character — gradient fill with tight glow
-        ctx.save();
-        ctx.shadowColor = 'rgba(161,52,201,0.30)';
-        ctx.shadowBlur = 18;
-        const charGrad = ctx.createLinearGradient(cx, cy - 140, cx, cy + 140);
-        charGrad.addColorStop(0,    '#b94fd6');
-        charGrad.addColorStop(0.35, '#a134c9');
-        charGrad.addColorStop(0.72, '#7d1f9e');
-        charGrad.addColorStop(1,    '#5a1574');
-        ctx.font = font; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillStyle = charGrad;
-        ctx.fillText('響', cx, cy);
-        ctx.restore();
-
-        // Antique gold border with soft glow
-        ctx.save();
-        ctx.font = font; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.strokeStyle = 'rgba(178,136,50,0.85)';
-        ctx.lineWidth = 0.6;
-        ctx.lineJoin = 'round';
-        ctx.shadowColor = 'rgba(178,136,50,0.65)';
-        ctx.shadowBlur = 5;
-        ctx.strokeText('響', cx, cy);
-        ctx.restore();
-
-        // Crisp stroke overlay
-        ctx.save();
-        ctx.font = font; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.strokeStyle = 'rgba(74,18,96,0.22)';
-        ctx.lineWidth = 0.6;
-        ctx.strokeText('響', cx, cy);
-        ctx.restore();
-
-        // Cardinal dots
-        [[cx,38],[474,cy],[cx,474],[38,cy]].forEach(([x,y]) => {
-          ctx.beginPath(); ctx.arc(x, y, 2.5, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(161,52,201,0.55)'; ctx.fill();
-        });
-
-        _artworkDataUrl = canvas.toDataURL('image/png');
-        document.getElementById('favicon').href = _artworkDataUrl;
-      } catch (e) {
-        _artworkDataUrl = '';
-      }
-      return _artworkDataUrl;
-    }
-
-    // Pre-warm artwork once the CJK font subset is confirmed loaded, so the
-    // canvas never falls back to a system font with different glyph proportions.
-    document.fonts.load('400 268px "Noto Serif JP"', '響').then(() => {
-      if (_artworkDataUrl === null) getArtworkDataUrl();
-    }).catch(() => {});
-
     function setMediaSessionMetadata(showName, episodeName) {
       if (!('mediaSession' in navigator)) return;
-      const artwork = getArtworkDataUrl();
       navigator.mediaSession.metadata = new MediaMetadata({
         title:  episodeName,
         artist: showName,
         album:  'Hibiki',
-        artwork: artwork ? [{ src: artwork, sizes: '512x512', type: 'image/png' }] : []
+        artwork: [{ src: 'icon.png', sizes: '512x512', type: 'image/png' }]
       });
     }
 
